@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "首页",
+    "rankings": "排行榜",
+    "categories": "分类",
+    "favorites": "我的收藏",
+    "signIn": "登录",
+    "signUp": "注册"
+  },
+  "home": {
+    "heroTitle": "海量小说，畅享阅读",
+    "heroSubtitle": "收录经典网络文学，随时随地，沉浸其中",
+    "allNovels": "全部小说",
+    "novelsCount": "{count} 部",
+    "empty": "暂无数据，请运行 npm run db:seed 插入测试数据。"
+  },
+  "novel": {
+    "backToHome": "← 返回首页",
+    "chapters": "章节",
+    "words": "字数",
+    "startReading": "开始阅读",
+    "addFavorite": "♡ 收藏",
+    "favorited": "♥ 已收藏",
+    "synopsis": "简介",
+    "tableOfContents": "目录",
+    "noChapters": "暂无章节",
+    "chapterCount": "{count} 章",
+    "status": {
+      "ONGOING": "连载中",
+      "COMPLETED": "已完结",
+      "HIATUS": "暂停更新"
+    }
+  },
+  "reader": {
+    "catalog": "目录",
+    "firstChapter": "已是第一章",
+    "lastChapter": "已是最后章"
+  },
+  "favorites": {
+    "title": "我的收藏",
+    "total": "共 {count} 部小说",
+    "empty": "还没有收藏任何小说",
+    "browseNovels": "去浏览小说",
+    "remove": "取消收藏"
+  }
+}

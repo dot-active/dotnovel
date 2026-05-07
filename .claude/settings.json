@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm install)",
+      "PowerShell(npx prisma generate)",
+      "PowerShell(npx prisma db push)",
+      "PowerShell(Get-ChildItem -Recurse -Exclude node_modules,.git,.next | Where-Object { !$_.PSIsContainer } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"D:\\\\creation\\\\dotnovel\\\\\", \"\"\\) })",
+      "PowerShell(npx tsc --noEmit 2>&1)",
+      "PowerShell($job = Start-Job { Set-Location \"D:\\\\creation\\\\dotnovel\"; npm run dev 2>&1 }; Start-Sleep -Seconds 10; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "PowerShell($job = Start-Job { Set-Location \"D:\\\\creation\\\\dotnovel\"; npm run dev 2>&1 }; Start-Sleep -Seconds 15; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "PowerShell(npx prisma db seed)",
+      "PowerShell($job = Start-Job { Set-Location \"D:\\\\creation\\\\dotnovel\"; npm run dev 2>&1 }; Start-Sleep -Seconds 12; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "PowerShell(npm view @clerk/nextjs versions --json 2>&1 | ConvertFrom-Json | Where-Object { $_ -match \"^[56]\\\\.\" } | Select-Object -Last 10)",
+      "PowerShell(npm view @clerk/nextjs@6 peerDependencies 2>&1)",
+      "PowerShell(npx prisma db push 2>&1)",
+      "PowerShell($job = Start-Job { Set-Location \"D:\\\\creation\\\\dotnovel\"; npm run dev 2>&1 }; Start-Sleep -Seconds 14; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "PowerShell(node -e \"const p = require\\('./node_modules/next-intl/package.json'\\); console.log\\(p.version\\)\")",
+      "PowerShell(node -e \"const ni = require\\('./node_modules/next-intl/package.json'\\); console.log\\(JSON.stringify\\(ni.exports ? Object.keys\\(ni.exports\\).slice\\(0,20\\) : [], null, 2\\)\\)\")",
+      "PowerShell(node -e \"try { const r = require\\('./node_modules/next-intl/routing'\\); console.log\\(typeof r.defineRouting\\) } catch\\(e\\) { console.log\\(e.message\\) }\")",
+      "Bash(node -e \"const r = require\\('next-intl/routing'\\); console.log\\(Object.keys\\(r\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const r = require\\('next-intl/navigation'\\); console.log\\(Object.keys\\(r\\).join\\(', '\\)\\)\")",
+      "Bash(cp \"app/\\(site\\)/page.module.css\" \"app/[locale]/\\(site\\)/page.module.css\")",
+      "Bash(cp \"app/\\(site\\)/novels/[id]/page.module.css\" \"app/[locale]/\\(site\\)/novels/[id]/page.module.css\")",
+      "Bash(cp \"app/\\(site\\)/novels/[id]/_components/FavoriteButton.module.css\" \"app/[locale]/\\(site\\)/novels/[id]/_components/FavoriteButton.module.css\")",
+      "Bash(cp \"app/\\(site\\)/favorites/page.module.css\" \"app/[locale]/\\(site\\)/favorites/page.module.css\")",
+      "Bash(cp \"app/\\(reading\\)/novels/[id]/chapters/[chapterId]/page.module.css\" \"app/[locale]/\\(reading\\)/novels/[id]/chapters/[chapterId]/page.module.css\")",
+      "PowerShell(npx prisma db seed 2>&1)"
+    ]
+  }
+}

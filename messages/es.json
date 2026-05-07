@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "rankings": "Clasificación",
+    "categories": "Categorías",
+    "favorites": "Mis favoritos",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse"
+  },
+  "home": {
+    "heroTitle": "Miles de novelas, lectura sin fin",
+    "heroSubtitle": "Explora las mejores novelas web, en cualquier lugar y momento",
+    "allNovels": "Todas las novelas",
+    "novelsCount": "{count} novelas",
+    "empty": "Sin datos. Ejecute npm run db:seed para insertar datos de prueba."
+  },
+  "novel": {
+    "backToHome": "← Volver al inicio",
+    "chapters": "Capítulos",
+    "words": "Caracteres",
+    "startReading": "Empezar a leer",
+    "addFavorite": "♡ Favorito",
+    "favorited": "♥ Añadido",
+    "synopsis": "Sinopsis",
+    "tableOfContents": "Índice",
+    "noChapters": "Sin capítulos aún",
+    "chapterCount": "{count} cap.",
+    "status": {
+      "ONGOING": "En curso",
+      "COMPLETED": "Completado",
+      "HIATUS": "En pausa"
+    }
+  },
+  "reader": {
+    "catalog": "Índice",
+    "firstChapter": "Este es el primer capítulo",
+    "lastChapter": "Este es el último capítulo"
+  },
+  "favorites": {
+    "title": "Mis favoritos",
+    "total": "{count} novelas",
+    "empty": "Aún no tienes novelas favoritas",
+    "browseNovels": "Explorar novelas",
+    "remove": "Eliminar"
+  }
+}

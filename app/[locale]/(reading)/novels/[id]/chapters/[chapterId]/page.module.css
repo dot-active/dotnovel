@@ -1,0 +1,151 @@
+/* ── Full-page reading wrapper ── */
+.page {
+  min-height: 100vh;
+  background: #f5f0e8;
+  color: #3d2b1f;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+}
+
+/* ── Top navigation bar ── */
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ede8dc;
+  border-bottom: 1px solid #d4cfc3;
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.backLink {
+  font-size: 0.875rem;
+  color: #7a6550;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: #3d2b1f;
+}
+
+.topBarChapter {
+  font-size: 0.875rem;
+  color: #9a8878;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Reading article ── */
+.article {
+  flex: 1;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 52px 24px 72px;
+}
+
+.chapterTitle {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #2a1f14;
+  text-align: center;
+  margin-bottom: 44px;
+  letter-spacing: 0.5px;
+}
+
+/* Paragraph text */
+.body {
+  font-size: 1.125rem;
+  line-height: 2;
+  color: #3d2b1f;
+}
+
+.body p {
+  margin-bottom: 1.6em;
+  text-indent: 2em;
+}
+
+/* ── Bottom navigation ── */
+.nav {
+  background: #ede8dc;
+  border-top: 1px solid #d4cfc3;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.navSide {
+  flex: 1;
+}
+
+.navSideRight {
+  text-align: right;
+}
+
+.navBtn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #f5f0e8;
+  border: 1px solid #c8c0b2;
+  border-radius: 4px;
+  color: #5a4635;
+  font-size: 0.875rem;
+  transition: background 0.15s, border-color 0.15s;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navBtn:hover {
+  background: #ece5d5;
+  border-color: #b0a898;
+}
+
+.navDisabled {
+  display: inline-block;
+  padding: 8px 16px;
+  color: #b8ad9e;
+  font-size: 0.875rem;
+}
+
+.navCatalog {
+  flex-shrink: 0;
+  padding: 8px 24px;
+  background: #8b6543;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.navCatalog:hover {
+  background: #7a5534;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .article {
+    padding: 36px 20px 56px;
+  }
+
+  .body {
+    font-size: 1rem;
+  }
+
+  .navBtn {
+    max-width: 120px;
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+  }
+}

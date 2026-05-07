@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "Home",
+    "rankings": "Rankings",
+    "categories": "Categories",
+    "favorites": "My Favorites",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  },
+  "home": {
+    "heroTitle": "Vast Library, Endless Reading",
+    "heroSubtitle": "Explore classic web novels, anytime, anywhere",
+    "allNovels": "All Novels",
+    "novelsCount": "{count} novels",
+    "empty": "No novels yet. Run npm run db:seed to add test data."
+  },
+  "novel": {
+    "backToHome": "← Back to Home",
+    "chapters": "Chapters",
+    "words": "Characters",
+    "startReading": "Start Reading",
+    "addFavorite": "♡ Favorite",
+    "favorited": "♥ Favorited",
+    "synopsis": "Synopsis",
+    "tableOfContents": "Table of Contents",
+    "noChapters": "No chapters yet",
+    "chapterCount": "{count} ch.",
+    "status": {
+      "ONGOING": "Ongoing",
+      "COMPLETED": "Completed",
+      "HIATUS": "On Hiatus"
+    }
+  },
+  "reader": {
+    "catalog": "Contents",
+    "firstChapter": "This is the first chapter",
+    "lastChapter": "This is the last chapter"
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "total": "{count} novels",
+    "empty": "No novels favorited yet",
+    "browseNovels": "Browse Novels",
+    "remove": "Remove"
+  }
+}

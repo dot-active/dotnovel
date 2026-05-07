@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "rankings": "ランキング",
+    "categories": "カテゴリ",
+    "favorites": "お気に入り",
+    "signIn": "ログイン",
+    "signUp": "登録"
+  },
+  "home": {
+    "heroTitle": "豊富な小説、読書を楽しもう",
+    "heroSubtitle": "人気のウェブ小説を収録、いつでもどこでも",
+    "allNovels": "すべての小説",
+    "novelsCount": "{count} 作品",
+    "empty": "データがありません。npm run db:seed を実行してください。"
+  },
+  "novel": {
+    "backToHome": "← ホームへ戻る",
+    "chapters": "章",
+    "words": "文字数",
+    "startReading": "読み始める",
+    "addFavorite": "♡ お気に入り",
+    "favorited": "♥ お気に入り済み",
+    "synopsis": "あらすじ",
+    "tableOfContents": "目次",
+    "noChapters": "章がありません",
+    "chapterCount": "{count} 章",
+    "status": {
+      "ONGOING": "連載中",
+      "COMPLETED": "完結",
+      "HIATUS": "休載中"
+    }
+  },
+  "reader": {
+    "catalog": "目次",
+    "firstChapter": "これが最初の章です",
+    "lastChapter": "これが最後の章です"
+  },
+  "favorites": {
+    "title": "お気に入り",
+    "total": "{count} 作品",
+    "empty": "お気に入りの小説はまだありません",
+    "browseNovels": "小説を探す",
+    "remove": "削除"
+  }
+}

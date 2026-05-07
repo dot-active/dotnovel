@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "首頁",
+    "rankings": "排行榜",
+    "categories": "分類",
+    "favorites": "我的收藏",
+    "signIn": "登入",
+    "signUp": "註冊"
+  },
+  "home": {
+    "heroTitle": "海量小說，暢享閱讀",
+    "heroSubtitle": "收錄經典網路文學，隨時隨地，沉浸其中",
+    "allNovels": "全部小說",
+    "novelsCount": "{count} 部",
+    "empty": "暫無資料，請執行 npm run db:seed 插入測試資料。"
+  },
+  "novel": {
+    "backToHome": "← 返回首頁",
+    "chapters": "章節",
+    "words": "字數",
+    "startReading": "開始閱讀",
+    "addFavorite": "♡ 收藏",
+    "favorited": "♥ 已收藏",
+    "synopsis": "簡介",
+    "tableOfContents": "目錄",
+    "noChapters": "暫無章節",
+    "chapterCount": "{count} 章",
+    "status": {
+      "ONGOING": "連載中",
+      "COMPLETED": "已完結",
+      "HIATUS": "暫停更新"
+    }
+  },
+  "reader": {
+    "catalog": "目錄",
+    "firstChapter": "已是第一章",
+    "lastChapter": "已是最後章"
+  },
+  "favorites": {
+    "title": "我的收藏",
+    "total": "共 {count} 部小說",
+    "empty": "還沒有收藏任何小說",
+    "browseNovels": "去瀏覽小說",
+    "remove": "取消收藏"
+  }
+}

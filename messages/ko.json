@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "홈",
+    "rankings": "랭킹",
+    "categories": "카테고리",
+    "favorites": "즐겨찾기",
+    "signIn": "로그인",
+    "signUp": "회원가입"
+  },
+  "home": {
+    "heroTitle": "방대한 소설, 독서를 즐기세요",
+    "heroSubtitle": "클래식 웹소설 수록, 언제 어디서나",
+    "allNovels": "전체 소설",
+    "novelsCount": "{count} 편",
+    "empty": "데이터가 없습니다. npm run db:seed 를 실행하세요."
+  },
+  "novel": {
+    "backToHome": "← 홈으로 돌아가기",
+    "chapters": "챕터",
+    "words": "글자 수",
+    "startReading": "읽기 시작",
+    "addFavorite": "♡ 즐겨찾기",
+    "favorited": "♥ 즐겨찾기됨",
+    "synopsis": "시놉시스",
+    "tableOfContents": "목차",
+    "noChapters": "챕터가 없습니다",
+    "chapterCount": "{count} 화",
+    "status": {
+      "ONGOING": "연재 중",
+      "COMPLETED": "완결",
+      "HIATUS": "휴재 중"
+    }
+  },
+  "reader": {
+    "catalog": "목차",
+    "firstChapter": "첫 번째 챕터입니다",
+    "lastChapter": "마지막 챕터입니다"
+  },
+  "favorites": {
+    "title": "즐겨찾기",
+    "total": "{count} 편",
+    "empty": "즐겨찾기한 소설이 없습니다",
+    "browseNovels": "소설 탐색",
+    "remove": "삭제"
+  }
+}
