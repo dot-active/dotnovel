@@ -1,6 +1,7 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { auth } from '@clerk/nextjs/server'
+import { cookies } from 'next/headers'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import FavoriteButton from './_components/FavoriteButton'
@@ -16,12 +17,12 @@ export default async function NovelDetailPage({
   const { userId } = await auth()
 
   const [novel, favoriteRecord] = await Promise.all([
-    prisma.novel.findUnique({
-      where: { id },
+    prisma.novel.findFirst({
+      where: { id, publishStatus: 'published' },
       include: {
         translations: { where: { locale } },
         chapters: {
-          where: { translations: { some: { locale } } },
+          where: { translations: { some: { locale } }, publishStatus: 'published' },
           orderBy: { order: 'asc' },
           select: {
             id: true,
@@ -42,6 +43,12 @@ export default async function NovelDetailPage({
   if (!novel || novel.translations.length === 0) notFound()
 
   const tr = novel.translations[0]
+
+  const ageVerified = cookies().get('age_verified')?.value === '1'
+  if (novel.isAdult && !ageVerified) {
+    const returnUrl = encodeURIComponent(`/${locale}/novels/${id}`)
+    redirect(`/${locale}/onboarding?returnUrl=${returnUrl}`)
+  }
   const totalWords = novel.chapters.reduce(
     (sum, ch) => sum + (ch.translations[0]?.content.length ?? 0),
     0
@@ -55,7 +62,11 @@ export default async function NovelDetailPage({
 
       <div className={styles.hero}>
         <div className={styles.cover}>
-          <span className={styles.coverText}>{tr.title[0]}</span>
+          {novel.coverUrl ? (
+            <img src={novel.coverUrl} alt={tr.title} className={styles.coverImg} />
+          ) : (
+            <span className={styles.coverText}>{tr.title[0]}</span>
+          )}
         </div>
 
         <div className={styles.info}>

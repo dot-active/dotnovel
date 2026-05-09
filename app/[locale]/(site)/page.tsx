@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
@@ -8,10 +9,16 @@ export default async function HomePage({ params: { locale } }: { params: { local
   const t = await getTranslations('home')
   const tNovel = await getTranslations('novel')
 
+  const ageVerified = cookies().get('age_verified')?.value === '1'
+
   const novels = await prisma.novel.findMany({
-    where: { translations: { some: { locale } } },
+    where: {
+      publishStatus: 'published',
+      translations: { some: { locale } },
+      ...(ageVerified ? {} : { isAdult: false }),
+    },
     include: {
-      _count: { select: { chapters: true } },
+      _count: { select: { chapters: { where: { publishStatus: 'published' } } } },
       translations: {
         where: { locale },
         select: { title: true, description: true },
@@ -42,7 +49,11 @@ export default async function HomePage({ params: { locale } }: { params: { local
               return (
                 <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.card}>
                   <div className={styles.cardCover}>
-                    <span className={styles.cardCoverText}>{(tr?.title ?? novel.title)[0]}</span>
+                    {novel.coverUrl ? (
+                      <img src={novel.coverUrl} alt="" className={styles.cardCoverImg} />
+                    ) : (
+                      <span className={styles.cardCoverText}>{(tr?.title ?? novel.title)[0]}</span>
+                    )}
                   </div>
                   <div className={styles.cardBody}>
                     <div className={styles.cardMeta}>

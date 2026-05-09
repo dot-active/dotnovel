@@ -1,0 +1,46 @@
+.page {
+  max-width: 820px;
+}
+
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.backLink {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.dangerZone {
+  margin-top: 32px;
+  padding: 24px 28px;
+  background: var(--color-surface);
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-lg);
+}
+
+.dangerTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.dangerDesc {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}

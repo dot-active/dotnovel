@@ -1,0 +1,111 @@
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.count {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 10px 14px;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.rowBanned td {
+  opacity: 0.55;
+}
+
+.tdEmail {
+  color: var(--color-text-primary) !important;
+  font-weight: 500;
+}
+
+.tdActions {
+  white-space: nowrap;
+}
+
+.statusActive {
+  font-size: 0.8125rem;
+  color: #16a34a;
+}
+
+.statusBanned {
+  font-size: 0.8125rem;
+  color: #dc2626;
+}
+
+.btnBan {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #fca5a5;
+  background: var(--color-surface);
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnBan:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.btnUnban {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: #16a34a;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnUnban:hover:not(:disabled) {
+  background: #f0fdf4;
+}
+
+.btnBan:disabled,
+.btnUnban:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

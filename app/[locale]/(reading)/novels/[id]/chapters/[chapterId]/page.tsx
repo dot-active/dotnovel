@@ -1,5 +1,6 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { cookies } from 'next/headers'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import styles from './page.module.css'
@@ -13,10 +14,12 @@ export default async function ChapterPage({
   const t = await getTranslations('reader')
 
   const chapter = await prisma.chapter.findFirst({
-    where: { id: chapterId, novelId: id },
+    where: { id: chapterId, novelId: id, publishStatus: 'published' },
     include: {
       novel: {
-        include: {
+        select: {
+          title: true,
+          isAdult: true,
           translations: { where: { locale }, select: { title: true } },
         },
       },
@@ -25,6 +28,12 @@ export default async function ChapterPage({
   })
 
   if (!chapter || chapter.translations.length === 0) notFound()
+
+  const ageVerified = cookies().get('age_verified')?.value === '1'
+  if (chapter.novel.isAdult && !ageVerified) {
+    const returnUrl = encodeURIComponent(`/${locale}/novels/${id}/chapters/${chapterId}`)
+    redirect(`/${locale}/onboarding?returnUrl=${returnUrl}`)
+  }
 
   const chTr = chapter.translations[0]
   const novelTitle = chapter.novel.translations[0]?.title ?? chapter.novel.title

@@ -18,6 +18,9 @@ export default function HeaderAuth() {
         </SignUpButton>
       </SignedOut>
       <SignedIn>
+        <Link href="/author/dashboard" className="site-header__nav-link">
+          {t('myWorks')}
+        </Link>
         <Link href="/favorites" className="site-header__nav-link">
           {t('favorites')}
         </Link>

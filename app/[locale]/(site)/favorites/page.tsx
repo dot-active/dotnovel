@@ -33,7 +33,7 @@ export default async function FavoritesPage({
     include: {
       novel: {
         include: {
-          _count: { select: { chapters: true } },
+          _count: { select: { chapters: { where: { publishStatus: 'published' } } } },
           translations: {
             where: { locale },
             select: { title: true },

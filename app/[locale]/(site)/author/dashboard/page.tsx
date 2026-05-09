@@ -1,0 +1,101 @@
+import { auth } from '@clerk/nextjs/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
+import { prisma } from '@/lib/prisma'
+import styles from './page.module.css'
+
+export default async function AuthorDashboardPage({
+  params: { locale },
+}: {
+  params: { locale: string }
+}) {
+  setRequestLocale(locale)
+  const t = await getTranslations('author')
+  const { userId } = await auth()
+
+  const novels = await prisma.novel.findMany({
+    where: { authorId: userId! },
+    include: {
+      chapters: { select: { publishStatus: true } },
+      translations: { where: { locale }, select: { title: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return (
+    <div>
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.title}>{t('myNovels')}</h1>
+          <p className={styles.subtitle}>{t('dashboard')}</p>
+        </div>
+        <Link href="/author/novels/new" className={styles.createBtn}>
+          + {t('createNovel')}
+        </Link>
+      </div>
+
+      {novels.length === 0 ? (
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>{t('noNovels')}</p>
+          <Link href="/author/novels/new" className={styles.emptyBtn}>
+            {t('startWriting')}
+          </Link>
+        </div>
+      ) : (
+        <div className={styles.table}>
+          <div className={styles.tableHeader}>
+            <span>小说</span>
+            <span>章节</span>
+            <span>发布时间</span>
+            <span>操作</span>
+          </div>
+          {novels.map((novel) => {
+            const tr = novel.translations[0]
+            const publishedCount = novel.chapters.filter((c) => c.publishStatus === 'published').length
+            const draftCount = novel.chapters.filter((c) => c.publishStatus === 'draft').length
+            return (
+              <div key={novel.id} className={styles.tableRow}>
+                <div className={styles.novelInfo}>
+                  {novel.coverUrl ? (
+                    <img src={novel.coverUrl} alt="" className={styles.coverThumb} />
+                  ) : (
+                    <div className={styles.coverPlaceholder}>
+                      {(tr?.title ?? novel.title)[0]}
+                    </div>
+                  )}
+                  <div>
+                    <p className={styles.novelTitle}>{tr?.title ?? novel.title}</p>
+                    <p className={styles.novelAuthor}>{novel.author}</p>
+                  </div>
+                </div>
+                <div className={styles.chapterStats}>
+                  <span>{t('novelCount', { count: publishedCount })}</span>
+                  {draftCount > 0 && (
+                    <span className={styles.draftBadge}>{draftCount} 草稿</span>
+                  )}
+                </div>
+                <span className={styles.date}>
+                  {new Date(novel.createdAt).toLocaleDateString('zh-CN')}
+                </span>
+                <div className={styles.actions}>
+                  <Link
+                    href={`/author/novels/${novel.id}/chapters`}
+                    className={styles.actionBtn}
+                  >
+                    {t('manageChapters')}
+                  </Link>
+                  <Link
+                    href={`/author/novels/${novel.id}/edit`}
+                    className={styles.actionBtn}
+                  >
+                    {t('editNovel')}
+                  </Link>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}

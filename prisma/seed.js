@@ -2,13 +2,32 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
+const CATEGORIES = [
+  'fantasy',
+  'romance',
+  'scifi',
+  'mystery',
+  'historical',
+  'other',
+]
+
 async function main() {
   // Clear in dependency order
+  await prisma.translationRequest.deleteMany()
   await prisma.chapterTranslation.deleteMany()
   await prisma.novelTranslation.deleteMany()
   await prisma.favorite.deleteMany()
   await prisma.chapter.deleteMany()
   await prisma.novel.deleteMany()
+  await prisma.category.deleteMany()
+
+  // Seed categories
+  const categoryMap = {}
+  for (const slug of CATEGORIES) {
+    const cat = await prisma.category.create({ data: { slug } })
+    categoryMap[slug] = cat.id
+  }
+  console.log(`✓ 已创建 ${CATEGORIES.length} 个分类`)
 
   const novel = await prisma.novel.create({
     data: {
@@ -17,6 +36,9 @@ async function main() {
       description:
         '这里是属于斗气的世界，没有花俏异能，唯有以斗气为尊。一个天才少年，因为某种特殊原因，斗之气全部停滞，被人嘲讽为废材，却在一位神秘老人的指导下，踏上了一条逆天崛起之路……',
       status: 'COMPLETED',
+      publishStatus: 'published',
+      categoryId: categoryMap['fantasy'],
+      sourceLocale: 'zh-CN',
       chapters: {
         create: [
           {
@@ -88,7 +110,7 @@ async function main() {
     include: { chapters: true },
   })
 
-  // zh-CN translations (same content as original)
+  // zh-CN translations
   await prisma.novelTranslation.create({
     data: {
       novelId: novel.id,
@@ -98,15 +120,9 @@ async function main() {
         '这里是属于斗气的世界，没有花俏异能，唯有以斗气为尊。一个天才少年，因为某种特殊原因，斗之气全部停滞，被人嘲讽为废材，却在一位神秘老人的指导下，踏上了一条逆天崛起之路……',
     },
   })
-
   for (const chapter of novel.chapters) {
     await prisma.chapterTranslation.create({
-      data: {
-        chapterId: chapter.id,
-        locale: 'zh-CN',
-        title: chapter.title,
-        content: chapter.content,
-      },
+      data: { chapterId: chapter.id, locale: 'zh-CN', title: chapter.title, content: chapter.content },
     })
   }
 
@@ -193,7 +209,7 @@ Xiao Yan gathered himself and struck again.`,
     })
   }
 
-  console.log(`\n✓ 已创建小说：${novel.title}（ID: ${novel.id}）`)
+  console.log(`✓ 已创建小说：${novel.title}（ID: ${novel.id}）`)
   console.log('✓ zh-CN 翻译：3 章')
   console.log('✓ English translations: 3 chapters\n')
 }

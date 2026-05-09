@@ -8,19 +8,34 @@ datasource db {
 }
 
 model Novel {
-  id           String             @id @default(cuid())
-  title        String
-  author       String
-  description  String?            @db.Text
-  coverUrl     String?
-  status       NovelStatus        @default(ONGOING)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  chapters     Chapter[]
-  favorites    Favorite[]
-  translations NovelTranslation[]
+  id                  String               @id @default(cuid())
+  title               String
+  author              String
+  description         String?              @db.Text
+  coverUrl            String?
+  status              NovelStatus          @default(ONGOING)
+  publishStatus       String               @default("published")
+  isAdult             Boolean              @default(false)
+  authorId            String?
+  categoryId          String?
+  sourceLocale        String               @default("zh-CN")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  chapters            Chapter[]
+  favorites           Favorite[]
+  translations        NovelTranslation[]
+  category            Category?            @relation(fields: [categoryId], references: [id])
+  translationRequests TranslationRequest[]
 
   @@map("novels")
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  slug   String  @unique
+  novels Novel[]
+
+  @@map("categories")
 }
 
 model NovelTranslation {
@@ -36,14 +51,15 @@ model NovelTranslation {
 }
 
 model Chapter {
-  id           String               @id @default(cuid())
-  novelId      String
-  title        String
-  content      String               @db.Text
-  order        Int
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  novel        Novel                @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  id            String               @id @default(cuid())
+  novelId       String
+  title         String
+  content       String               @db.Text
+  order         Int
+  publishStatus String               @default("published")
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  novel         Novel                @relation(fields: [novelId], references: [id], onDelete: Cascade)
   translations ChapterTranslation[]
 
   @@unique([novelId, order])
@@ -71,6 +87,17 @@ model Favorite {
 
   @@unique([userId, novelId])
   @@map("favorites")
+}
+
+model TranslationRequest {
+  id        String   @id @default(cuid())
+  novelId   String
+  locale    String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  @@map("translation_requests")
 }
 
 enum NovelStatus {

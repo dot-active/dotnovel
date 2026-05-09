@@ -1,0 +1,174 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.novelName {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.addBtn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.addBtn:hover {
+  background: var(--color-accent-hover);
+}
+
+/* ── Empty ── */
+.empty {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.emptyBtn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* ── Chapter list ── */
+.list {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.listHeader,
+.listRow {
+  display: grid;
+  grid-template-columns: 48px 1fr 90px 80px;
+  gap: 12px;
+  padding: 12px 20px;
+  align-items: center;
+}
+
+.listHeader {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.listRow {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list > .listRow:last-child {
+  border-bottom: none;
+}
+
+.listRow:hover {
+  background: #fafafa;
+}
+
+.colOrder {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.colTitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colStatus {
+  display: flex;
+}
+
+.badgePublished {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: var(--color-tag-completed);
+  color: var(--color-tag-completed-text);
+  border-radius: var(--radius-sm);
+}
+
+.badgeDraft {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: #fdf6e3;
+  color: #7a6030;
+  border: 1px solid #d4b87a;
+  border-radius: var(--radius-sm);
+}
+
+.colActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.editBtn {
+  font-size: 0.8125rem;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.editBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+@media (max-width: 600px) {
+  .listHeader,
+  .listRow {
+    grid-template-columns: 36px 1fr 80px;
+  }
+
+  .colActions {
+    display: none;
+  }
+}
