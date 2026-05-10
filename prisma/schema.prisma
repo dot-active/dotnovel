@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Novel {
@@ -17,25 +18,36 @@ model Novel {
   publishStatus       String               @default("published")
   isAdult             Boolean              @default(false)
   authorId            String?
-  categoryId          String?
   sourceLocale        String               @default("zh-CN")
+  viewCount           Int                  @default(0)
+  favoriteCount       Int                  @default(0)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   chapters            Chapter[]
   favorites           Favorite[]
   translations        NovelTranslation[]
-  category            Category?            @relation(fields: [categoryId], references: [id])
+  categories          NovelCategory[]
   translationRequests TranslationRequest[]
 
   @@map("novels")
 }
 
 model Category {
-  id     String  @id @default(cuid())
-  slug   String  @unique
-  novels Novel[]
+  id     String          @id @default(cuid())
+  slug   String          @unique
+  novels NovelCategory[]
 
   @@map("categories")
+}
+
+model NovelCategory {
+  novelId    String
+  categoryId String
+  novel      Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([novelId, categoryId])
+  @@map("novel_categories")
 }
 
 model NovelTranslation {
@@ -60,7 +72,8 @@ model Chapter {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   novel         Novel                @relation(fields: [novelId], references: [id], onDelete: Cascade)
-  translations ChapterTranslation[]
+  translations  ChapterTranslation[]
+  comments      Comment[]
 
   @@unique([novelId, order])
   @@map("chapters")
@@ -98,6 +111,24 @@ model TranslationRequest {
   novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@map("translation_requests")
+}
+
+model Comment {
+  id               String    @id @default(cuid())
+  content          String    @db.Text
+  authorId         String
+  chapterId        String
+  chapter          Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  paragraphIndex   Int
+  parentId         String?
+  parent           Comment?  @relation("replies", fields: [parentId], references: [id])
+  replies          Comment[] @relation("replies")
+  isReadByAuthor   Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  isDeleted        Boolean   @default(false)
+
+  @@map("comments")
 }
 
 enum NovelStatus {

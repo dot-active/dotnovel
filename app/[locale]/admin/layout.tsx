@@ -34,6 +34,7 @@ export default async function AdminLayout({
           <Link href="/admin/novels" className={styles.link}>小说</Link>
           <Link href="/admin/users" className={styles.link}>用户</Link>
           <Link href="/admin/categories" className={styles.link}>分类</Link>
+          <Link href="/admin/comments" className={styles.link}>评论</Link>
         </div>
         <Link href="/" className={styles.backLink}>← 返回首页</Link>
       </nav>

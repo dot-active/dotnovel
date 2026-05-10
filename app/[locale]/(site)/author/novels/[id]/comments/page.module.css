@@ -1,0 +1,196 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.back {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: var(--color-accent);
+}
+
+.title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* ── 403 ── */
+.forbidden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  color: var(--color-text-secondary);
+}
+
+.forbiddenCode {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+/* ── Chapter groups ── */
+.chapterList {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.chapterGroup {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.chapterTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: 12px 16px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chapterCount {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* ── Comment rows ── */
+.commentList {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentRow {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.commentRow:last-child {
+  border-bottom: none;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.commentAuthor {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.replyTag {
+  font-size: 0.6875rem;
+  padding: 1px 6px;
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.commentPara {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.commentTime {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+.commentContent {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.commentActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btnDelete {
+  font-size: 0.75rem;
+  font-family: inherit;
+  background: none;
+  border: none;
+  color: #e87070;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.btnDelete:hover:not(:disabled) {
+  color: #c84040;
+}
+
+.btnConfirm {
+  font-size: 0.75rem;
+  font-family: inherit;
+  padding: 3px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #dc2626;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnCancel {
+  font-size: 0.75rem;
+  font-family: inherit;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 20px 16px;
+  }
+}

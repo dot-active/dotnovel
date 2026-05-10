@@ -16,10 +16,32 @@ export default async function AuthorDashboardPage({
   const novels = await prisma.novel.findMany({
     where: { authorId: userId! },
     include: {
-      chapters: { select: { publishStatus: true } },
+      chapters: { select: { publishStatus: true, id: true } },
       translations: { where: { locale }, select: { title: true } },
     },
     orderBy: { createdAt: 'desc' },
+  })
+
+  // unread comment counts per novel
+  const novelIds = novels.map((n) => n.id)
+  const unreadGroups = await prisma.comment.groupBy({
+    by: ['chapterId'],
+    where: {
+      chapter: { novelId: { in: novelIds } },
+      isReadByAuthor: false,
+      isDeleted: false,
+    },
+    _count: { id: true },
+  })
+
+  // map chapterId → novelId
+  const chapterNovelMap: Record<string, string> = {}
+  novels.forEach((n) => n.chapters.forEach((c) => { chapterNovelMap[c.id] = n.id }))
+
+  const unreadByNovel: Record<string, number> = {}
+  unreadGroups.forEach((g) => {
+    const nid = chapterNovelMap[g.chapterId]
+    if (nid) unreadByNovel[nid] = (unreadByNovel[nid] ?? 0) + g._count.id
   })
 
   return (
@@ -53,6 +75,7 @@ export default async function AuthorDashboardPage({
             const tr = novel.translations[0]
             const publishedCount = novel.chapters.filter((c) => c.publishStatus === 'published').length
             const draftCount = novel.chapters.filter((c) => c.publishStatus === 'draft').length
+            const unread = unreadByNovel[novel.id] ?? 0
             return (
               <div key={novel.id} className={styles.tableRow}>
                 <div className={styles.novelInfo}>
@@ -89,6 +112,17 @@ export default async function AuthorDashboardPage({
                     className={styles.actionBtn}
                   >
                     {t('editNovel')}
+                  </Link>
+                  <Link
+                    href={`/author/novels/${novel.id}/comments`}
+                    className={styles.actionBtn}
+                  >
+                    留言管理
+                    {unread > 0 && (
+                      <span className={styles.unreadBadge}>
+                        {unread > 99 ? '99+' : unread}
+                      </span>
+                    )}
                   </Link>
                 </div>
               </div>

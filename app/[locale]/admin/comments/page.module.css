@@ -1,0 +1,201 @@
+.titleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.count {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.filterForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.select {
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  max-width: 300px;
+}
+
+.filterBtn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 5px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.filterBtn:hover {
+  border-color: var(--color-accent);
+}
+
+.clearBtn {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 10px 14px;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.row {}
+
+.rowDeleted td {
+  opacity: 0.45;
+}
+
+.tdContent {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-primary) !important;
+}
+
+.deletedText {
+  font-style: italic;
+  color: var(--color-text-muted) !important;
+}
+
+.tdMono {
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.tdChapter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.novelName {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.chapterName {
+  font-size: 0.8125rem;
+}
+
+.tdTime {
+  white-space: nowrap;
+  font-size: 0.8125rem;
+}
+
+.tdActions {
+  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.statusNormal {
+  color: #16a34a;
+  font-size: 0.8125rem;
+}
+
+.statusDeleted {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}
+
+.btnDanger {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #fca5a5;
+  background: var(--color-surface);
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnDanger:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.btnDangerConfirm {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnCancel {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.btnDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

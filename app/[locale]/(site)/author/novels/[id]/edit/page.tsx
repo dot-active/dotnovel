@@ -21,6 +21,7 @@ export default async function EditNovelPage({
       where: { id, authorId: userId! },
       include: {
         translations: { where: { locale: { in: ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] } } },
+        categories: { select: { categoryId: true } },
       },
     }),
     prisma.category.findMany({ orderBy: { slug: 'asc' } }),
@@ -28,7 +29,6 @@ export default async function EditNovelPage({
 
   if (!novel) notFound()
 
-  // Prefer source locale translation for pre-fill, fallback to any
   const sourceTr =
     novel.translations.find((tr) => tr.locale === novel.sourceLocale) ??
     novel.translations[0]
@@ -48,7 +48,7 @@ export default async function EditNovelPage({
           title: sourceTr?.title ?? novel.title,
           description: sourceTr?.description ?? novel.description ?? '',
           author: novel.author,
-          categoryId: novel.categoryId ?? '',
+          categoryIds: novel.categories.map((c) => c.categoryId),
           status: novel.status,
           coverUrl: novel.coverUrl ?? '',
           sourceLocale: novel.sourceLocale,

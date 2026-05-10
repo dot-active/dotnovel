@@ -1,8 +1,11 @@
 import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { cookies } from 'next/headers'
+import { auth } from '@clerk/nextjs/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
+import ParagraphComments from './_components/ParagraphComments'
+import ViewTracker from './_components/ViewTracker'
 import styles from './page.module.css'
 
 export default async function ChapterPage({
@@ -13,19 +16,22 @@ export default async function ChapterPage({
   setRequestLocale(locale)
   const t = await getTranslations('reader')
 
-  const chapter = await prisma.chapter.findFirst({
-    where: { id: chapterId, novelId: id, publishStatus: 'published' },
-    include: {
-      novel: {
-        select: {
-          title: true,
-          isAdult: true,
-          translations: { where: { locale }, select: { title: true } },
+  const [chapter, { userId }] = await Promise.all([
+    prisma.chapter.findFirst({
+      where: { id: chapterId, novelId: id, publishStatus: 'published' },
+      include: {
+        novel: {
+          select: {
+            title: true,
+            isAdult: true,
+            translations: { where: { locale }, select: { title: true } },
+          },
         },
+        translations: { where: { locale } },
       },
-      translations: { where: { locale } },
-    },
-  })
+    }),
+    auth(),
+  ])
 
   if (!chapter || chapter.translations.length === 0) notFound()
 
@@ -61,8 +67,17 @@ export default async function ChapterPage({
 
   const paragraphs = chTr.content.split('\n').filter((p) => p.trim() !== '')
 
+  const commentCounts = await prisma.comment.groupBy({
+    by: ['paragraphIndex'],
+    where: { chapterId, isDeleted: false, parentId: null },
+    _count: { id: true },
+  })
+  const countMap: Record<number, number> = {}
+  commentCounts.forEach((c) => { countMap[c.paragraphIndex] = c._count.id })
+
   return (
     <div className={styles.page}>
+      <ViewTracker novelId={id} />
       <header className={styles.topBar}>
         <Link href={`/novels/${id}`} className={styles.backLink}>
           ← {novelTitle}
@@ -74,7 +89,15 @@ export default async function ChapterPage({
         <h1 className={styles.chapterTitle}>{chTr.title}</h1>
         <div className={styles.body}>
           {paragraphs.map((para, i) => (
-            <p key={i}>{para}</p>
+            <div key={i} className={styles.paraWrapper}>
+              <p>{para}</p>
+              <ParagraphComments
+                chapterId={chapterId}
+                paragraphIndex={i}
+                currentUserId={userId}
+                initialCount={countMap[i] ?? 0}
+              />
+            </div>
           ))}
         </div>
       </article>

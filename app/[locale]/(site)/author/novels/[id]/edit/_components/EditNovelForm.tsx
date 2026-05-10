@@ -25,7 +25,7 @@ interface NovelData {
   title: string
   description: string
   author: string
-  categoryId: string
+  categoryIds: string[]
   status: string
   coverUrl: string
   sourceLocale: string
@@ -147,14 +147,19 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
             {/* Category */}
             <div className={styles.field}>
               <label className={styles.label}>{t('category')}</label>
-              <select name="categoryId" defaultValue={novel.categoryId} className={styles.select}>
-                <option value="">{t('selectCategory')}</option>
+              <div className={styles.checkboxGroup}>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {tCat(cat.slug as Parameters<typeof tCat>[0])}
-                  </option>
+                  <label key={cat.id} className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="categoryIds"
+                      value={cat.id}
+                      defaultChecked={novel.categoryIds.includes(cat.id)}
+                    />
+                    <span>{tCat(cat.slug as Parameters<typeof tCat>[0])}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* Story status */}

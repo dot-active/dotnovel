@@ -24,9 +24,10 @@ interface Category {
 interface Props {
   categories: Category[]
   locale: string
+  selectedCategoryIds?: string[]
 }
 
-export default function CreateNovelForm({ categories, locale }: Props) {
+export default function CreateNovelForm({ categories, locale, selectedCategoryIds = [] }: Props) {
   const t = useTranslations('author.form')
   const tCat = useTranslations('categories')
 
@@ -137,14 +138,19 @@ export default function CreateNovelForm({ categories, locale }: Props) {
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label className={styles.label}>{t('category')}</label>
-              <select name="categoryId" className={styles.select}>
-                <option value="">{t('selectCategory')}</option>
+              <div className={styles.checkboxGroup}>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {tCat(cat.slug as Parameters<typeof tCat>[0])}
-                  </option>
+                  <label key={cat.id} className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="categoryIds"
+                      value={cat.id}
+                      defaultChecked={selectedCategoryIds.includes(cat.id)}
+                    />
+                    <span>{tCat(cat.slug as Parameters<typeof tCat>[0])}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* Writing language */}

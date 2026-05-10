@@ -181,6 +181,81 @@
   color: var(--color-accent);
 }
 
+.cardStats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cardStat {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+
+.pageBtn {
+  padding: 7px 16px;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.pageBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pageNum {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.pageNum:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.pageNumActive {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.pageEllipsis {
+  padding: 0 4px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .hero {

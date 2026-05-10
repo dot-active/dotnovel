@@ -12,7 +12,7 @@ export async function createNovel(formData: FormData) {
   const title = formData.get('title') as string
   const description = formData.get('description') as string
   const penName = (formData.get('penName') as string).trim()
-  const categoryId = (formData.get('categoryId') as string) || null
+  const categoryIds = formData.getAll('categoryIds') as string[]
   const sourceLocale = formData.get('sourceLocale') as string
   const coverUrl = (formData.get('coverUrl') as string) || null
   const locale = formData.get('locale') as string
@@ -33,7 +33,6 @@ export async function createNovel(formData: FormData) {
       author: authorName,
       description: description.trim(),
       authorId: userId,
-      categoryId,
       sourceLocale,
       publishStatus: 'published',
       coverUrl,
@@ -44,14 +43,15 @@ export async function createNovel(formData: FormData) {
           description: description.trim(),
         },
       },
+      categories: {
+        create: categoryIds.filter(Boolean).map((id) => ({ categoryId: id })),
+      },
     },
   })
 
   redirect(`/${locale}/author/novels/${novel.id}/chapters/new`)
 }
 
-// Returns the next URL so the client component can navigate — server-side
-// redirect() inside an action called from a client component is unreliable.
 export async function createChapter(
   formData: FormData
 ): Promise<{ redirectUrl: string; error?: never } | { error: string; redirectUrl?: never }> {
@@ -86,13 +86,11 @@ export async function createChapter(
     },
   })
 
-  // Bust the chapter list cache so the new chapter (including drafts) is visible immediately
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 
   if (continueAdding && publishStatus === 'published') {
     return { redirectUrl: `/${browsingLocale}/author/novels/${novelId}/chapters/new?order=${order + 1}` }
   }
-  // Always send user to chapter list after save/draft so they can see the result
   return { redirectUrl: `/${browsingLocale}/author/novels/${novelId}/chapters` }
 }
 
@@ -104,7 +102,7 @@ export async function updateNovel(formData: FormData) {
   const title = (formData.get('title') as string).trim()
   const description = (formData.get('description') as string).trim()
   const penName = (formData.get('penName') as string).trim()
-  const categoryId = (formData.get('categoryId') as string) || null
+  const categoryIds = formData.getAll('categoryIds') as string[]
   const status = (formData.get('status') as string) || 'ONGOING'
   const newCoverUrl = (formData.get('coverUrl') as string) || null
   const isAdult = formData.get('isAdult') === 'true'
@@ -115,20 +113,24 @@ export async function updateNovel(formData: FormData) {
   const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
   if (!novel) throw new Error('Novel not found or not authorized')
 
-  await prisma.novel.update({
-    where: { id: novelId },
-    data: {
-      title,
-      author: penName || novel.author,
-      description,
-      categoryId,
-      isAdult,
-      status: status as 'ONGOING' | 'COMPLETED' | 'HIATUS',
-      ...(newCoverUrl ? { coverUrl: newCoverUrl } : {}),
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.novelCategory.deleteMany({ where: { novelId } })
+    await tx.novel.update({
+      where: { id: novelId },
+      data: {
+        title,
+        author: penName || novel.author,
+        description,
+        isAdult,
+        status: status as 'ONGOING' | 'COMPLETED' | 'HIATUS',
+        ...(newCoverUrl ? { coverUrl: newCoverUrl } : {}),
+        categories: {
+          create: categoryIds.filter(Boolean).map((id) => ({ categoryId: id })),
+        },
+      },
+    })
   })
 
-  // Keep source locale translation in sync
   await prisma.novelTranslation.upsert({
     where: { novelId_locale: { novelId, locale: novel.sourceLocale } },
     update: { title, description },
@@ -187,8 +189,6 @@ export async function deleteNovel(formData: FormData) {
   const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
   if (!novel) throw new Error('Novel not found or not authorized')
 
-  // Cascade in schema handles: chapters, chapter_translations,
-  // novel_translations, favorites, translation_requests
   await prisma.novel.delete({ where: { id: novelId } })
 
   revalidatePath(`/${locale}/author/dashboard`)

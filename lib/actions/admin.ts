@@ -57,6 +57,24 @@ export async function unbanUser(formData: FormData) {
   revalidatePath('/[locale]/admin/users')
 }
 
+// ── Novel stats ──────────────────────────────────────────────────────────────
+
+export async function updateNovelStats(formData: FormData) {
+  await assertAdmin()
+  const novelId = formData.get('novelId') as string
+  const viewCount = parseInt(formData.get('viewCount') as string, 10)
+  const favoriteCount = parseInt(formData.get('favoriteCount') as string, 10)
+
+  if (isNaN(viewCount) || isNaN(favoriteCount)) throw new Error('Invalid numbers')
+
+  await prisma.novel.update({
+    where: { id: novelId },
+    data: { viewCount, favoriteCount },
+  })
+
+  revalidatePath('/[locale]/admin/novels')
+}
+
 // ── Categories ───────────────────────────────────────────────────────────────
 
 export async function createCategory(formData: FormData) {
@@ -74,7 +92,7 @@ export async function deleteCategory(formData: FormData) {
   await assertAdmin()
   const categoryId = formData.get('categoryId') as string
 
-  const novelCount = await prisma.novel.count({ where: { categoryId } })
+  const novelCount = await prisma.novelCategory.count({ where: { categoryId } })
   if (novelCount > 0) throw new Error(`该分类下有 ${novelCount} 部小说，无法删除`)
 
   await prisma.category.delete({ where: { id: categoryId } })

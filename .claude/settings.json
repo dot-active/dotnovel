@@ -24,7 +24,18 @@
       "Bash(cp \"app/\\(site\\)/novels/[id]/_components/FavoriteButton.module.css\" \"app/[locale]/\\(site\\)/novels/[id]/_components/FavoriteButton.module.css\")",
       "Bash(cp \"app/\\(site\\)/favorites/page.module.css\" \"app/[locale]/\\(site\\)/favorites/page.module.css\")",
       "Bash(cp \"app/\\(reading\\)/novels/[id]/chapters/[chapterId]/page.module.css\" \"app/[locale]/\\(reading\\)/novels/[id]/chapters/[chapterId]/page.module.css\")",
-      "PowerShell(npx prisma db seed 2>&1)"
+      "PowerShell(npx prisma db seed 2>&1)",
+      "PowerShell($job = Start-Job { Set-Location \"D:\\\\creation\\\\dotnovel\"; npm run dev 2>&1 }; Start-Sleep -Seconds 25; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "Bash(npx prisma *)",
+      "Bash(node -e ' *)",
+      "Bash(rm -rf \"app/[locale]/author\" && echo \"removed old\")",
+      "Bash(cp \"app/[locale]/\\(site\\)/author/novels/new/_components/CreateNovelForm.module.css\" \"app/[locale]/\\(site\\)/author/novels/[id]/edit/_components/EditNovelForm.module.css\" && echo \"copied\")",
+      "Bash(cp \"app/[locale]/\\(site\\)/author/novels/[id]/chapters/new/_components/AddChapterForm.module.css\" \\\\ *)"
+    ],
+    "additionalDirectories": [
+      "D:\\creation\\dotnovel\\app\\[locale]\\author",
+      "D:\\creation\\dotnovel\\app\\[locale]\\(site)\\author\\novels\\new\\_components",
+      "d:\\creation\\dotnovel\\app\\[locale]\\(site)\\author\\novels\\[id]\\chapters\\new\\_components"
     ]
   }
 }
