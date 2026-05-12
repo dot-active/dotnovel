@@ -3,7 +3,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'DotNovel · 在线小说阅读',
+  title: 'NovelPhere · 在线小说阅读',
   description: '海量正版小说，畅享阅读乐趣',
 }
 

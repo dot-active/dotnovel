@@ -99,10 +99,10 @@ export default async function HomePage({
 
   return (
     <div>
-      <section className={styles.hero}>
+      {/* <section className={styles.hero}>
         <h1 className={styles.heroTitle}>{t('heroTitle')}</h1>
         <p className={styles.heroSubtitle}>{t('heroSubtitle')}</p>
-      </section>
+      </section> */}
 
       <FilterBar
         categories={categories}
@@ -112,10 +112,10 @@ export default async function HomePage({
       />
 
       <section>
-        <div className={styles.sectionHeader}>
+        {/* <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>{t('allNovels')}</h2>
           <span className={styles.sectionCount}>{t('novelsCount', { count: total })}</span>
-        </div>
+        </div> */}
 
         {novels.length === 0 ? (
           <p className={styles.empty}>{t('empty')}</p>
@@ -140,7 +140,7 @@ export default async function HomePage({
                     </div>
                     <h3 className={styles.cardTitle}>{tr?.title ?? novel.title}</h3>
                     <p className={styles.cardAuthor}>{novel.author}</p>
-                    <p className={styles.cardDescription}>{tr?.description ?? novel.description}</p>
+                    {/* <p className={styles.cardDescription}>{tr?.description ?? novel.description}</p> */}
                     <div className={styles.cardFooter}>
                       <span className={styles.cardChapters}>
                         {tNovel('chapterCount', { count: novel._count.chapters })}

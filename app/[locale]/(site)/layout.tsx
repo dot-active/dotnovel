@@ -24,11 +24,11 @@ export default async function SiteLayout({
           <Link href="/" className="site-header__logo">
             DotNovel
           </Link>
-          <nav className="site-header__nav">
+          {/* <nav className="site-header__nav">
             <Link href="/">{t('home')}</Link>
             <a href="#">{t('rankings')}</a>
             <a href="#">{t('categories')}</a>
-          </nav>
+          </nav> */}
           <div className="site-header__auth">
             <LocaleSwitcher />
             <HeaderAuth />
