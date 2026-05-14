@@ -22,13 +22,12 @@ export default async function SiteLayout({
       <header className="site-header">
         <div className="site-header__inner">
           <Link href="/" className="site-header__logo">
-            DotNovel
+            <span className="site-header__logo-mark" />
+            <span>
+              <div className="site-header__logo-name">Dot<em>Novel</em></div>
+              <div className="site-header__logo-sub">est · mmxxvi</div>
+            </span>
           </Link>
-          {/* <nav className="site-header__nav">
-            <Link href="/">{t('home')}</Link>
-            <a href="#">{t('rankings')}</a>
-            <a href="#">{t('categories')}</a>
-          </nav> */}
           <div className="site-header__auth">
             <LocaleSwitcher />
             <HeaderAuth />
@@ -37,7 +36,9 @@ export default async function SiteLayout({
       </header>
       <main className="site-main">{children}</main>
       <footer className="site-footer">
-        <p>© 2026 DotNovel. All rights reserved.</p>
+        <div className="site-footer__inner">
+          <span>© 二零二六 DotNovel · 由读者与作者共同守护</span>
+        </div>
       </footer>
     </>
   )

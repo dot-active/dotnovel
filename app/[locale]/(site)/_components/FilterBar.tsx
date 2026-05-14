@@ -15,26 +15,26 @@ interface Props {
   currentCategories: string[]
   currentSort: string
   currentQ: string
+  total: number
 }
 
 const SORT_OPTIONS = [
   { key: '', label: '最近更新' },
-  { key: 'views', label: '最多人看' },
+  { key: 'views', label: '最多阅读' },
   { key: 'favorites', label: '最多收藏' },
 ]
 
-export default function FilterBar({ categories, currentCategories, currentSort, currentQ }: Props) {
+export default function FilterBar({ categories, currentCategories, currentSort, currentQ, total }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const tCat = useTranslations('categories')
   const [searchInput, setSearchInput] = useState(currentQ)
 
-  function buildUrl(q: string, cats: string[], sort: string, page = 1) {
+  function buildUrl(q: string, cats: string[], sort: string) {
     const sp = new URLSearchParams()
     if (q) sp.set('q', q)
     if (cats.length > 0) sp.set('category', cats.join(','))
     if (sort) sp.set('sort', sort)
-    if (page > 1) sp.set('page', String(page))
     const qs = sp.toString()
     return qs ? `${pathname}?${qs}` : pathname
   }
@@ -44,10 +44,6 @@ export default function FilterBar({ categories, currentCategories, currentSort, 
       ? currentCategories.filter((s) => s !== slug)
       : [...currentCategories, slug]
     router.push(buildUrl(currentQ, newCats, currentSort))
-  }
-
-  function clearCategories() {
-    router.push(buildUrl(currentQ, [], currentSort))
   }
 
   function handleSearch(e: React.FormEvent) {
@@ -60,62 +56,51 @@ export default function FilterBar({ categories, currentCategories, currentSort, 
   }
 
   return (
-    <div className={styles.root}>
-      {/* Search row */}
-      <form onSubmit={handleSearch} className={styles.searchRow}>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="搜索小说名、作者…"
-          className={styles.searchInput}
-        />
-        <button type="submit" className={styles.searchBtn}>搜索</button>
-        {currentQ && (
+    <div>
+      {/* Filters: chips + search */}
+      <div className={styles.filters}>
+        <div className={styles.filtersGroup}>
           <button
-            type="button"
-            className={styles.clearBtn}
-            onClick={() => {
-              setSearchInput('')
-              router.push(buildUrl('', currentCategories, currentSort))
-            }}
+            className={`${styles.chip} ${currentCategories.length === 0 ? styles.chipActive : ''}`}
+            onClick={() => router.push(buildUrl(currentQ, [], currentSort))}
           >
-            清除
+            全部
           </button>
-        )}
-      </form>
-
-      {/* Category tags row */}
-      <div className={styles.tagsRow}>
-        <button
-          className={`${styles.tag} ${currentCategories.length === 0 ? styles.tagActive : ''}`}
-          onClick={clearCategories}
-        >
-          全部
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            className={`${styles.tag} ${currentCategories.includes(cat.slug) ? styles.tagActive : ''}`}
-            onClick={() => toggleCategory(cat.slug)}
-          >
-            {tCat(cat.slug as Parameters<typeof tCat>[0])}
-          </button>
-        ))}
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              className={`${styles.chip} ${currentCategories.includes(cat.slug) ? styles.chipActive : ''}`}
+              onClick={() => toggleCategory(cat.slug)}
+            >
+              {tCat(cat.slug as Parameters<typeof tCat>[0])}
+            </button>
+          ))}
+        </div>
+        <form onSubmit={handleSearch} className={styles.filtersSearch}>
+          <span className={styles.searchIcon}>⌕</span>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="书名、作者、关键词…"
+            className={styles.searchInput}
+          />
+        </form>
       </div>
 
       {/* Sort row */}
       <div className={styles.sortRow}>
-        <span className={styles.sortLabel}>排序：</span>
+        <span className={styles.eyebrow}>排序</span>
         {SORT_OPTIONS.map((s) => (
           <button
             key={s.key}
-            className={`${styles.sortBtn} ${currentSort === s.key ? styles.sortBtnActive : ''}`}
+            className={`${styles.sort} ${currentSort === s.key ? styles.sortActive : ''}`}
             onClick={() => setSort(s.key)}
           >
             {s.label}
           </button>
         ))}
+        <span className={styles.sortCount}>{total} 部作品</span>
       </div>
     </div>
   )

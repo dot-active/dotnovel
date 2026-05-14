@@ -8,13 +8,30 @@ import styles from './page.module.css'
 
 const NOVELS_PER_PAGE = 20
 
-function buildPageUrl(
-  pathname: string,
-  q: string,
-  category: string,
-  sort: string,
-  page: number
-) {
+const COVER_VARIANTS = [
+  'coverDark',
+  'coverTerracotta',
+  'coverOlive',
+  'coverBone',
+  'coverInk',
+  'coverDefault',
+] as const
+
+function toRoman(n: number): string {
+  const map: [number, string][] = [
+    [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
+    [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
+    [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+  ]
+  let result = ''
+  let num = n
+  for (const [value, numeral] of map) {
+    while (num >= value) { result += numeral; num -= value }
+  }
+  return result
+}
+
+function buildPageUrl(q: string, category: string, sort: string, page: number) {
   const sp = new URLSearchParams()
   if (q) sp.set('q', q)
   if (category) sp.set('category', category)
@@ -96,111 +113,139 @@ export default async function HomePage({
   ])
 
   const totalPages = Math.ceil(total / NOVELS_PER_PAGE)
+  const featured = novels[0]
 
   return (
     <div>
-      {/* <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>{t('heroTitle')}</h1>
-        <p className={styles.heroSubtitle}>{t('heroSubtitle')}</p>
-      </section> */}
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroLeft}>
+          <h1 className={styles.heroTitle}>{t('heroTitle')}</h1>
+          <p className={styles.heroZh}>在喧嚣里，留一盏读书的灯。</p>
+          <p className={styles.heroLede}>{t('heroSubtitle')}</p>
+        </div>
+        {featured && (
+          <div className={styles.heroRight}>
+            <Link href={`/novels/${featured.id}`} className={styles.featuredCard}>
+              <div className={`${styles.featuredCover} ${styles.coverDark}`}>
+                {featured.coverUrl ? (
+                  <img src={featured.coverUrl} alt="" className={styles.featuredCoverImg} />
+                ) : (
+                  (featured.translations[0]?.title ?? featured.title).slice(0, 6)
+                )}
+              </div>
+              <div>
+                <div className={styles.featuredTag}>编辑推荐 · this week</div>
+                <h3 className={styles.featuredTitle}>
+                  {featured.translations[0]?.title ?? featured.title}
+                </h3>
+                <div className={styles.featuredAuthor}>{featured.author}</div>
+                <p className={styles.featuredBlurb}>
+                  {featured.translations[0]?.description ?? featured.description}
+                </p>
+                <span className={styles.featuredCta}>开始阅读 →</span>
+              </div>
+            </Link>
+          </div>
+        )}
+      </section>
 
+      {/* Filters + sort */}
       <FilterBar
         categories={categories}
         currentCategories={selectedCategories}
         currentSort={sort}
         currentQ={q}
+        total={total}
       />
 
-      <section>
-        {/* <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>{t('allNovels')}</h2>
-          <span className={styles.sectionCount}>{t('novelsCount', { count: total })}</span>
-        </div> */}
+      {/* Section header */}
+      <div className={styles.sectionHead}>
+        <h2 className={styles.sectionTitle}>
+          All <em>novels</em>
+        </h2>
+        <span className={styles.sectionMeta}>{t('novelsCount', { count: total })}</span>
+      </div>
 
-        {novels.length === 0 ? (
-          <p className={styles.empty}>{t('empty')}</p>
-        ) : (
-          <div className={styles.grid}>
-            {novels.map((novel) => {
-              const tr = novel.translations[0]
-              return (
-                <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.card}>
-                  <div className={styles.cardCover}>
-                    {novel.coverUrl ? (
-                      <img src={novel.coverUrl} alt="" className={styles.cardCoverImg} />
-                    ) : (
-                      <span className={styles.cardCoverText}>{(tr?.title ?? novel.title)[0]}</span>
-                    )}
-                  </div>
-                  <div className={styles.cardBody}>
-                    <div className={styles.cardMeta}>
-                      <span className={`${styles.cardStatus} ${styles[`status${novel.status}`]}`}>
-                        {tNovel(`status.${novel.status}`)}
-                      </span>
-                    </div>
-                    <h3 className={styles.cardTitle}>{tr?.title ?? novel.title}</h3>
-                    <p className={styles.cardAuthor}>{novel.author}</p>
-                    {/* <p className={styles.cardDescription}>{tr?.description ?? novel.description}</p> */}
-                    <div className={styles.cardFooter}>
-                      <span className={styles.cardChapters}>
-                        {tNovel('chapterCount', { count: novel._count.chapters })}
-                      </span>
-                      <span className={styles.cardStats}>
-                        <span className={styles.cardStat}>👁 {formatCount(novel.viewCount)}</span>
-                        <span className={styles.cardStat}>❤️ {formatCount(novel.favoriteCount)}</span>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className={styles.pagination}>
-            {page > 1 && (
-              <a
-                href={buildPageUrl('', q, categoryParam, sort, page - 1)}
-                className={styles.pageBtn}
-              >
-                ← 上一页
-              </a>
-            )}
-            <div className={styles.pageNumbers}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
-                .reduce<(number | '…')[]>((acc, p, idx, arr) => {
-                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
-                  acc.push(p)
-                  return acc
-                }, [])
-                .map((p, i) =>
-                  p === '…' ? (
-                    <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>…</span>
+      {/* Library grid */}
+      {novels.length === 0 ? (
+        <p className={styles.empty}>{t('empty')}</p>
+      ) : (
+        <section className={styles.library}>
+          {novels.map((novel, i) => {
+            const tr = novel.translations[0]
+            const coverVariant = COVER_VARIANTS[i % COVER_VARIANTS.length]
+            const isLive = novel.status === 'ONGOING'
+            return (
+              <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.book}>
+                <span className={styles.bookNum}>{toRoman(i + 1)}.</span>
+                <div className={`${styles.bookCover} ${styles[coverVariant]}`}>
+                  {novel.coverUrl ? (
+                    <img src={novel.coverUrl} alt="" className={styles.bookCoverImg} />
                   ) : (
-                    <a
-                      key={p}
-                      href={buildPageUrl('', q, categoryParam, sort, p as number)}
-                      className={`${styles.pageNum} ${p === page ? styles.pageNumActive : ''}`}
-                    >
-                      {p}
-                    </a>
-                  )
-                )}
-            </div>
-            {page < totalPages && (
-              <a
-                href={buildPageUrl('', q, categoryParam, sort, page + 1)}
-                className={styles.pageBtn}
-              >
-                下一页 →
-              </a>
-            )}
+                    (tr?.title ?? novel.title).slice(0, 6)
+                  )}
+                </div>
+                <div className={styles.bookStatus}>
+                  <span className={`${styles.blip} ${isLive ? styles.blipLive : styles.blipDone}`} />
+                  {isLive
+                    ? `连载中 · 第 ${novel._count.chapters} 章`
+                    : tNovel(`status.${novel.status}`)}
+                </div>
+                <h3 className={styles.bookTitle}>{tr?.title ?? novel.title}</h3>
+                <p className={styles.bookAuthor}>{novel.author}</p>
+                <div className={styles.bookFoot}>
+                  <span className={styles.bookChapters}>
+                    {tNovel('chapterCount', { count: novel._count.chapters })}
+                  </span>
+                  <span className={styles.bookStats}>
+                    <span>{formatCount(novel.viewCount)} 阅</span>
+                    <span>♡ {formatCount(novel.favoriteCount)}</span>
+                  </span>
+                </div>
+              </Link>
+            )
+          })}
+        </section>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          {page > 1 && (
+            <a href={buildPageUrl(q, categoryParam, sort, page - 1)} className={styles.pageBtn}>
+              ← 上一页
+            </a>
+          )}
+          <div className={styles.pageNumbers}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+              .reduce<(number | '…')[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
+                acc.push(p)
+                return acc
+              }, [])
+              .map((p, i) =>
+                p === '…' ? (
+                  <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>…</span>
+                ) : (
+                  <a
+                    key={p}
+                    href={buildPageUrl(q, categoryParam, sort, p as number)}
+                    className={`${styles.pageNum} ${p === page ? styles.pageNumActive : ''}`}
+                  >
+                    {p}
+                  </a>
+                )
+              )}
           </div>
-        )}
-      </section>
+          {page < totalPages && (
+            <a href={buildPageUrl(q, categoryParam, sort, page + 1)} className={styles.pageBtn}>
+              下一页 →
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }

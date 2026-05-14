@@ -1,46 +1,46 @@
 .btn {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 16px 26px;
+  cursor: pointer;
+  border: 1px solid var(--bark);
+  background: transparent;
+  color: var(--bark);
+  transition: background 0.15s, color 0.15s;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: var(--color-text-secondary);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  gap: 6px;
 }
 
 .btn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  background: var(--cream-deep);
+  color: var(--ink);
 }
 
 .btnActive {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 16px 26px;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  transition: background 0.15s, color 0.15s;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: var(--color-accent);
-  background: #fff5f5;
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s;
+  gap: 6px;
 }
 
 .btnActive:hover {
-  background: #ffe8e8;
+  background: var(--cream-deep);
 }
 
 .btn:disabled,
 .btnActive:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }

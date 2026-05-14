@@ -4,8 +4,29 @@ import { auth } from '@clerk/nextjs/server'
 import { cookies } from 'next/headers'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
+import { formatCount } from '@/lib/formatCount'
 import FavoriteButton from './_components/FavoriteButton'
 import styles from './page.module.css'
+
+function toRoman(n: number): string {
+  const map: [number, string][] = [
+    [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
+    [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
+    [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+  ]
+  let result = ''
+  let num = n
+  for (const [value, numeral] of map) {
+    while (num >= value) { result += numeral; num -= value }
+  }
+  return result
+}
+
+function formatWords(chars: number): string {
+  if (chars >= 10000) return `${(chars / 10000).toFixed(1)}万字`
+  if (chars >= 1000) return `${(chars / 1000).toFixed(1)}k字`
+  return `${chars}字`
+}
 
 export default async function NovelDetailPage({
   params: { locale, id },
@@ -49,47 +70,62 @@ export default async function NovelDetailPage({
     const returnUrl = encodeURIComponent(`/${locale}/novels/${id}`)
     redirect(`/${locale}/onboarding?returnUrl=${returnUrl}`)
   }
-  const totalWords = novel.chapters.reduce(
+
+  const totalChars = novel.chapters.reduce(
     (sum, ch) => sum + (ch.translations[0]?.content.length ?? 0),
     0
   )
   const firstChapter = novel.chapters[0]
   const isFavorited = favoriteRecord !== null
+  const isLive = novel.status === 'ONGOING'
 
   return (
     <div>
-      <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
+      {/* Breadcrumb */}
+      <div className={styles.crumbs}>
+        <Link href="/">书馆</Link>
+        <span className={styles.crumbSep}>/</span>
+        <span>{tr.title}</span>
+      </div>
 
-      <div className={styles.hero}>
-        <div className={styles.cover}>
-          {novel.coverUrl ? (
-            <img src={novel.coverUrl} alt={tr.title} className={styles.coverImg} />
-          ) : (
-            <span className={styles.coverText}>{tr.title[0]}</span>
-          )}
+      {/* Book head: cover | meta | rail */}
+      <section className={styles.bookHead}>
+        {/* Cover */}
+        <div className={styles.coverStack}>
+          <div className={styles.cover}>
+            {novel.coverUrl ? (
+              <img src={novel.coverUrl} alt={tr.title} className={styles.coverImg} />
+            ) : (
+              <>
+                <div className={styles.coverTop}>{novel.sourceLocale}</div>
+                <div className={styles.coverTitle}>{tr.title.slice(0, 8)}</div>
+                <div className={styles.coverBot}>{novel.author} 著</div>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className={styles.info}>
+        {/* Meta */}
+        <div className={styles.bookMeta}>
           <h1 className={styles.title}>{tr.title}</h1>
-          <p className={styles.author}>{novel.author}</p>
+
+          <div className={styles.byRow}>
+            <div className={styles.pip}>{novel.author[0]}</div>
+            <div className={styles.byText}>
+              <div className={styles.byRole}>作者</div>
+              <div className={styles.byName}>{novel.author}</div>
+            </div>
+          </div>
 
           <div className={styles.tags}>
-            <span className={`${styles.statusTag} ${styles[`status${novel.status}`]}`}>
-              {t(`status.${novel.status}`)}
+            <span className={`${styles.tag} ${isLive ? styles.tagLive : styles.tagCompleted}`}>
+              {isLive ? '● 连载中' : t(`status.${novel.status}`)}
             </span>
           </div>
 
-          <div className={styles.stats}>
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>{novel.chapters.length}</span>
-              <span className={styles.statLabel}>{t('chapters')}</span>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>{(totalWords / 10000).toFixed(1)}万</span>
-              <span className={styles.statLabel}>{t('words')}</span>
-            </div>
-          </div>
+          {tr.description && (
+            <p className={styles.blurb}>{tr.description}</p>
+          )}
 
           <div className={styles.actions}>
             {firstChapter && (
@@ -103,49 +139,70 @@ export default async function NovelDetailPage({
             <FavoriteButton novelId={novel.id} initialFavorited={isFavorited} />
           </div>
         </div>
-      </div>
 
-      {tr.description && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t('synopsis')}</h2>
-          <p className={styles.description}>{tr.description}</p>
-        </section>
-      )}
+        {/* Rail */}
+        <aside className={styles.rail}>
+          <div className={styles.statGrid}>
+            <div className={styles.stat}>
+              <div className={styles.statN}>{novel.chapters.length}</div>
+              <div className={styles.statL}>章节</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={styles.statN}>
+                {totalChars >= 10000
+                  ? `${(totalChars / 10000).toFixed(1)}万`
+                  : `${(totalChars / 1000).toFixed(0)}k`}
+              </div>
+              <div className={styles.statL}>字数</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={styles.statN}>{formatCount(novel.viewCount)}</div>
+              <div className={styles.statL}>阅读</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={styles.statN}>{formatCount(novel.favoriteCount)}</div>
+              <div className={styles.statL}>收藏</div>
+            </div>
+          </div>
+        </aside>
+      </section>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>
-          {t('tableOfContents')}{' '}
-          <span className={styles.chapterCount}>
+      {/* Chapter list */}
+      <section className={styles.chaptersSection}>
+        <div className={styles.sectionTitle}>
+          <h2 className={styles.sectionTitleText}>
+            目<em>录</em>
+          </h2>
+          <span className={styles.sectionMeta}>
             {t('chapterCount', { count: novel.chapters.length })}
           </span>
-        </h2>
+        </div>
+
         {novel.chapters.length === 0 ? (
           <p className={styles.noChapters}>{t('noChapters')}</p>
         ) : (
-          <ol className={styles.chapterList}>
-            {novel.chapters.map((chapter) => {
+          <div className={styles.chapTable}>
+            {novel.chapters.map((chapter, i) => {
               const chTr = chapter.translations[0]
+              const wordCount = chTr?.content.length ?? 0
+              const dateStr = new Date(chapter.createdAt).toLocaleDateString('zh-CN', {
+                month: 'long',
+                day: 'numeric',
+              })
               return (
-                <li key={chapter.id}>
-                  <Link
-                    href={`/novels/${novel.id}/chapters/${chapter.id}`}
-                    className={styles.chapterItem}
-                  >
-                    <span className={styles.chapterOrder}>
-                      {String(chapter.order).padStart(2, '0')}
-                    </span>
-                    <span className={styles.chapterTitle}>{chTr?.title ?? ''}</span>
-                    <span className={styles.chapterDate}>
-                      {new Date(chapter.createdAt).toLocaleDateString('zh-CN', {
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  </Link>
-                </li>
+                <Link
+                  key={chapter.id}
+                  href={`/novels/${novel.id}/chapters/${chapter.id}`}
+                  className={styles.chap}
+                >
+                  <span className={styles.chapIdx}>{toRoman(i + 1)}.</span>
+                  <div className={styles.chapName}>{chTr?.title ?? ''}</div>
+                  <span className={styles.chapWhen}>{dateStr}</span>
+                  <span className={styles.chapLen}>{formatWords(wordCount)}</span>
+                </Link>
               )
             })}
-          </ol>
+          </div>
         )}
       </section>
     </div>
