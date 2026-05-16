@@ -6,6 +6,7 @@
   align-items: end;
   padding: 48px 0 56px;
   border-bottom: 1px solid var(--cream-line);
+  display:none;
 }
 
 .heroLeft {}
@@ -187,6 +188,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
   border-top: 1px solid var(--cream-line);
+  border-left: 1px solid var(--cream-line);
 }
 
 /* ── Book card ── */

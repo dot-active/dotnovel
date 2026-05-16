@@ -95,17 +95,6 @@ export default function CreateNovelForm({ categories, locale, selectedCategoryId
       <div className={styles.layout}>
         {/* ── Left column: main fields ── */}
         <div className={styles.main}>
-          {/* Pen name */}
-          <div className={styles.field}>
-            <label className={styles.label}>{t('penName')}</label>
-            <input
-              name="penName"
-              type="text"
-              placeholder={t('penNamePlaceholder')}
-              className={styles.input}
-            />
-          </div>
-
           {/* Title */}
           <div className={styles.field}>
             <label className={styles.label}>

@@ -44,9 +44,14 @@ export default async function AuthorChapterListPage({
           <h1 className={styles.title}>{t('manageChapters')}</h1>
           <p className={styles.novelName}>{novelTitle}</p>
         </div>
-        <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
-          + {t('addChapter')}
-        </Link>
+        <div className={styles.headerBtns}>
+          <Link href={`/author/novels/${id}/edit`} className={styles.settingsBtn}>
+            作品设定
+          </Link>
+          <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
+            + {t('addChapter')}
+          </Link>
+        </div>
       </div>
 
       {novel.chapters.length === 0 ? (
@@ -72,7 +77,12 @@ export default async function AuthorChapterListPage({
             return (
               <div key={chapter.id} className={styles.listRow}>
                 <span className={styles.colOrder}>{chapter.order}</span>
-                <span className={styles.colTitle}>{tr?.title ?? chapter.title}</span>
+                <Link
+                  href={`/author/novels/${id}/chapters/${chapter.id}/edit`}
+                  className={styles.chapterTitleLink}
+                >
+                  {tr?.title ?? chapter.title}
+                </Link>
                 <span className={styles.colStatus}>
                   <span className={isDraft ? styles.badgeDraft : styles.badgePublished}>
                     {isDraft ? t('draft') : t('published')}
@@ -80,10 +90,11 @@ export default async function AuthorChapterListPage({
                 </span>
                 <div className={styles.colActions}>
                   <Link
-                    href={`/author/novels/${id}/chapters/${chapter.id}/edit`}
+                    href={`/novels/${id}/chapters/${chapter.id}`}
                     className={styles.editBtn}
+                    target="_blank"
                   >
-                    {t('editChapter')}
+                    预览
                   </Link>
                 </div>
               </div>

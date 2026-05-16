@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "방대한 소설, 독서를 즐기세요",
+    "heroTagline": "소음 속에 독서의 불빛 하나.",
     "heroSubtitle": "클래식 웹소설 수록, 언제 어디서나",
     "allNovels": "전체 소설",
     "novelsCount": "{count} 편",
+    "featuredTag": "에디터 추천 · 이번 주",
+    "featuredCta": "읽기 시작 →",
+    "all": "전체",
+    "searchPlaceholder": "제목, 작가, 키워드…",
+    "sortLabel": "정렬",
+    "sortCount": "{count} 편",
+    "sortUpdated": "최근 업데이트",
+    "sortViews": "최다 조회",
+    "sortFavorites": "최다 즐겨찾기",
+    "prevPage": "← 이전",
+    "nextPage": "다음 →",
     "empty": "데이터가 없습니다. npm run db:seed 를 실행하세요."
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "목차",
     "noChapters": "챕터가 없습니다",
     "chapterCount": "{count} 화",
+    "ongoingStatus": "연재 중 · {count}화",
+    "viewCount": "{count} 조회",
     "status": {
       "ONGOING": "연재 중",
       "COMPLETED": "완결",
@@ -50,6 +64,16 @@
     "scifi": "SF",
     "mystery": "미스터리",
     "historical": "역사",
+    "horror": "공포",
+    "urban": "도시",
+    "campus": "캠퍼스",
+    "rural": "농촌",
+    "workplace": "직장",
+    "officialdom": "관계",
+    "military": "군사",
+    "wuxia": "무협",
+    "game": "게임",
+    "sports": "스포츠",
     "other": "기타"
   },
   "onboarding": {

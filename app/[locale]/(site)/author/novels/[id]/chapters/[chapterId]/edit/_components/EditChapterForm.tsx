@@ -27,6 +27,9 @@ export default function EditChapterForm({ chapter, locale }: Props) {
   const formRef = useRef<HTMLFormElement>(null)
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<'draft' | 'published'>(
+    chapter.publishStatus === 'published' ? 'published' : 'draft'
+  )
 
   async function handleSubmit(publishStatus: 'published' | 'draft') {
     setSubmitting(publishStatus)
@@ -108,21 +111,22 @@ export default function EditChapterForm({ chapter, locale }: Props) {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.footer}>
-        <button
-          type="button"
+        <select
+          className={styles.statusSelect}
+          value={selectedStatus}
           disabled={busy}
-          className={styles.draftBtn}
-          onClick={() => handleSubmit('draft')}
+          onChange={(e) => setSelectedStatus(e.target.value as 'draft' | 'published')}
         >
-          {submitting === 'draft' ? '…' : t('saveDraft')}
-        </button>
+          <option value="draft">草稿</option>
+          <option value="published">发布</option>
+        </select>
         <button
           type="button"
           disabled={busy}
           className={styles.primaryBtn}
-          onClick={() => handleSubmit('published')}
+          onClick={() => handleSubmit(selectedStatus)}
         >
-          {submitting === 'published' ? '…' : t('saveChanges')}
+          {submitting ? '…' : t('saveChanges')}
         </button>
       </div>
     </form>

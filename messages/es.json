@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "Miles de novelas, lectura sin fin",
+    "heroTagline": "En el ruido, una luz para leer.",
     "heroSubtitle": "Explora las mejores novelas web, en cualquier lugar y momento",
     "allNovels": "Todas las novelas",
     "novelsCount": "{count} novelas",
+    "featuredTag": "Selección del editor · Esta semana",
+    "featuredCta": "Empezar a leer →",
+    "all": "Todos",
+    "searchPlaceholder": "Título, autor, palabra clave…",
+    "sortLabel": "Ordenar",
+    "sortCount": "{count} novelas",
+    "sortUpdated": "Recién actualizado",
+    "sortViews": "Más leído",
+    "sortFavorites": "Más favoritos",
+    "prevPage": "← Anterior",
+    "nextPage": "Siguiente →",
     "empty": "Sin datos. Ejecute npm run db:seed para insertar datos de prueba."
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "Índice",
     "noChapters": "Sin capítulos aún",
     "chapterCount": "{count} cap.",
+    "ongoingStatus": "En curso · Cap. {count}",
+    "viewCount": "{count} vistas",
     "status": {
       "ONGOING": "En curso",
       "COMPLETED": "Completado",
@@ -50,6 +64,16 @@
     "scifi": "Ciencia ficción",
     "mystery": "Misterio",
     "historical": "Histórico",
+    "horror": "Terror",
+    "urban": "Urbana",
+    "campus": "Campus",
+    "rural": "Rural",
+    "workplace": "Trabajo",
+    "officialdom": "Político",
+    "military": "Militar",
+    "wuxia": "Wuxia",
+    "game": "Juego",
+    "sports": "Deportes",
     "other": "Otros"
   },
   "onboarding": {

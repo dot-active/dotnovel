@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "海量小说，畅享阅读",
+    "heroTagline": "在喧嚣里，留一盏读书的灯。",
     "heroSubtitle": "收录经典网络文学，随时随地，沉浸其中",
     "allNovels": "全部小说",
     "novelsCount": "{count} 部",
+    "featuredTag": "编辑推荐 · 本周",
+    "featuredCta": "开始阅读 →",
+    "all": "全部",
+    "searchPlaceholder": "书名、作者、关键词…",
+    "sortLabel": "排序",
+    "sortCount": "{count} 部作品",
+    "sortUpdated": "最近更新",
+    "sortViews": "最多阅读",
+    "sortFavorites": "最多收藏",
+    "prevPage": "← 上一页",
+    "nextPage": "下一页 →",
     "empty": "暂无数据，请运行 npm run db:seed 插入测试数据。"
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "目录",
     "noChapters": "暂无章节",
     "chapterCount": "{count} 章",
+    "ongoingStatus": "连载中 · 第 {count} 章",
+    "viewCount": "{count} 阅",
     "status": {
       "ONGOING": "连载中",
       "COMPLETED": "已完结",
@@ -50,6 +64,16 @@
     "scifi": "科幻",
     "mystery": "悬疑",
     "historical": "历史",
+    "horror": "恐怖",
+    "urban": "都市",
+    "campus": "校园",
+    "rural": "乡村",
+    "workplace": "职场",
+    "officialdom": "官场",
+    "military": "军事",
+    "wuxia": "武侠",
+    "game": "游戏",
+    "sports": "体育",
     "other": "其他"
   },
   "onboarding": {

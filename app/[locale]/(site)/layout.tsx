@@ -24,7 +24,7 @@ export default async function SiteLayout({
           <Link href="/" className="site-header__logo">
             <span className="site-header__logo-mark" />
             <span>
-              <div className="site-header__logo-name">Dot<em>Novel</em></div>
+              <div className="site-header__logo-name">Novel<em>Phere</em></div>
               <div className="site-header__logo-sub">est · mmxxvi</div>
             </span>
           </Link>
@@ -37,7 +37,7 @@ export default async function SiteLayout({
       <main className="site-main">{children}</main>
       <footer className="site-footer">
         <div className="site-footer__inner">
-          <span>© 二零二六 DotNovel · 由读者与作者共同守护</span>
+          <span>© 2026 NovelPhere</span>
         </div>
       </footer>
     </>

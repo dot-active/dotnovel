@@ -17,8 +17,7 @@
   display: grid;
   grid-template-columns: 280px 1fr 280px;
   gap: 56px;
-  padding-bottom: 56px;
-  border-bottom: 1px solid var(--cream-line);
+
 }
 
 /* ── Cover ── */

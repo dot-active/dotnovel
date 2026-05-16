@@ -11,7 +11,6 @@ export async function createNovel(formData: FormData) {
 
   const title = formData.get('title') as string
   const description = formData.get('description') as string
-  const penName = (formData.get('penName') as string).trim()
   const categoryIds = formData.getAll('categoryIds') as string[]
   const sourceLocale = formData.get('sourceLocale') as string
   const coverUrl = (formData.get('coverUrl') as string) || null
@@ -21,11 +20,8 @@ export async function createNovel(formData: FormData) {
     throw new Error('Required fields missing')
   }
 
-  let authorName = penName
-  if (!authorName) {
-    const user = await currentUser()
-    authorName = user?.fullName || user?.username || 'Anonymous'
-  }
+  const user = await currentUser()
+  const authorName = user?.firstName || user?.username || 'Anonymous'
 
   const novel = await prisma.novel.create({
     data: {
@@ -101,7 +97,6 @@ export async function updateNovel(formData: FormData) {
   const novelId = formData.get('novelId') as string
   const title = (formData.get('title') as string).trim()
   const description = (formData.get('description') as string).trim()
-  const penName = (formData.get('penName') as string).trim()
   const categoryIds = formData.getAll('categoryIds') as string[]
   const status = (formData.get('status') as string) || 'ONGOING'
   const newCoverUrl = (formData.get('coverUrl') as string) || null
@@ -110,8 +105,13 @@ export async function updateNovel(formData: FormData) {
 
   if (!title || !description) throw new Error('Title and description are required')
 
-  const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
+  const [novel, user] = await Promise.all([
+    prisma.novel.findFirst({ where: { id: novelId, authorId: userId } }),
+    currentUser(),
+  ])
   if (!novel) throw new Error('Novel not found or not authorized')
+
+  const authorName = user?.firstName || user?.username || novel.author
 
   await prisma.$transaction(async (tx) => {
     await tx.novelCategory.deleteMany({ where: { novelId } })
@@ -119,7 +119,7 @@ export async function updateNovel(formData: FormData) {
       where: { id: novelId },
       data: {
         title,
-        author: penName || novel.author,
+        author: authorName,
         description,
         isAdult,
         status: status as 'ONGOING' | 'COMPLETED' | 'HIATUS',

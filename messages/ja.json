@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "豊富な小説、読書を楽しもう",
+    "heroTagline": "喧騒の中に、読書の灯を。",
     "heroSubtitle": "人気のウェブ小説を収録、いつでもどこでも",
     "allNovels": "すべての小説",
     "novelsCount": "{count} 作品",
+    "featuredTag": "編集部おすすめ · 今週",
+    "featuredCta": "読み始める →",
+    "all": "すべて",
+    "searchPlaceholder": "タイトル、著者、キーワード…",
+    "sortLabel": "並び替え",
+    "sortCount": "{count} 作品",
+    "sortUpdated": "最近更新",
+    "sortViews": "閲覧数順",
+    "sortFavorites": "お気に入り順",
+    "prevPage": "← 前へ",
+    "nextPage": "次へ →",
     "empty": "データがありません。npm run db:seed を実行してください。"
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "目次",
     "noChapters": "章がありません",
     "chapterCount": "{count} 章",
+    "ongoingStatus": "連載中 · 第{count}話",
+    "viewCount": "{count} 閲覧",
     "status": {
       "ONGOING": "連載中",
       "COMPLETED": "完結",
@@ -50,6 +64,16 @@
     "scifi": "SF",
     "mystery": "ミステリー",
     "historical": "歴史",
+    "horror": "ホラー",
+    "urban": "都市",
+    "campus": "学園",
+    "rural": "田舎",
+    "workplace": "職場",
+    "officialdom": "官僚",
+    "military": "軍事",
+    "wuxia": "武侠",
+    "game": "ゲーム",
+    "sports": "スポーツ",
     "other": "その他"
   },
   "onboarding": {

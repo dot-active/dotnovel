@@ -24,7 +24,6 @@ interface NovelData {
   id: string
   title: string
   description: string
-  author: string
   categoryIds: string[]
   status: string
   coverUrl: string
@@ -101,18 +100,6 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
     <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
       <div className={styles.layout}>
         <div className={styles.main}>
-          {/* Pen name */}
-          <div className={styles.field}>
-            <label className={styles.label}>{t('penName')}</label>
-            <input
-              name="penName"
-              type="text"
-              defaultValue={novel.author}
-              placeholder={t('penNamePlaceholder')}
-              className={styles.input}
-            />
-          </div>
-
           {/* Title */}
           <div className={styles.field}>
             <label className={styles.label}>

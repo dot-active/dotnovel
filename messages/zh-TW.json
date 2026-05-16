@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "海量小說，暢享閱讀",
+    "heroTagline": "在喧囂中，留一盞讀書的燈。",
     "heroSubtitle": "收錄經典網路文學，隨時隨地，沉浸其中",
     "allNovels": "全部小說",
     "novelsCount": "{count} 部",
+    "featuredTag": "編輯推薦 · 本週",
+    "featuredCta": "開始閱讀 →",
+    "all": "全部",
+    "searchPlaceholder": "書名、作者、關鍵詞…",
+    "sortLabel": "排序",
+    "sortCount": "{count} 部作品",
+    "sortUpdated": "最近更新",
+    "sortViews": "最多閱讀",
+    "sortFavorites": "最多收藏",
+    "prevPage": "← 上一頁",
+    "nextPage": "下一頁 →",
     "empty": "暫無資料，請執行 npm run db:seed 插入測試資料。"
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "目錄",
     "noChapters": "暫無章節",
     "chapterCount": "{count} 章",
+    "ongoingStatus": "連載中 · 第 {count} 章",
+    "viewCount": "{count} 閱",
     "status": {
       "ONGOING": "連載中",
       "COMPLETED": "已完結",
@@ -50,6 +64,16 @@
     "scifi": "科幻",
     "mystery": "懸疑",
     "historical": "歷史",
+    "horror": "恐怖",
+    "urban": "都市",
+    "campus": "校園",
+    "rural": "鄉村",
+    "workplace": "職場",
+    "officialdom": "官場",
+    "military": "軍事",
+    "wuxia": "武俠",
+    "game": "遊戲",
+    "sports": "體育",
     "other": "其他"
   },
   "onboarding": {

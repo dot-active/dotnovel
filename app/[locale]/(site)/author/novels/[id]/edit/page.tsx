@@ -47,7 +47,6 @@ export default async function EditNovelPage({
           id: novel.id,
           title: sourceTr?.title ?? novel.title,
           description: sourceTr?.description ?? novel.description ?? '',
-          author: novel.author,
           categoryIds: novel.categories.map((c) => c.categoryId),
           status: novel.status,
           coverUrl: novel.coverUrl ?? '',

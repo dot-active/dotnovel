@@ -10,9 +10,21 @@
   },
   "home": {
     "heroTitle": "Vast Library, Endless Reading",
+    "heroTagline": "A light left on for reading, amid the noise.",
     "heroSubtitle": "Explore classic web novels, anytime, anywhere",
     "allNovels": "All Novels",
     "novelsCount": "{count} novels",
+    "featuredTag": "Editor's Pick · This Week",
+    "featuredCta": "Start Reading →",
+    "all": "All",
+    "searchPlaceholder": "Title, author, keyword…",
+    "sortLabel": "Sort",
+    "sortCount": "{count} novels",
+    "sortUpdated": "Recently Updated",
+    "sortViews": "Most Read",
+    "sortFavorites": "Most Favorited",
+    "prevPage": "← Previous",
+    "nextPage": "Next →",
     "empty": "No novels yet. Run npm run db:seed to add test data."
   },
   "novel": {
@@ -26,6 +38,8 @@
     "tableOfContents": "Table of Contents",
     "noChapters": "No chapters yet",
     "chapterCount": "{count} ch.",
+    "ongoingStatus": "Ongoing · Ch. {count}",
+    "viewCount": "{count} views",
     "status": {
       "ONGOING": "Ongoing",
       "COMPLETED": "Completed",
@@ -50,6 +64,16 @@
     "scifi": "Sci-Fi",
     "mystery": "Mystery",
     "historical": "Historical",
+    "horror": "Horror",
+    "urban": "Urban",
+    "campus": "Campus",
+    "rural": "Rural",
+    "workplace": "Workplace",
+    "officialdom": "Political",
+    "military": "Military",
+    "wuxia": "Wuxia",
+    "game": "Game",
+    "sports": "Sports",
     "other": "Other"
   },
   "onboarding": {

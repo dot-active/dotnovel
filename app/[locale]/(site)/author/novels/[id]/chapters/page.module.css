@@ -31,6 +31,30 @@
   color: var(--color-text-muted);
 }
 
+.headerBtns {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.settingsBtn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.settingsBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .addBtn {
   display: inline-block;
   padding: 10px 20px;
@@ -119,6 +143,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.chapterTitleLink {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  transition: color 0.15s;
+}
+
+.chapterTitleLink:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
 }
 
 .colStatus {

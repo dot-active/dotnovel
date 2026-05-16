@@ -98,6 +98,29 @@
   gap: 10px;
 }
 
+.statusSelect {
+  height: 40px;
+  padding: 0 12px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.statusSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .draftBtn {
   padding: 10px 20px;
   font-size: 0.9375rem;

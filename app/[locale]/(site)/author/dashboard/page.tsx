@@ -87,7 +87,12 @@ export default async function AuthorDashboardPage({
                     </div>
                   )}
                   <div>
-                    <p className={styles.novelTitle}>{tr?.title ?? novel.title}</p>
+                    <Link
+                      href={`/author/novels/${novel.id}/chapters`}
+                      className={styles.novelTitleLink}
+                    >
+                      {tr?.title ?? novel.title}
+                    </Link>
                     <p className={styles.novelAuthor}>{novel.author}</p>
                   </div>
                 </div>
@@ -101,18 +106,6 @@ export default async function AuthorDashboardPage({
                   {new Date(novel.createdAt).toLocaleDateString('zh-CN')}
                 </span>
                 <div className={styles.actions}>
-                  <Link
-                    href={`/author/novels/${novel.id}/chapters`}
-                    className={styles.actionBtn}
-                  >
-                    {t('manageChapters')}
-                  </Link>
-                  <Link
-                    href={`/author/novels/${novel.id}/edit`}
-                    className={styles.actionBtn}
-                  >
-                    {t('editNovel')}
-                  </Link>
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
                     className={styles.actionBtn}

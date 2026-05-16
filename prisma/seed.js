@@ -8,6 +8,16 @@ const CATEGORIES = [
   'scifi',
   'mystery',
   'historical',
+  'horror',
+  'urban',
+  'campus',
+  'rural',
+  'workplace',
+  'officialdom',
+  'military',
+  'wuxia',
+  'game',
+  'sports',
   'other',
 ]
 

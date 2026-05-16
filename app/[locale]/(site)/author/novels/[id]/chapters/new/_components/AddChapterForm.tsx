@@ -36,21 +36,32 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
       const result = await createChapter(formData)
       if ('error' in result && result.error) {
         setError(result.error)
+        setSubmitting(null)
         return
       }
       if (result.redirectUrl) {
         router.push(result.redirectUrl)
+        // keep overlay visible until component unmounts after navigation
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
       setSubmitting(null)
     }
   }
 
   const busy = submitting !== null
+  const continuing = submitting === 'published-continue'
 
   return (
+    <>
+      {continuing && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingBar}>
+            <div className={styles.loadingBarFill} />
+          </div>
+          <p className={styles.loadingText}>{t('submitting')}</p>
+        </div>
+      )}
     <form ref={formRef} className={styles.form}>
       <div className={styles.row}>
         <div className={styles.field} style={{ flex: '1 1 auto' }}>
@@ -128,5 +139,6 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
         </div>
       </div>
     </form>
+    </>
   )
 }

@@ -52,6 +52,7 @@ export default async function NewChapterPage({
       </div>
 
       <AddChapterForm
+        key={nextOrder}
         novelId={id}
         locale={locale}
         sourceLocale={novel.sourceLocale}

@@ -169,14 +169,7 @@ export default async function NovelDetailPage({
 
       {/* Chapter list */}
       <section className={styles.chaptersSection}>
-        <div className={styles.sectionTitle}>
-          <h2 className={styles.sectionTitleText}>
-            目<em>录</em>
-          </h2>
-          <span className={styles.sectionMeta}>
-            {t('chapterCount', { count: novel.chapters.length })}
-          </span>
-        </div>
+
 
         {novel.chapters.length === 0 ? (
           <p className={styles.noChapters}>{t('noChapters')}</p>

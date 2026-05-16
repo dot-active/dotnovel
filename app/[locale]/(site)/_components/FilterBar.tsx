@@ -18,15 +18,16 @@ interface Props {
   total: number
 }
 
-const SORT_OPTIONS = [
-  { key: '', label: '最近更新' },
-  { key: 'views', label: '最多阅读' },
-  { key: 'favorites', label: '最多收藏' },
-]
+const SORT_KEYS = [
+  { key: '', labelKey: 'sortUpdated' },
+  { key: 'views', labelKey: 'sortViews' },
+  { key: 'favorites', labelKey: 'sortFavorites' },
+] as const
 
 export default function FilterBar({ categories, currentCategories, currentSort, currentQ, total }: Props) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('home')
   const tCat = useTranslations('categories')
   const [searchInput, setSearchInput] = useState(currentQ)
 
@@ -64,7 +65,7 @@ export default function FilterBar({ categories, currentCategories, currentSort, 
             className={`${styles.chip} ${currentCategories.length === 0 ? styles.chipActive : ''}`}
             onClick={() => router.push(buildUrl(currentQ, [], currentSort))}
           >
-            全部
+            {t('all')}
           </button>
           {categories.map((cat) => (
             <button
@@ -76,31 +77,31 @@ export default function FilterBar({ categories, currentCategories, currentSort, 
             </button>
           ))}
         </div>
-        <form onSubmit={handleSearch} className={styles.filtersSearch}>
-          <span className={styles.searchIcon}>⌕</span>
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="书名、作者、关键词…"
-            className={styles.searchInput}
-          />
-        </form>
+
       </div>
 
       {/* Sort row */}
       <div className={styles.sortRow}>
-        <span className={styles.eyebrow}>排序</span>
-        {SORT_OPTIONS.map((s) => (
+        <span className={styles.eyebrow}>{t('sortLabel')}</span>
+        {SORT_KEYS.map((s) => (
           <button
             key={s.key}
             className={`${styles.sort} ${currentSort === s.key ? styles.sortActive : ''}`}
             onClick={() => setSort(s.key)}
           >
-            {s.label}
+            {t(s.labelKey)}
           </button>
         ))}
-        <span className={styles.sortCount}>{total} 部作品</span>
+                <form onSubmit={handleSearch} className={styles.filtersSearch}>
+          <span className={styles.searchIcon}>⌕</span>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            className={styles.searchInput}
+          />
+        </form>
       </div>
     </div>
   )

@@ -121,7 +121,7 @@ export default async function HomePage({
       <section className={styles.hero}>
         <div className={styles.heroLeft}>
           <h1 className={styles.heroTitle}>{t('heroTitle')}</h1>
-          <p className={styles.heroZh}>在喧嚣里，留一盏读书的灯。</p>
+          <p className={styles.heroZh}>{t('heroTagline')}</p>
           <p className={styles.heroLede}>{t('heroSubtitle')}</p>
         </div>
         {featured && (
@@ -135,7 +135,7 @@ export default async function HomePage({
                 )}
               </div>
               <div>
-                <div className={styles.featuredTag}>编辑推荐 · this week</div>
+                <div className={styles.featuredTag}>{t('featuredTag')}</div>
                 <h3 className={styles.featuredTitle}>
                   {featured.translations[0]?.title ?? featured.title}
                 </h3>
@@ -143,7 +143,7 @@ export default async function HomePage({
                 <p className={styles.featuredBlurb}>
                   {featured.translations[0]?.description ?? featured.description}
                 </p>
-                <span className={styles.featuredCta}>开始阅读 →</span>
+                <span className={styles.featuredCta}>{t('featuredCta')}</span>
               </div>
             </Link>
           </div>
@@ -160,12 +160,7 @@ export default async function HomePage({
       />
 
       {/* Section header */}
-      <div className={styles.sectionHead}>
-        <h2 className={styles.sectionTitle}>
-          All <em>novels</em>
-        </h2>
-        <span className={styles.sectionMeta}>{t('novelsCount', { count: total })}</span>
-      </div>
+
 
       {/* Library grid */}
       {novels.length === 0 ? (
@@ -189,7 +184,7 @@ export default async function HomePage({
                 <div className={styles.bookStatus}>
                   <span className={`${styles.blip} ${isLive ? styles.blipLive : styles.blipDone}`} />
                   {isLive
-                    ? `连载中 · 第 ${novel._count.chapters} 章`
+                    ? tNovel('ongoingStatus', { count: novel._count.chapters })
                     : tNovel(`status.${novel.status}`)}
                 </div>
                 <h3 className={styles.bookTitle}>{tr?.title ?? novel.title}</h3>
@@ -199,7 +194,7 @@ export default async function HomePage({
                     {tNovel('chapterCount', { count: novel._count.chapters })}
                   </span>
                   <span className={styles.bookStats}>
-                    <span>{formatCount(novel.viewCount)} 阅</span>
+                    <span>{tNovel('viewCount', { count: formatCount(novel.viewCount) })}</span>
                     <span>♡ {formatCount(novel.favoriteCount)}</span>
                   </span>
                 </div>
@@ -214,7 +209,7 @@ export default async function HomePage({
         <div className={styles.pagination}>
           {page > 1 && (
             <a href={buildPageUrl(q, categoryParam, sort, page - 1)} className={styles.pageBtn}>
-              ← 上一页
+              {t('prevPage')}
             </a>
           )}
           <div className={styles.pageNumbers}>
@@ -241,7 +236,7 @@ export default async function HomePage({
           </div>
           {page < totalPages && (
             <a href={buildPageUrl(q, categoryParam, sort, page + 1)} className={styles.pageBtn}>
-              下一页 →
+              {t('nextPage')}
             </a>
           )}
         </div>
