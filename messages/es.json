@@ -133,7 +133,14 @@
       "saveChanges": "Guardar cambios",
       "storyStatus": "Estado",
       "isAdult": "Contenido adulto 18+",
-      "isAdultHint": "Los lectores deben iniciar sesión y confirmar su edad para leer"
+      "isAdultHint": "Los lectores deben iniciar sesión y confirmar su edad para leer",
+      "sectionMeta": "Portada · Título y Sinopsis",
+      "sectionCategory": "Categoría",
+      "sectionCover": "Estado · Idioma · Contenido",
+      "categoryNote": "Máximo 3",
+      "cancel": "Cancelar",
+      "languageLocked": "No se puede cambiar",
+      "saveNote": "Los cambios surten efecto de inmediato para los lectores"
     },
     "dangerZone": "Zona de peligro",
     "deleteNovelDesc": "Esta acción no se puede deshacer. Todos los capítulos y traducciones también serán eliminados.",

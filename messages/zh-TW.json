@@ -133,7 +133,14 @@
       "saveChanges": "儲存修改",
       "storyStatus": "完結狀態",
       "isAdult": "18+ 成人內容",
-      "isAdultHint": "開啟後，讀者需登入並確認年齡才能閱讀"
+      "isAdultHint": "開啟後，讀者需登入並確認年齡才能閱讀",
+      "sectionMeta": "封 面 · 題 與 簡 介",
+      "sectionCategory": "分 類",
+      "sectionCover": "狀 態 · 語 言 · 內 容",
+      "categoryNote": "至多三項",
+      "cancel": "取消",
+      "languageLocked": "不可修改",
+      "saveNote": "所有改動會立即對讀者生效"
     },
     "dangerZone": "危險操作",
     "deleteNovelDesc": "刪除後將無法恢復，所有章節和翻譯也會一併刪除。",

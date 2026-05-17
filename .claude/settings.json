@@ -30,7 +30,15 @@
       "Bash(node -e ' *)",
       "Bash(rm -rf \"app/[locale]/author\" && echo \"removed old\")",
       "Bash(cp \"app/[locale]/\\(site\\)/author/novels/new/_components/CreateNovelForm.module.css\" \"app/[locale]/\\(site\\)/author/novels/[id]/edit/_components/EditNovelForm.module.css\" && echo \"copied\")",
-      "Bash(cp \"app/[locale]/\\(site\\)/author/novels/[id]/chapters/new/_components/AddChapterForm.module.css\" \\\\ *)"
+      "Bash(cp \"app/[locale]/\\(site\\)/author/novels/[id]/chapters/new/_components/AddChapterForm.module.css\" \\\\ *)",
+      "Read(//d/creation/dotnovel/app/**)",
+      "Bash(Get-Item \"d:\\\\creation\\\\dotnovel\\\\edit.html\")",
+      "Bash(Select-Object Name, Length)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/d/creation/dotnovel/messages/zh-CN.json'\\)\\); print\\(json.dumps\\(d.get\\('author', {}\\), ensure_ascii=False, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('author',{}\\),ensure_ascii=False,indent=2\\)\\)\")",
+      "Bash(xargs cat)",
+      "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart, 10000\\))",
+      "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart + 10000, 8000\\))"
     ],
     "additionalDirectories": [
       "D:\\creation\\dotnovel\\app\\[locale]\\author",

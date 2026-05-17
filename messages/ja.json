@@ -133,7 +133,14 @@
       "saveChanges": "変更を保存",
       "storyStatus": "完結状態",
       "isAdult": "18+ 成人向けコンテンツ",
-      "isAdultHint": "ログイン後、年齢確認をした読者のみ閲覧できます"
+      "isAdultHint": "ログイン後、年齢確認をした読者のみ閲覧できます",
+      "sectionMeta": "表紙 · タイトルと概要",
+      "sectionCategory": "カテゴリー",
+      "sectionCover": "状態 · 言語 · 内容",
+      "categoryNote": "最大3つ",
+      "cancel": "キャンセル",
+      "languageLocked": "変更不可",
+      "saveNote": "変更はすぐに読者に反映されます"
     },
     "dangerZone": "危険な操作",
     "deleteNovelDesc": "削除後は元に戻せません。すべての章と翻訳も削除されます。",

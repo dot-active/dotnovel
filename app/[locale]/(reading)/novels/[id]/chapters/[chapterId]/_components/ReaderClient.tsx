@@ -179,7 +179,7 @@ export default function ReaderClient({
         <h1 className={styles.chapterTitle}>{chapterTitle}</h1>
         <div className={styles.body} style={{ fontSize: `${fontSize}px` }}>
           {paragraphs.map(({ text, commentCount }, i) => (
-            <div key={i} className={styles.paraWrapper}>
+            <div key={i} id={`para-${i}`} className={styles.paraWrapper}>
               <p>{text}</p>
               <ParagraphComments
                 chapterId={chapterId}

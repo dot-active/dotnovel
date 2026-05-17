@@ -160,6 +160,13 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
     setLoading(false)
   }
 
+  useEffect(() => {
+    if (window.location.hash === `#para-${paragraphIndex}`) {
+      loadComments()
+      setOpen(true)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   function handleToggle() {
     if (!open) {
       loadComments()

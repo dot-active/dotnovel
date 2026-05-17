@@ -133,7 +133,14 @@
       "saveChanges": "保存修改",
       "storyStatus": "完结状态",
       "isAdult": "18+ 成人内容",
-      "isAdultHint": "开启后，读者需登录并确认年龄才能阅读"
+      "isAdultHint": "开启后，读者需登录并确认年龄才能阅读",
+      "sectionMeta": "封 面 · 题 与 简 介",
+      "sectionCategory": "分 类",
+      "sectionCover": "状 态 · 语 言 · 内 容",
+      "categoryNote": "至多三项",
+      "cancel": "取消",
+      "languageLocked": "不可修改",
+      "saveNote": "所有改动会立即对读者生效"
     },
     "dangerZone": "危险操作",
     "deleteNovelDesc": "删除后将无法恢复，所有章节和翻译也会一并删除。",

@@ -4,7 +4,6 @@ import { auth } from '@clerk/nextjs/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import EditNovelForm from './_components/EditNovelForm'
-import DeleteNovelButton from '@/components/DeleteNovelButton'
 import styles from './page.module.css'
 
 export default async function EditNovelPage({
@@ -56,12 +55,6 @@ export default async function EditNovelPage({
         categories={categories}
         locale={locale}
       />
-
-      <div className={styles.dangerZone}>
-        <h2 className={styles.dangerTitle}>{t('dangerZone')}</h2>
-        <p className={styles.dangerDesc}>{t('deleteNovelDesc')}</p>
-        <DeleteNovelButton novelId={novel.id} locale={locale} />
-      </div>
     </div>
   )
 }

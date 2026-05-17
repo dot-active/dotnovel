@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Link } from '@/i18n/navigation'
 import styles from '../page.module.css'
 
 interface CommentItem {
@@ -51,9 +52,13 @@ function formatTime(iso: string) {
 
 function CommentRow({
   comment,
+  novelId,
+  chapterId,
   onDelete,
 }: {
   comment: CommentItem
+  novelId: string
+  chapterId: string
   onDelete: (id: string) => void
 }) {
   const [name, setName] = useState<string>('…')
@@ -80,6 +85,12 @@ function CommentRow({
       </div>
       <p className={styles.commentContent}>{comment.content}</p>
       <div className={styles.commentActions}>
+        <Link
+          href={`/novels/${novelId}/chapters/${chapterId}#para-${comment.paragraphIndex}`}
+          className={styles.btnGoto}
+        >
+          → 前往段落
+        </Link>
         {confirming ? (
           <>
             <button
@@ -109,6 +120,7 @@ function CommentRow({
 
 export default function AuthorCommentList({
   chapters,
+  novelId,
 }: {
   chapters: ChapterWithComments[]
   novelId: string
@@ -140,6 +152,8 @@ export default function AuthorCommentList({
                 <CommentRow
                   key={c.id}
                   comment={c}
+                  novelId={novelId}
+                  chapterId={chapter.id}
                   onDelete={(id) => handleDelete(chapter.id, id)}
                 />
               ))}

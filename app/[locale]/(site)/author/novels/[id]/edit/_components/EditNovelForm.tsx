@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { updateNovel } from '@/lib/actions/author'
+import { Link } from '@/i18n/navigation'
+import { updateNovel, deleteNovel } from '@/lib/actions/author'
 import styles from './EditNovelForm.module.css'
 
 const LOCALE_OPTIONS = [
@@ -44,6 +45,7 @@ interface Props {
 
 export default function EditNovelForm({ novel, categories, locale }: Props) {
   const t = useTranslations('author.form')
+  const tAuthor = useTranslations('author')
   const tCat = useTranslations('categories')
   const tStatus = useTranslations('novel.status')
 
@@ -55,6 +57,12 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [titleLen, setTitleLen] = useState(novel.title.length)
+  const [descLen, setDescLen] = useState(novel.description.length)
+  const [selectedCats, setSelectedCats] = useState<string[]>(novel.categoryIds)
+  const [isAdult, setIsAdult] = useState(novel.isAdult)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -65,6 +73,14 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
     setFileError(null)
     setCoverFile(file)
     setCoverPreview(URL.createObjectURL(file))
+  }
+
+  function toggleCat(catId: string) {
+    setSelectedCats(prev => {
+      if (prev.includes(catId)) return prev.filter(id => id !== catId)
+      if (prev.length >= 3) return prev
+      return [...prev, catId]
+    })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -86,6 +102,7 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
       const formData = new FormData(formRef.current!)
       formData.set('novelId', novel.id)
       formData.set('locale', locale)
+      formData.set('isAdult', isAdult ? 'true' : 'false')
       if (coverUrl) formData.set('coverUrl', coverUrl)
 
       await updateNovel(formData)
@@ -96,145 +113,205 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
     }
   }
 
+  async function handleDelete() {
+    setDeleting(true)
+    const fd = new FormData()
+    fd.append('novelId', novel.id)
+    fd.append('locale', locale)
+    try {
+      await deleteNovel(fd)
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) throw err
+      setDeleting(false)
+      setDeleteConfirm(false)
+    }
+  }
+
   return (
     <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
-      <div className={styles.layout}>
-        <div className={styles.main}>
-          {/* Title */}
+
+      {/* ── Section 1: Cover · Title & Synopsis ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionMeta')}</span>
+      </div>
+
+      <div className={styles.headRow}>
+        {/* Cover (left) */}
+        <div className={styles.coverBlock}>
+          <div className={styles.coverArea} onClick={() => fileInputRef.current?.click()}>
+            {coverPreview ? (
+              <img src={coverPreview} alt="cover" className={styles.coverPreview} />
+            ) : (
+              <>
+                <span className={styles.coverGlyph}>❦</span>
+                <span className={styles.coverPl}>{t('coverUpload')}</span>
+              </>
+            )}
+          </div>
+          <div className={styles.coverHint}>
+            JPG · PNG · WebP
+            <span className={styles.coverSpec}>1200 × 1600 · max 2 MB</span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className={styles.fileInput}
+            onChange={handleFileChange}
+          />
+          {fileError && <p className={styles.fieldError}>{fileError}</p>}
+        </div>
+
+        {/* Title + Synopsis (right) */}
+        <div>
           <div className={styles.field}>
-            <label className={styles.label}>
-              {t('title')} <span className={styles.required}>*</span>
-            </label>
+            <div className={styles.fieldLabel}>
+              <span>{t('title')} <span className={styles.req}>*</span></span>
+              <span className={styles.count}>{titleLen} / 30</span>
+            </div>
             <input
               name="title"
               type="text"
               required
+              maxLength={30}
               defaultValue={novel.title}
               placeholder={t('titlePlaceholder')}
               className={styles.input}
+              onChange={e => setTitleLen(e.target.value.length)}
             />
           </div>
 
-          {/* Description */}
           <div className={styles.field}>
-            <label className={styles.label}>
-              {t('description')} <span className={styles.required}>*</span>
-            </label>
+            <div className={styles.fieldLabel}>
+              <span>{t('description')} <span className={styles.req}>*</span></span>
+              <span className={styles.count}>{descLen} / 300</span>
+            </div>
             <textarea
               name="description"
               required
               rows={5}
+              maxLength={300}
               defaultValue={novel.description}
               placeholder={t('descriptionPlaceholder')}
               className={styles.textarea}
+              onChange={e => setDescLen(e.target.value.length)}
             />
           </div>
+        </div>
+      </div>
 
-          <div className={styles.fieldRow}>
-            {/* Category */}
-            <div className={styles.field}>
-              <label className={styles.label}>{t('category')}</label>
-              <div className={styles.checkboxGroup}>
-                {categories.map((cat) => (
-                  <label key={cat.id} className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="categoryIds"
-                      value={cat.id}
-                      defaultChecked={novel.categoryIds.includes(cat.id)}
-                    />
-                    <span>{tCat(cat.slug as Parameters<typeof tCat>[0])}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+      {/* ── Section 2: Category ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionCategory')}</span>
+        <span className={styles.secNote}>{t('categoryNote')}</span>
+      </div>
 
-            {/* Story status */}
-            <div className={styles.field}>
-              <label className={styles.label}>{t('storyStatus')}</label>
-              <select name="status" defaultValue={novel.status} className={styles.select}>
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {tStatus(s.labelKey as Parameters<typeof tStatus>[0])}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <div className={styles.tagGrid}>
+        {categories.map(cat => {
+          const isOn = selectedCats.includes(cat.id)
+          return (
+            <label
+              key={cat.id}
+              className={`${styles.tagCheck}${isOn ? ` ${styles.on}` : ''}`}
+              onClick={() => toggleCat(cat.id)}
+            >
+              <input
+                type="checkbox"
+                name="categoryIds"
+                value={cat.id}
+                checked={isOn}
+                onChange={() => {}}
+              />
+              {tCat(cat.slug as Parameters<typeof tCat>[0])}
+            </label>
+          )
+        })}
+      </div>
+
+      {/* ── Section 3: Status · Language · Content ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionCover')}</span>
+      </div>
+
+      <div className={styles.metaStrip}>
+        {/* Status */}
+        <div className={styles.field}>
+          <div className={styles.fieldLabel}><span>{t('storyStatus')}</span></div>
+          <div className={styles.selectWrap}>
+            <select name="status" defaultValue={novel.status} className={styles.select}>
+              {STATUS_OPTIONS.map(s => (
+                <option key={s.value} value={s.value}>
+                  {tStatus(s.labelKey as Parameters<typeof tStatus>[0])}
+                </option>
+              ))}
+            </select>
           </div>
-
-          {/* Source locale (read-only) */}
-          <div className={styles.field}>
-            <label className={styles.label}>{t('language')}</label>
-            <div className={styles.readonlyField}>
-              {LOCALE_OPTIONS.find((l) => l.value === novel.sourceLocale)?.label ?? novel.sourceLocale}
-              <span className={styles.readonlyHint}> · 语言不可修改</span>
-            </div>
-          </div>
-
-          {/* 18+ toggle */}
-          <label className={styles.toggleRow}>
-            <input
-              type="checkbox"
-              name="isAdult"
-              value="true"
-              defaultChecked={novel.isAdult}
-              className={styles.toggleInput}
-              onChange={(e) => {
-                // keep the hidden fallback in sync
-                const hidden = document.querySelector<HTMLInputElement>('input[name="isAdultFallback"]')
-                if (hidden) hidden.value = e.target.checked ? 'true' : 'false'
-              }}
-            />
-            <span className={styles.toggleTrack}>
-              <span className={styles.toggleThumb} />
-            </span>
-            <div>
-              <span className={styles.toggleLabel}>{t('isAdult')}</span>
-              <span className={styles.toggleHint}>{t('isAdultHint')}</span>
-            </div>
-          </label>
-          {/* Ensure isAdult=false when checkbox is unchecked */}
-          <input type="hidden" name="isAdultFallback" value={novel.isAdult ? 'true' : 'false'} />
         </div>
 
-        {/* Cover sidebar */}
-        <div className={styles.sidebar}>
-          <div className={styles.field}>
-            <label className={styles.label}>{t('cover')}</label>
-            <div className={styles.coverArea} onClick={() => fileInputRef.current?.click()}>
-              {coverPreview ? (
-                <img src={coverPreview} alt="cover" className={styles.coverPreview} />
-              ) : (
-                <div className={styles.coverPlaceholder}>
-                  <span className={styles.coverIcon}>🖼</span>
-                  <span>{t('coverUpload')}</span>
-                </div>
-              )}
-            </div>
-            <button
-              type="button"
-              className={styles.coverChangeBtn}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {t('coverChange')}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className={styles.fileInput}
-              onChange={handleFileChange}
-            />
-            {fileError && <p className={styles.fieldError}>{fileError}</p>}
-            <p className={styles.hint}>{t('coverHint')}</p>
+        {/* Language (locked) */}
+        <div className={styles.field}>
+          <div className={styles.fieldLabel}><span>{t('language')}</span></div>
+          <div className={styles.inputLocked}>
+            <span>{LOCALE_OPTIONS.find(l => l.value === novel.sourceLocale)?.label ?? novel.sourceLocale}</span>
+            <span className={styles.lockText}>{t('languageLocked')}</span>
           </div>
+        </div>
+
+        {/* 18+ toggle */}
+        <div className={styles.field}>
+          <div className={styles.fieldLabel}><span>{t('isAdult')}</span></div>
+          <label className={styles.toggleInline}>
+            <div
+              className={`${styles.toggle}${isAdult ? ` ${styles.on}` : ''}`}
+              onClick={e => { e.preventDefault(); setIsAdult(a => !a) }}
+            />
+            <span className={styles.toggleSub}>{t('isAdultHint')}</span>
+          </label>
         </div>
       </div>
 
       {error && <p className={styles.formError}>{error}</p>}
 
-      <div className={styles.footer}>
-        <button type="submit" disabled={submitting} className={styles.submitBtn}>
+      {/* ── Footer bar ── */}
+      <div className={styles.footerBar}>
+        <div className={styles.dangerBit}>
+          <span className={styles.dangerBitLabel}>{tAuthor('dangerZone')}</span>
+          {deleteConfirm ? (
+            <>
+              <button
+                type="button"
+                className={styles.btnDanger}
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? '删除中…' : '确认删除'}
+              </button>
+              <button
+                type="button"
+                className={styles.btnCancel}
+                onClick={() => setDeleteConfirm(false)}
+              >
+                {t('cancel')}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className={styles.btnDanger}
+              onClick={() => setDeleteConfirm(true)}
+            >
+              删除
+            </button>
+          )}
+        </div>
+
+        <span className={styles.footerNote}>{t('saveNote')}</span>
+        <span className={styles.spacer} />
+
+        <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
+          {t('cancel')}
+        </Link>
+        <button type="submit" disabled={submitting} className={styles.btn}>
           {submitting ? t('submitting') : t('saveChanges')}
         </button>
       </div>

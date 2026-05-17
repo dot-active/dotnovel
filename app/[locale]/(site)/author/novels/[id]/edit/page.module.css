@@ -1,46 +1,33 @@
 .page {
-  max-width: 820px;
+  max-width: 1200px;
+  padding-top: 40px;
 }
 
 .pageHeader {
-  margin-bottom: 28px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  
 }
 
 .backLink {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--bark-soft);
   display: inline-block;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 12px;
   transition: color 0.15s;
 }
 
 .backLink:hover {
-  color: var(--color-text-primary);
+  color: var(--bark);
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--bark-soft);
+  display: none;
 }
 
-.dangerZone {
-  margin-top: 32px;
-  padding: 24px 28px;
-  background: var(--color-surface);
-  border: 1px solid #fca5a5;
-  border-radius: var(--radius-lg);
-}
-
-.dangerTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #dc2626;
-  margin-bottom: 6px;
-}
-
-.dangerDesc {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 16px;
-}

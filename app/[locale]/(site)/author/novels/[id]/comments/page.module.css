@@ -152,6 +152,17 @@
   align-items: center;
 }
 
+.btnGoto {
+  font-size: 0.75rem;
+  color: var(--bark-soft);
+  transition: color 0.15s;
+  margin-right: auto;
+}
+
+.btnGoto:hover {
+  color: var(--bark);
+}
+
 .btnDelete {
   font-size: 0.75rem;
   font-family: inherit;

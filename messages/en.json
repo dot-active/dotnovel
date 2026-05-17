@@ -133,7 +133,14 @@
       "saveChanges": "Save Changes",
       "storyStatus": "Story Status",
       "isAdult": "18+ Adult Content",
-      "isAdultHint": "Readers must be signed in and confirm their age to read"
+      "isAdultHint": "Readers must be signed in and confirm their age to read",
+      "sectionMeta": "Cover · Title & Synopsis",
+      "sectionCategory": "Category",
+      "sectionCover": "Status · Language · Content",
+      "categoryNote": "Up to 3",
+      "cancel": "Cancel",
+      "languageLocked": "Cannot be changed",
+      "saveNote": "Changes take effect immediately for readers"
     },
     "dangerZone": "Danger Zone",
     "deleteNovelDesc": "This action cannot be undone. All chapters and translations will also be deleted.",
