@@ -74,6 +74,8 @@
     "wuxia": "Wuxia",
     "game": "Juego",
     "sports": "Deportes",
+    "comedy": "Comedia",
+    "detective": "Policial",
     "other": "Otros"
   },
   "onboarding": {

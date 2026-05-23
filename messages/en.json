@@ -74,6 +74,8 @@
     "wuxia": "Wuxia",
     "game": "Game",
     "sports": "Sports",
+    "comedy": "Comedy",
+    "detective": "Detective",
     "other": "Other"
   },
   "onboarding": {

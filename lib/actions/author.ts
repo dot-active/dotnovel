@@ -32,18 +32,21 @@ export async function createNovel(formData: FormData) {
       sourceLocale,
       publishStatus: 'published',
       coverUrl,
-      translations: {
-        create: {
-          locale: sourceLocale,
-          title: title.trim(),
-          description: description.trim(),
-        },
-      },
-      categories: {
-        create: categoryIds.filter(Boolean).map((id) => ({ categoryId: id })),
-      },
     },
   })
+
+  await prisma.novelTranslation.create({
+    data: {
+      novelId: novel.id,
+      locale: sourceLocale,
+      title: title.trim(),
+      description: description.trim(),
+    },
+  })
+
+  for (const categoryId of categoryIds.filter(Boolean)) {
+    await prisma.novelCategory.create({ data: { novelId: novel.id, categoryId } })
+  }
 
   redirect(`/${locale}/author/novels/${novel.id}/chapters/new`)
 }
@@ -69,17 +72,12 @@ export async function createChapter(
   const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
   if (!novel) return { error: 'Novel not found or not authorized' }
 
-  await prisma.chapter.create({
-    data: {
-      novelId,
-      title,
-      content,
-      order,
-      publishStatus,
-      translations: {
-        create: { locale: sourceLocale, title, content },
-      },
-    },
+  const chapter = await prisma.chapter.create({
+    data: { novelId, title, content, order, publishStatus },
+  })
+
+  await prisma.chapterTranslation.create({
+    data: { chapterId: chapter.id, locale: sourceLocale, title, content },
   })
 
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
@@ -113,23 +111,23 @@ export async function updateNovel(formData: FormData) {
 
   const authorName = user?.firstName || user?.username || novel.author
 
-  await prisma.$transaction(async (tx) => {
-    await tx.novelCategory.deleteMany({ where: { novelId } })
-    await tx.novel.update({
-      where: { id: novelId },
-      data: {
-        title,
-        author: authorName,
-        description,
-        isAdult,
-        status: status as 'ONGOING' | 'COMPLETED' | 'HIATUS',
-        ...(newCoverUrl ? { coverUrl: newCoverUrl } : {}),
-        categories: {
-          create: categoryIds.filter(Boolean).map((id) => ({ categoryId: id })),
-        },
-      },
-    })
+  await prisma.novelCategory.deleteMany({ where: { novelId } })
+
+  await prisma.novel.update({
+    where: { id: novelId },
+    data: {
+      title,
+      author: authorName,
+      description,
+      isAdult,
+      status: status as 'ONGOING' | 'COMPLETED' | 'HIATUS',
+      ...(newCoverUrl ? { coverUrl: newCoverUrl } : {}),
+    },
   })
+
+  for (const categoryId of categoryIds.filter(Boolean)) {
+    await prisma.novelCategory.create({ data: { novelId, categoryId } })
+  }
 
   await prisma.novelTranslation.upsert({
     where: { novelId_locale: { novelId, locale: novel.sourceLocale } },

@@ -74,6 +74,8 @@
     "wuxia": "武侠",
     "game": "ゲーム",
     "sports": "スポーツ",
+    "comedy": "コメディ",
+    "detective": "刑事",
     "other": "その他"
   },
   "onboarding": {

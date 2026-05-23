@@ -204,6 +204,18 @@
   color: var(--color-accent);
 }
 
+.actionBtnDraft {
+  background: #fff8e8;
+  color: #9a6200;
+  border-color: #e8c96a;
+}
+
+.actionBtnDraft:hover {
+  background: #fdf0cc;
+  border-color: #d4900a;
+  color: #7a4e00;
+}
+
 .unreadBadge {
   display: inline-flex;
   align-items: center;
