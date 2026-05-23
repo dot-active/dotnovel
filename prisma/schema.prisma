@@ -57,6 +57,7 @@ model NovelTranslation {
   locale      String
   title       String
   description String @db.Text
+  status      String @default("published")
   novel       Novel  @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@unique([novelId, locale])
@@ -86,6 +87,7 @@ model ChapterTranslation {
   locale    String
   title     String
   content   String  @db.Text
+  status    String  @default("published")
   chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([chapterId, locale])
@@ -104,13 +106,19 @@ model Favorite {
 }
 
 model TranslationRequest {
-  id        String   @id @default(cuid())
-  novelId   String
-  locale    String
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
-  novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  novelId       String
+  novel         Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  targetLocale  String
+  status        String   @default("pending")
+  totalChapters Int      @default(0)
+  doneChapters  Int      @default(0)
+  triggerRunId  String?
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
+  @@unique([novelId, targetLocale])
   @@map("translation_requests")
 }
 

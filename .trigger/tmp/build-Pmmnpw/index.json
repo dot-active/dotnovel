@@ -1,0 +1,23 @@
+{
+  "configPath": "D:\\creation\\dotnovel\\.trigger\\tmp\\build-Pmmnpw\\trigger.config.mjs",
+  "customConditions": [
+  ],
+  "prompts": [
+  ],
+  "queues": [
+  ],
+  "runtime": "node",
+  "runtimeVersion": "24.13.0",
+  "tasks": [
+    {
+      "entryPoint": "D:\\creation\\dotnovel\\.trigger\\tmp\\build-Pmmnpw\\translateNovel.mjs",
+      "filePath": "src/trigger/translateNovel.ts",
+      "id": "translate-novel",
+      "maxDuration": 3600
+    }
+  ],
+  "timings": {
+    "src/trigger/translateNovel.ts": 55.226299999999924
+  },
+  "workerEntryPoint": "D:\\creation\\dotnovel\\.trigger\\tmp\\build-Pmmnpw\\dev-run-worker.mjs"
+}

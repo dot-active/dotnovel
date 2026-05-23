@@ -22,8 +22,16 @@ export default async function AuthorDashboardPage({
     orderBy: { createdAt: 'desc' },
   })
 
-  // unread comment counts per novel
   const novelIds = novels.map((n) => n.id)
+
+  // novels with completed (draft) translations pending review
+  const draftTranslations = await prisma.translationRequest.findMany({
+    where: { novelId: { in: novelIds }, status: 'completed' },
+    select: { novelId: true },
+  })
+  const hasDraftTranslation = new Set(draftTranslations.map((t) => t.novelId))
+
+  // unread comment counts per novel
   const unreadGroups = await prisma.comment.groupBy({
     by: ['chapterId'],
     where: {
@@ -106,6 +114,14 @@ export default async function AuthorDashboardPage({
                   {new Date(novel.createdAt).toLocaleDateString('zh-CN')}
                 </span>
                 <div className={styles.actions}>
+                  {hasDraftTranslation.has(novel.id) && (
+                    <Link
+                      href={`/author/novels/${novel.id}/translations`}
+                      className={`${styles.actionBtn} ${styles.actionBtnDraft}`}
+                    >
+                      有新翻译草稿待审阅
+                    </Link>
+                  )}
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
                     className={styles.actionBtn}

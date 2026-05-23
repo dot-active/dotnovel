@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import EditNovelForm from './_components/EditNovelForm'
+import TranslationManager from './_components/TranslationManager'
 import styles from './page.module.css'
 
 export default async function EditNovelPage({
@@ -55,6 +56,8 @@ export default async function EditNovelPage({
         categories={categories}
         locale={locale}
       />
+
+      <TranslationManager novelId={novel.id} sourceLocale={novel.sourceLocale} locale={locale} />
     </div>
   )
 }
