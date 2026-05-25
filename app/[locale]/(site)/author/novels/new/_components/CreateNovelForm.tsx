@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { createNovel } from '@/lib/actions/author'
 import styles from './CreateNovelForm.module.css'
 
@@ -14,8 +15,6 @@ const LOCALE_OPTIONS = [
   { value: 'es', label: 'Español' },
 ]
 
-const ALL_LOCALES = LOCALE_OPTIONS.map((l) => l.value)
-
 interface Category {
   id: string
   slug: string
@@ -24,38 +23,44 @@ interface Category {
 interface Props {
   categories: Category[]
   locale: string
-  selectedCategoryIds?: string[]
 }
 
-export default function CreateNovelForm({ categories, locale, selectedCategoryIds = [] }: Props) {
+export default function CreateNovelForm({ categories, locale }: Props) {
   const t = useTranslations('author.form')
   const tCat = useTranslations('categories')
 
   const formRef = useRef<HTMLFormElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string>('')
   const [coverFile, setCoverFile] = useState<File | null>(null)
-  const [selectedLocale, setSelectedLocale] = useState('zh-CN')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [titleLen, setTitleLen] = useState(0)
+  const [descLen, setDescLen] = useState(0)
+  const [selectedCats, setSelectedCats] = useState<string[]>([])
+  const [isAdult, setIsAdult] = useState(false)
+  const [sourceLocale, setSourceLocale] = useState('zh-CN')
+  const [targetLocales, setTargetLocales] = useState<string[]>([])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     const allowed = ['image/jpeg', 'image/png', 'image/webp']
-    if (!allowed.includes(file.type)) {
-      setFileError(t('coverHint'))
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setFileError(t('coverHint'))
-      return
-    }
+    if (!allowed.includes(file.type)) { setFileError(t('coverHint')); return }
+    if (file.size > 2 * 1024 * 1024) { setFileError(t('coverHint')); return }
     setFileError(null)
     setCoverFile(file)
     setCoverPreview(URL.createObjectURL(file))
+  }
+
+  function toggleCat(catId: string) {
+    setSelectedCats(prev => {
+      if (prev.includes(catId)) return prev.filter(id => id !== catId)
+      if (prev.length >= 3) return prev
+      return [...prev, catId]
+    })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -70,17 +75,14 @@ export default function CreateNovelForm({ categories, locale, selectedCategoryId
         fd.append('file', coverFile)
         fd.append('uploadId', crypto.randomUUID())
         const res = await fetch('/api/upload/cover', { method: 'POST', body: fd })
-        if (!res.ok) {
-          const { error: msg } = await res.json()
-          throw new Error(msg)
-        }
+        if (!res.ok) throw new Error((await res.json()).error)
         coverUrl = (await res.json()).url
       }
 
       const formData = new FormData(formRef.current!)
       formData.set('coverUrl', coverUrl)
-      formData.set('sourceLocale', selectedLocale)
       formData.set('locale', locale)
+      formData.set('isAdult', isAdult ? 'true' : 'false')
 
       await createNovel(formData)
     } catch (err) {
@@ -92,139 +94,179 @@ export default function CreateNovelForm({ categories, locale, selectedCategoryId
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
-      <div className={styles.layout}>
-        {/* ── Left column: main fields ── */}
-        <div className={styles.main}>
-          {/* Title */}
+
+      {/* ── Section 1: Cover · Title & Synopsis ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionMeta')}</span>
+      </div>
+
+      <div className={styles.headRow}>
+        {/* Cover (left) */}
+        <div className={styles.coverBlock}>
+          <div className={styles.coverArea} onClick={() => fileInputRef.current?.click()}>
+            {coverPreview ? (
+              <img src={coverPreview} alt="cover" className={styles.coverPreview} />
+            ) : (
+              <>
+                <span className={styles.coverGlyph}>❦</span>
+                <span className={styles.coverPl}>{t('coverUpload')}</span>
+              </>
+            )}
+          </div>
+          <div className={styles.coverHint}>
+            JPG · PNG · WebP
+            <span className={styles.coverSpec}>1200 × 1600 · max 2 MB</span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className={styles.fileInput}
+            onChange={handleFileChange}
+          />
+          {fileError && <p className={styles.fieldError}>{fileError}</p>}
+        </div>
+
+        {/* Title + Synopsis (right) */}
+        <div>
           <div className={styles.field}>
-            <label className={styles.label}>
-              {t('title')} <span className={styles.required}>*</span>
-            </label>
+            <div className={styles.fieldLabel}>
+              <span>{t('title')} <span className={styles.req}>*</span></span>
+              <span className={styles.count}>{titleLen} / 30</span>
+            </div>
             <input
               name="title"
               type="text"
               required
+              maxLength={30}
               placeholder={t('titlePlaceholder')}
               className={styles.input}
+              onChange={e => setTitleLen(e.target.value.length)}
             />
           </div>
 
-          {/* Description */}
           <div className={styles.field}>
-            <label className={styles.label}>
-              {t('description')} <span className={styles.required}>*</span>
-            </label>
+            <div className={styles.fieldLabel}>
+              <span>{t('description')} <span className={styles.req}>*</span></span>
+              <span className={styles.count}>{descLen} / 300</span>
+            </div>
             <textarea
               name="description"
               required
               rows={5}
+              maxLength={300}
               placeholder={t('descriptionPlaceholder')}
               className={styles.textarea}
+              onChange={e => setDescLen(e.target.value.length)}
             />
-          </div>
-
-          {/* Category */}
-          <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label className={styles.label}>{t('category')}</label>
-              <div className={styles.checkboxGroup}>
-                {categories.map((cat) => (
-                  <label key={cat.id} className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="categoryIds"
-                      value={cat.id}
-                      defaultChecked={selectedCategoryIds.includes(cat.id)}
-                    />
-                    <span>{tCat(cat.slug as Parameters<typeof tCat>[0])}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Writing language */}
-            <div className={styles.field}>
-              <label className={styles.label}>
-                {t('language')} <span className={styles.required}>*</span>
-              </label>
-              <select
-                value={selectedLocale}
-                onChange={(e) => setSelectedLocale(e.target.value)}
-                className={styles.select}
-              >
-                {LOCALE_OPTIONS.map((l) => (
-                  <option key={l.value} value={l.value}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-              <p className={styles.hint}>{t('languageHint')}</p>
-            </div>
-          </div>
-
-          {/* Translation reserved (disabled) */}
-          <div className={styles.translationBox}>
-            <p className={styles.translationTitle}>
-              {t('translationTitle')}
-            </p>
-            <p className={styles.translationHint}>{t('translationHint')}</p>
-            <div className={styles.translationLocales}>
-              {ALL_LOCALES.filter((l) => l !== selectedLocale).map((l) => {
-                const opt = LOCALE_OPTIONS.find((x) => x.value === l)!
-                return (
-                  <label key={l} className={styles.translationLocale}>
-                    <input type="checkbox" disabled />
-                    <span>{opt.label}</span>
-                  </label>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Right column: cover ── */}
-        <div className={styles.sidebar}>
-          <div className={styles.field}>
-            <label className={styles.label}>{t('cover')}</label>
-            <div
-              className={styles.coverArea}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {coverPreview ? (
-                <img src={coverPreview} alt="cover preview" className={styles.coverPreview} />
-              ) : (
-                <div className={styles.coverPlaceholder}>
-                  <span className={styles.coverIcon}>🖼</span>
-                  <span>{t('coverUpload')}</span>
-                </div>
-              )}
-            </div>
-            {coverPreview && (
-              <button
-                type="button"
-                className={styles.coverChangeBtn}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {t('coverChange')}
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className={styles.fileInput}
-              onChange={handleFileChange}
-            />
-            {fileError && <p className={styles.fieldError}>{fileError}</p>}
-            <p className={styles.hint}>{t('coverHint')}</p>
           </div>
         </div>
       </div>
 
+      {/* ── Section 2: Category ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionCategory')}</span>
+        <span className={styles.secNote}>{t('categoryNote')}</span>
+      </div>
+
+      <div className={styles.tagGrid}>
+        {categories.map(cat => {
+          const isOn = selectedCats.includes(cat.id)
+          return (
+            <label
+              key={cat.id}
+              className={`${styles.tagCheck}${isOn ? ` ${styles.on}` : ''}`}
+            >
+              <input
+                type="checkbox"
+                name="categoryIds"
+                value={cat.id}
+                checked={isOn}
+                onChange={() => toggleCat(cat.id)}
+              />
+              {tCat(cat.slug as Parameters<typeof tCat>[0])}
+            </label>
+          )
+        })}
+      </div>
+
+      {/* ── Section 3: Language · 18+ ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>{t('sectionCover')}</span>
+      </div>
+
+      <div className={styles.metaStrip}>
+        {/* Writing language */}
+        <div className={styles.field}>
+          <div className={styles.fieldLabel}><span>{t('language')} <span className={styles.req}>*</span></span></div>
+          <div className={styles.selectWrap}>
+            <select
+              name="sourceLocale"
+              className={styles.select}
+              value={sourceLocale}
+              onChange={e => {
+                setSourceLocale(e.target.value)
+                setTargetLocales(prev => prev.filter(l => l !== e.target.value))
+              }}
+            >
+              {LOCALE_OPTIONS.map(l => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 18+ toggle */}
+        <div className={styles.field}>
+          <div className={styles.fieldLabel}><span>{t('isAdult')}</span></div>
+          <label className={styles.toggleInline}>
+            <div
+              className={`${styles.toggle}${isAdult ? ` ${styles.on}` : ''}`}
+              onClick={e => { e.preventDefault(); setIsAdult(a => !a) }}
+            />
+            <span className={styles.toggleSub}>{t('isAdultHint')}</span>
+          </label>
+        </div>
+      </div>
+
+      {/* ── Section 4: Translation languages ── */}
+      <div className={styles.secDivider}>
+        <span className={styles.secCh}>翻 译 语 言</span>
+        <span className={styles.secNote}>发布后可在编辑页一键触发 AI 翻译</span>
+      </div>
+
+      <div className={styles.tagGrid}>
+        {LOCALE_OPTIONS.filter(l => l.value !== sourceLocale).map(l => {
+          const isOn = targetLocales.includes(l.value)
+          return (
+            <label
+              key={l.value}
+              className={`${styles.tagCheck}${isOn ? ` ${styles.on}` : ''}`}
+            >
+              <input
+                type="checkbox"
+                name="targetLocales"
+                value={l.value}
+                checked={isOn}
+                onChange={() => setTargetLocales(prev =>
+                  prev.includes(l.value) ? prev.filter(x => x !== l.value) : [...prev, l.value]
+                )}
+              />
+              {l.label}
+            </label>
+          )
+        })}
+      </div>
+
       {error && <p className={styles.formError}>{error}</p>}
 
-      <div className={styles.footer}>
-        <button type="submit" disabled={submitting} className={styles.submitBtn}>
+      {/* ── Footer bar ── */}
+      <div className={styles.footerBar}>
+        <span className={styles.spacer} />
+        <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
+          {t('cancel')}
+        </Link>
+        <button type="submit" disabled={submitting} className={styles.btn}>
           {submitting ? t('submitting') : t('submit')}
         </button>
       </div>

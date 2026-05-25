@@ -36,7 +36,10 @@ export async function POST(req: NextRequest) {
     where: { novelId_targetLocale: { novelId, targetLocale } },
   })
 
-  if (existingReq && (existingReq.status === 'pending' || existingReq.status === 'processing')) {
+  // Only block if a job is actually running (triggerRunId set). A pending request
+  // with no triggerRunId means the user pre-selected this locale at creation time
+  // but hasn't triggered the job yet — allow proceeding.
+  if (existingReq?.triggerRunId && (existingReq.status === 'pending' || existingReq.status === 'processing')) {
     return NextResponse.json({ conflict: 'processing' }, { status: 409 })
   }
 

@@ -12,6 +12,7 @@ export async function createNovel(formData: FormData) {
   const title = formData.get('title') as string
   const description = formData.get('description') as string
   const categoryIds = formData.getAll('categoryIds') as string[]
+  const targetLocales = formData.getAll('targetLocales') as string[]
   const sourceLocale = formData.get('sourceLocale') as string
   const coverUrl = (formData.get('coverUrl') as string) || null
   const locale = formData.get('locale') as string
@@ -46,6 +47,12 @@ export async function createNovel(formData: FormData) {
 
   for (const categoryId of categoryIds.filter(Boolean)) {
     await prisma.novelCategory.create({ data: { novelId: novel.id, categoryId } })
+  }
+
+  for (const targetLocale of targetLocales.filter(Boolean)) {
+    await prisma.translationRequest.create({
+      data: { novelId: novel.id, targetLocale, status: 'pending' },
+    })
   }
 
   redirect(`/${locale}/author/novels/${novel.id}/chapters/new`)

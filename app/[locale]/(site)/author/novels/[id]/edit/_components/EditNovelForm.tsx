@@ -213,14 +213,13 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
             <label
               key={cat.id}
               className={`${styles.tagCheck}${isOn ? ` ${styles.on}` : ''}`}
-              onClick={() => toggleCat(cat.id)}
             >
               <input
                 type="checkbox"
                 name="categoryIds"
                 value={cat.id}
                 checked={isOn}
-                onChange={() => {}}
+                onChange={() => toggleCat(cat.id)}
               />
               {tCat(cat.slug as Parameters<typeof tCat>[0])}
             </label>

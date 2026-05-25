@@ -89,49 +89,7 @@ a {
 .site-header__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--bark);
   flex-shrink: 0;
-}
-
-.site-header__logo-mark {
-  width: 26px;
-  height: 26px;
-  border: 1.5px solid var(--bark);
-  border-radius: 50%;
-  position: relative;
-  flex-shrink: 0;
-  align-self: center;
-}
-
-.site-header__logo-mark::after {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border-left: 1.5px solid var(--bark);
-  border-radius: 50%;
-}
-
-.site-header__logo-name {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: 22px;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  color: var(--bark);
-}
-
-.site-header__logo-name em {
-  font-style: italic;
-  font-weight: 400;
-}
-
-.site-header__logo-sub {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  color: var(--bark-soft);
-  text-transform: uppercase;
 }
 
 .site-header__nav {

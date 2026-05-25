@@ -1,7 +1,9 @@
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import LocaleSwitcher from '@/components/LocaleSwitcher'
+import logoSrc from '@/src/images/logo.png'
 
 // ssr: false — Clerk's SignedIn/UserButton renders differently on server vs client,
 // which causes a hydration mismatch. Loading client-only eliminates the server HTML entirely.
@@ -22,11 +24,7 @@ export default async function SiteLayout({
       <header className="site-header">
         <div className="site-header__inner">
           <Link href="/" className="site-header__logo">
-            <span className="site-header__logo-mark" />
-            <span>
-              <div className="site-header__logo-name">Novel<em>Phere</em></div>
-              <div className="site-header__logo-sub">est · mmxxvi</div>
-            </span>
+            <Image src={logoSrc} alt="NovelPhere" height={36} />
           </Link>
           <div className="site-header__auth">
             <LocaleSwitcher />
