@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { PrismaClient } from '@prisma/client'
 import { PrismaNeonHTTP } from '@prisma/adapter-neon'
 import { neon, types } from '@neondatabase/serverless'
+import { simplifiedToTraditional, traditionalToSimplified } from '../lib/opencc'
 
 types.setTypeParser(types.builtins.TIMESTAMP, (v: string) => v)
 types.setTypeParser(types.builtins.TIMESTAMPTZ, (v: string) => v)
@@ -29,10 +30,10 @@ export const translateNovel = task({
   run: async (payload: { translationRequestId: string; novelId: string; targetLocale: string }) => {
     const { translationRequestId, novelId, targetLocale } = payload
     const prisma = createPrisma()
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const targetLang = LOCALE_NAMES[targetLocale] ?? targetLocale
 
-    async function translate(text: string): Promise<string> {
+    async function translateWithClaude(text: string): Promise<string> {
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
       const msg = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
@@ -76,41 +77,84 @@ export const translateNovel = task({
         data: { totalChapters },
       })
 
-      // 3. Translate novel title + description
-      const [translatedTitle, translatedDesc] = await Promise.all([
-        translate(srcNovelTr.title),
-        translate(srcNovelTr.description),
-      ])
+      const convertZh = (text: string, src: string) =>
+        src === 'zh-CN' ? simplifiedToTraditional(text) : traditionalToSimplified(text)
 
-      await prisma.novelTranslation.upsert({
-        where: { novelId_locale: { novelId, locale: targetLocale } },
-        create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'draft' },
-        update: { title: translatedTitle, description: translatedDesc, status: 'draft' },
-      })
+      const sourceLocale = srcNovelTr.locale
 
-      // 4. Translate each chapter
-      for (let i = 0; i < chapters.length; i++) {
-        const chapter = chapters[i]
-        const srcTr = chapter.translations[0]
+      const zhLocales = new Set(['zh-CN', 'zh-TW'])
+      if (zhLocales.has(sourceLocale) && zhLocales.has(targetLocale) && sourceLocale !== targetLocale) {
+        // 3a. OpenCC path: zh-CN ↔ zh-TW
+        await prisma.novelTranslation.upsert({
+          where: { novelId_locale: { novelId, locale: targetLocale } },
+          create: {
+            novelId,
+            locale: targetLocale,
+            title: convertZh(srcNovelTr.title, sourceLocale),
+            description: convertZh(srcNovelTr.description, sourceLocale),
+            status: 'draft',
+          },
+          update: {
+            title: convertZh(srcNovelTr.title, sourceLocale),
+            description: convertZh(srcNovelTr.description, sourceLocale),
+            status: 'draft',
+          },
+        })
 
-        const [tTitle, tContent] = await Promise.all([
-          translate(srcTr.title),
-          translate(srcTr.content),
+        for (const chapter of chapters) {
+          const srcTr = chapter.translations[0]
+          await prisma.chapterTranslation.upsert({
+            where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
+            create: {
+              chapterId: chapter.id,
+              locale: targetLocale,
+              title: convertZh(srcTr.title, sourceLocale),
+              content: convertZh(srcTr.content, sourceLocale),
+              status: 'draft',
+            },
+            update: {
+              title: convertZh(srcTr.title, sourceLocale),
+              content: convertZh(srcTr.content, sourceLocale),
+              status: 'draft',
+            },
+          })
+        }
+      } else {
+        // 3b. Claude API path
+        const [translatedTitle, translatedDesc] = await Promise.all([
+          translateWithClaude(srcNovelTr.title),
+          translateWithClaude(srcNovelTr.description),
         ])
 
-        await prisma.chapterTranslation.upsert({
-          where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
-          create: { chapterId: chapter.id, locale: targetLocale, title: tTitle, content: tContent, status: 'draft' },
-          update: { title: tTitle, content: tContent, status: 'draft' },
+        await prisma.novelTranslation.upsert({
+          where: { novelId_locale: { novelId, locale: targetLocale } },
+          create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'draft' },
+          update: { title: translatedTitle, description: translatedDesc, status: 'draft' },
         })
 
-        await prisma.translationRequest.update({
-          where: { id: translationRequestId },
-          data: { doneChapters: i + 1 },
-        })
+        for (let i = 0; i < chapters.length; i++) {
+          const chapter = chapters[i]
+          const srcTr = chapter.translations[0]
+
+          const [tTitle, tContent] = await Promise.all([
+            translateWithClaude(srcTr.title),
+            translateWithClaude(srcTr.content),
+          ])
+
+          await prisma.chapterTranslation.upsert({
+            where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
+            create: { chapterId: chapter.id, locale: targetLocale, title: tTitle, content: tContent, status: 'draft' },
+            update: { title: tTitle, content: tContent, status: 'draft' },
+          })
+
+          await prisma.translationRequest.update({
+            where: { id: translationRequestId },
+            data: { doneChapters: i + 1 },
+          })
+        }
       }
 
-      // 5. Mark complete
+      // 4. Mark complete
       await prisma.translationRequest.update({
         where: { id: translationRequestId },
         data: { status: 'completed' },
