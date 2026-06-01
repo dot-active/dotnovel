@@ -4,6 +4,8 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
+import { tasks } from '@trigger.dev/sdk/v3'
+import type { translateChapter } from '@/src/trigger/translateChapter'
 
 export async function createNovel(formData: FormData) {
   const { userId } = await auth()
@@ -86,6 +88,23 @@ export async function createChapter(
   await prisma.chapterTranslation.create({
     data: { chapterId: chapter.id, locale: sourceLocale, title, content },
   })
+
+  if (publishStatus === 'published') {
+    const completedRequests = await prisma.translationRequest.findMany({
+      where: { novelId, status: 'completed' },
+      select: { targetLocale: true },
+    })
+    for (const { targetLocale } of completedRequests) {
+      if (targetLocale !== sourceLocale) {
+        await tasks.trigger<typeof translateChapter>('translate-chapter', {
+          chapterId: chapter.id,
+          novelId,
+          sourceLocale,
+          targetLocale,
+        })
+      }
+    }
+  }
 
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 
@@ -193,6 +212,28 @@ export async function updateChapter(
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 
   return { redirectUrl: `/${browsingLocale}/author/novels/${novelId}/chapters` }
+}
+
+export async function deleteChapter(
+  formData: FormData
+): Promise<{ redirectUrl: string; error?: never } | { error: string; redirectUrl?: never }> {
+  const { userId } = await auth()
+  if (!userId) return { error: 'Unauthorized' }
+
+  const chapterId = formData.get('chapterId') as string
+  const novelId = formData.get('novelId') as string
+  const locale = formData.get('locale') as string
+
+  const chapter = await prisma.chapter.findFirst({
+    where: { id: chapterId },
+    include: { novel: { select: { authorId: true } } },
+  })
+  if (!chapter || chapter.novel.authorId !== userId) return { error: 'Not found or not authorized' }
+
+  await prisma.chapter.delete({ where: { id: chapterId } })
+
+  revalidatePath(`/${locale}/author/novels/${novelId}/chapters`)
+  return { redirectUrl: `/${locale}/author/novels/${novelId}/chapters` }
 }
 
 export async function deleteNovel(formData: FormData) {

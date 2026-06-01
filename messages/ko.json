@@ -150,6 +150,8 @@
     "editChapter": "챕터 편집",
     "noChaptersYet": "챕터가 없습니다",
     "draft": "임시저장",
-    "published": "발행됨"
+    "published": "발행됨",
+    "deleteChapter": "챕터 삭제",
+    "deleteChapterConfirm": "이 챕터를 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다."
   }
 }

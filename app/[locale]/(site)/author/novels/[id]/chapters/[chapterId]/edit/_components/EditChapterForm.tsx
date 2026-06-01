@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { updateChapter } from '@/lib/actions/author'
+import { updateChapter, deleteChapter } from '@/lib/actions/author'
 import styles from './EditChapterForm.module.css'
 
 const ALL_LOCALES = [
@@ -41,6 +41,7 @@ interface Props {
 
 export default function EditChapterForm({ chapter, locale, novelLocales }: Props) {
   const t = useTranslations('author.form')
+  const tAuthor = useTranslations('author')
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [submitting, setSubmitting] = useState<string | null>(null)
@@ -75,6 +76,30 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
       formData.set('publishStatus', publishStatus)
 
       const result = await updateChapter(formData)
+      if ('error' in result && result.error) {
+        setError(result.error)
+        return
+      }
+      if (result.redirectUrl) {
+        router.push(result.redirectUrl)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm(tAuthor('deleteChapterConfirm'))) return
+    setSubmitting('delete')
+    setError(null)
+    try {
+      const formData = new FormData()
+      formData.set('chapterId', chapter.id)
+      formData.set('novelId', chapter.novelId)
+      formData.set('locale', locale)
+      const result = await deleteChapter(formData)
       if ('error' in result && result.error) {
         setError(result.error)
         return
@@ -171,23 +196,33 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.footer}>
-        <select
-          className={styles.statusSelect}
-          value={selectedStatus}
-          disabled={busy}
-          onChange={(e) => setSelectedStatus(e.target.value as 'draft' | 'published')}
-        >
-          <option value="draft">草稿</option>
-          <option value="published">发布</option>
-        </select>
         <button
           type="button"
           disabled={busy}
-          className={styles.primaryBtn}
-          onClick={() => handleSubmit(selectedStatus)}
+          className={styles.deleteBtn}
+          onClick={handleDelete}
         >
-          {submitting ? '…' : t('saveChanges')}
+          {submitting === 'delete' ? '…' : tAuthor('deleteChapter')}
         </button>
+        <div className={styles.footerRight}>
+          <select
+            className={styles.statusSelect}
+            value={selectedStatus}
+            disabled={busy}
+            onChange={(e) => setSelectedStatus(e.target.value as 'draft' | 'published')}
+          >
+            <option value="draft">草稿</option>
+            <option value="published">发布</option>
+          </select>
+          <button
+            type="button"
+            disabled={busy}
+            className={styles.primaryBtn}
+            onClick={() => handleSubmit(selectedStatus)}
+          >
+            {submitting === 'draft' || submitting === 'published' ? '…' : t('saveChanges')}
+          </button>
+        </div>
       </div>
     </form>
   )

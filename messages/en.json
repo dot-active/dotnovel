@@ -150,6 +150,8 @@
     "editChapter": "Edit Chapter",
     "noChaptersYet": "No chapters yet",
     "draft": "Draft",
-    "published": "Published"
+    "published": "Published",
+    "deleteChapter": "Delete Chapter",
+    "deleteChapterConfirm": "Are you sure you want to delete this chapter? This cannot be undone."
   }
 }

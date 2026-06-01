@@ -150,6 +150,8 @@
     "editChapter": "章を編集",
     "noChaptersYet": "章がありません",
     "draft": "下書き",
-    "published": "公開済み"
+    "published": "公開済み",
+    "deleteChapter": "章を削除",
+    "deleteChapterConfirm": "この章を削除してもよろしいですか？削除後は元に戻せません。"
   }
 }

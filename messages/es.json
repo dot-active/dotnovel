@@ -150,6 +150,8 @@
     "editChapter": "Editar capítulo",
     "noChaptersYet": "Sin capítulos aún",
     "draft": "Borrador",
-    "published": "Publicado"
+    "published": "Publicado",
+    "deleteChapter": "Eliminar capítulo",
+    "deleteChapterConfirm": "¿Estás seguro de que quieres eliminar este capítulo? Esta acción no se puede deshacer."
   }
 }

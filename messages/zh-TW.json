@@ -150,6 +150,8 @@
     "editChapter": "編輯章節",
     "noChaptersYet": "暫無章節",
     "draft": "草稿",
-    "published": "已發布"
+    "published": "已發布",
+    "deleteChapter": "刪除章節",
+    "deleteChapterConfirm": "確定要刪除此章節嗎？刪除後無法恢復。"
   }
 }
