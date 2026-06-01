@@ -102,7 +102,7 @@ export default async function HomePage({
         viewCount: true,
         favoriteCount: true,
         translations: { where: { locale }, select: { title: true, description: true } },
-        _count: { select: { chapters: { where: { publishStatus: 'published' } } } },
+        _count: { select: { chapters: { where: { translations: { some: { locale, status: 'published' } } } } } },
       },
       orderBy,
       take: NOVELS_PER_PAGE,

@@ -9,14 +9,16 @@ import styles from './page.module.css'
 
 export default async function EditNovelPage({
   params: { locale, id },
+  searchParams,
 }: {
   params: { locale: string; id: string }
+  searchParams: { lang?: string }
 }) {
   setRequestLocale(locale)
   const t = await getTranslations('author')
   const { userId } = await auth()
 
-  const [novel, categories] = await Promise.all([
+  const [novel, categories, translationRequests] = await Promise.all([
     prisma.novel.findFirst({
       where: { id, authorId: userId! },
       include: {
@@ -25,6 +27,10 @@ export default async function EditNovelPage({
       },
     }),
     prisma.category.findMany({ orderBy: { slug: 'asc' } }),
+    prisma.translationRequest.findMany({
+      where: { novelId: id },
+      select: { targetLocale: true, status: true },
+    }),
   ])
 
   if (!novel) notFound()
@@ -32,6 +38,8 @@ export default async function EditNovelPage({
   const sourceTr =
     novel.translations.find((tr) => tr.locale === novel.sourceLocale) ??
     novel.translations[0]
+
+  const initialLang = searchParams.lang ?? null
 
   return (
     <div className={styles.page}>
@@ -55,9 +63,22 @@ export default async function EditNovelPage({
         }}
         categories={categories}
         locale={locale}
+        translations={novel.translations.map(tr => ({
+          locale: tr.locale,
+          title: tr.title,
+          description: tr.description,
+          status: tr.status,
+        }))}
+        translationRequests={translationRequests}
+        initialLang={initialLang}
       />
 
-      <TranslationManager novelId={novel.id} sourceLocale={novel.sourceLocale} locale={locale} />
+      <TranslationManager
+        novelId={novel.id}
+        sourceLocale={novel.sourceLocale}
+        locale={locale}
+        initialLang={initialLang}
+      />
     </div>
   )
 }

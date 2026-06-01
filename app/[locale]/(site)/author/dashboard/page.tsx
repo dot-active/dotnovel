@@ -27,9 +27,15 @@ export default async function AuthorDashboardPage({
   // novels with completed (draft) translations pending review
   const draftTranslations = await prisma.translationRequest.findMany({
     where: { novelId: { in: novelIds }, status: 'completed' },
-    select: { novelId: true },
+    select: { novelId: true, targetLocale: true },
+    orderBy: { updatedAt: 'desc' },
   })
   const hasDraftTranslation = new Set(draftTranslations.map((t) => t.novelId))
+  // most recent completed translation locale per novel
+  const draftLocaleMap: Record<string, string> = {}
+  for (const dt of draftTranslations) {
+    if (!draftLocaleMap[dt.novelId]) draftLocaleMap[dt.novelId] = dt.targetLocale
+  }
 
   // unread comment counts per novel
   const unreadGroups = await prisma.comment.groupBy({
@@ -116,7 +122,7 @@ export default async function AuthorDashboardPage({
                 <div className={styles.actions}>
                   {hasDraftTranslation.has(novel.id) && (
                     <Link
-                      href={`/author/novels/${novel.id}/translations`}
+                      href={`/author/novels/${novel.id}/edit?lang=${draftLocaleMap[novel.id] ?? ''}`}
                       className={`${styles.actionBtn} ${styles.actionBtnDraft}`}
                     >
                       有新翻译草稿待审阅

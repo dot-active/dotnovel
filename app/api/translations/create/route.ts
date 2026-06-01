@@ -43,30 +43,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ conflict: 'processing' }, { status: 409 })
   }
 
+  if (existingReq?.status === 'paused' && !overwrite) {
+    return NextResponse.json({ conflict: 'paused' }, { status: 409 })
+  }
+
   // Count source chapters
   const chapterCount = await prisma.chapter.count({
     where: { novelId, publishStatus: 'published' },
   })
 
-  // Upsert translation request
+  // Upsert translation request (triggerRunId cleared so stuck-run sync ignores it)
   const trReq = await prisma.translationRequest.upsert({
     where: { novelId_targetLocale: { novelId, targetLocale } },
     create: { novelId, targetLocale, status: 'pending', totalChapters: chapterCount },
     update: { status: 'pending', doneChapters: 0, totalChapters: chapterCount, triggerRunId: null, errorMessage: null },
   })
 
-  // Trigger the task
-  const handle = await tasks.trigger<typeof translateNovel>('translate-novel', {
-    translationRequestId: trReq.id,
-    novelId,
-    targetLocale,
-  })
-
-  // Store run ID
-  await prisma.translationRequest.update({
-    where: { id: trReq.id },
-    data: { triggerRunId: handle.id },
-  })
-
-  return NextResponse.json({ success: true, runId: handle.id })
+  // Trigger the task — revert to failed if this fails so the DB never stays in
+  // the "pending + no triggerRunId" limbo that shows the '开始翻译' button
+  try {
+    const handle = await tasks.trigger<typeof translateNovel>('translate-novel', {
+      translationRequestId: trReq.id,
+      novelId,
+      targetLocale,
+    })
+    await prisma.translationRequest.update({
+      where: { id: trReq.id },
+      data: { triggerRunId: handle.id },
+    })
+    return NextResponse.json({ success: true, runId: handle.id })
+  } catch (err) {
+    await prisma.translationRequest.update({
+      where: { id: trReq.id },
+      data: { status: 'failed', errorMessage: 'Failed to queue translation job' },
+    })
+    return NextResponse.json({ error: 'Failed to trigger task' }, { status: 500 })
+  }
 }

@@ -33,7 +33,7 @@ export const translateNovel = task({
     const targetLang = LOCALE_NAMES[targetLocale] ?? targetLocale
 
     async function translateWithClaude(text: string): Promise<string> {
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120_000 })
       const msg = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
@@ -51,25 +51,30 @@ export const translateNovel = task({
         data: { status: 'processing' },
       })
 
-      // 2. Fetch source novel translation
+      // 2. Fetch source novel — include all non-target translations (any status) as source candidates
       const novel = await prisma.novel.findUniqueOrThrow({
         where: { id: novelId },
         include: {
-          translations: { where: { locale: { not: targetLocale }, status: 'published' }, take: 1 },
+          translations: { where: { locale: { not: targetLocale } } },
           chapters: {
-            where: { publishStatus: 'published' },
             orderBy: { order: 'asc' },
             include: {
-              translations: { where: { locale: { not: targetLocale }, status: 'published' }, take: 1 },
+              // Include all non-target translations regardless of status so we always
+              // have source text even when the author saved chapters as draft
+              translations: { where: { locale: { not: targetLocale } } },
             },
           },
         },
       })
 
-      const srcNovelTr = novel.translations[0]
-      if (!srcNovelTr) throw new Error('No published novel translation found as source')
+      // Prefer the novel's own sourceLocale as the translation source
+      const srcNovelTr =
+        novel.translations.find(t => t.locale === novel.sourceLocale) ??
+        novel.translations[0]
+      if (!srcNovelTr) throw new Error('No novel translation found as source')
 
-      const chapters = novel.chapters.filter(c => c.translations.length > 0)
+      // All published chapters — fall back to chapter.title/content if no ChapterTranslation exists
+      const chapters = novel.chapters
       const totalChapters = chapters.length
 
       await prisma.translationRequest.update({
@@ -102,19 +107,25 @@ export const translateNovel = task({
         })
 
         for (const chapter of chapters) {
-          const srcTr = chapter.translations[0]
+          // Prefer sourceLocale translation; fall back to any other translation, then native fields
+          const srcTr =
+            chapter.translations.find(t => t.locale === sourceLocale) ??
+            chapter.translations[0]
+          const srcTitle = srcTr?.title ?? chapter.title
+          const srcContent = srcTr?.content ?? chapter.content
+
           await prisma.chapterTranslation.upsert({
             where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
             create: {
               chapterId: chapter.id,
               locale: targetLocale,
-              title: convertZh(srcTr.title, sourceLocale),
-              content: convertZh(srcTr.content, sourceLocale),
+              title: convertZh(srcTitle, sourceLocale),
+              content: convertZh(srcContent, sourceLocale),
               status: 'draft',
             },
             update: {
-              title: convertZh(srcTr.title, sourceLocale),
-              content: convertZh(srcTr.content, sourceLocale),
+              title: convertZh(srcTitle, sourceLocale),
+              content: convertZh(srcContent, sourceLocale),
               status: 'draft',
             },
           })
@@ -134,11 +145,16 @@ export const translateNovel = task({
 
         for (let i = 0; i < chapters.length; i++) {
           const chapter = chapters[i]
-          const srcTr = chapter.translations[0]
+          // Prefer sourceLocale translation; fall back to any other translation, then native fields
+          const srcTr =
+            chapter.translations.find(t => t.locale === sourceLocale) ??
+            chapter.translations[0]
+          const srcTitle = srcTr?.title ?? chapter.title
+          const srcContent = srcTr?.content ?? chapter.content
 
           const [tTitle, tContent] = await Promise.all([
-            translateWithClaude(srcTr.title),
-            translateWithClaude(srcTr.content),
+            translateWithClaude(srcTitle),
+            translateWithClaude(srcContent),
           ])
 
           await prisma.chapterTranslation.upsert({

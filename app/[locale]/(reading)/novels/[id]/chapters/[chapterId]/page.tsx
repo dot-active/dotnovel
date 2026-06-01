@@ -15,18 +15,16 @@ export default async function ChapterPage({
 
   const [chapter, { userId }] = await Promise.all([
     prisma.chapter.findFirst({
-      where: { id: chapterId, novelId: id, publishStatus: 'published' },
+      where: { id: chapterId, novelId: id },
       include: {
         novel: {
           select: {
             title: true,
             isAdult: true,
-            // All novel translations — determines which locales are available
             translations: { select: { locale: true, title: true } },
           },
         },
-        // All chapter translations — determines which locales have this chapter
-        translations: { select: { locale: true, title: true, content: true } },
+        translations: { where: { status: 'published' }, select: { locale: true, title: true, content: true } },
       },
     }),
     auth(),
@@ -58,21 +56,19 @@ export default async function ChapterPage({
       where: {
         novelId: id,
         order: { lt: chapter.order },
-        translations: { some: { locale } },
-        publishStatus: 'published',
+        translations: { some: { locale, status: 'published' } },
       },
       orderBy: { order: 'desc' },
-      select: { id: true, translations: { where: { locale }, select: { title: true } } },
+      select: { id: true, translations: { where: { locale, status: 'published' }, select: { title: true } } },
     }),
     prisma.chapter.findFirst({
       where: {
         novelId: id,
         order: { gt: chapter.order },
-        translations: { some: { locale } },
-        publishStatus: 'published',
+        translations: { some: { locale, status: 'published' } },
       },
       orderBy: { order: 'asc' },
-      select: { id: true, translations: { where: { locale }, select: { title: true } } },
+      select: { id: true, translations: { where: { locale, status: 'published' }, select: { title: true } } },
     }),
   ])
 

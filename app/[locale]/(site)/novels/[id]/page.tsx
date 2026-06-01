@@ -43,13 +43,13 @@ export default async function NovelDetailPage({
       include: {
         translations: { where: { locale } },
         chapters: {
-          where: { translations: { some: { locale } }, publishStatus: 'published' },
+          where: { translations: { some: { locale, status: 'published' } } },
           orderBy: { order: 'asc' },
           select: {
             id: true,
             order: true,
             createdAt: true,
-            translations: { where: { locale }, select: { title: true, content: true } },
+            translations: { where: { locale, status: 'published' }, select: { title: true, content: true } },
           },
         },
       },

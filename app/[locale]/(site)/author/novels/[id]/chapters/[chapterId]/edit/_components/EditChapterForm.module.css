@@ -74,6 +74,16 @@
   font-family: monospace;
 }
 
+.localeNote {
+  font-size: 0.875rem;
+  color: #4f5e8c;
+  padding: 8px 12px;
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+}
+
 .error {
   font-size: 0.875rem;
   color: var(--color-accent);

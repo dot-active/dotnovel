@@ -5,6 +5,16 @@ import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import styles from './page.module.css'
 
+const ALL_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] as const
+const LOCALE_SHORT: Record<string, string> = {
+  'zh-CN': '简中',
+  'zh-TW': '繁中',
+  'en': 'EN',
+  'ja': 'JA',
+  'ko': 'KO',
+  'es': 'ES',
+}
+
 export default async function AuthorChapterListPage({
   params: { locale, id },
 }: {
@@ -14,25 +24,46 @@ export default async function AuthorChapterListPage({
   const t = await getTranslations('author')
   const { userId } = await auth()
 
-  const novel = await prisma.novel.findFirst({
-    where: { id, authorId: userId! },
-    include: {
-      translations: { where: { locale }, select: { title: true } },
-      chapters: {
-        orderBy: { order: 'asc' },
-        include: {
-          translations: {
-            where: { locale: { in: ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] } },
-            select: { locale: true, title: true },
+  const [novel, translationRequests] = await Promise.all([
+    prisma.novel.findFirst({
+      where: { id, authorId: userId! },
+      include: {
+        translations: {
+          where: { locale: { in: [...ALL_LOCALES] } },
+          select: { locale: true, title: true },
+        },
+        chapters: {
+          orderBy: { order: 'asc' },
+          include: {
+            translations: {
+              where: { locale: { in: [...ALL_LOCALES] } },
+              select: { locale: true, title: true, status: true },
+            },
           },
         },
       },
-    },
-  })
+    }),
+    prisma.translationRequest.findMany({
+      where: { novelId: id },
+      select: { targetLocale: true, status: true, triggerRunId: true },
+    }),
+  ])
 
   if (!novel) notFound()
 
-  const novelTitle = novel.translations[0]?.title ?? novel.title
+  const novelTitle =
+    novel.translations.find((tr) => tr.locale === locale)?.title ?? novel.title
+
+  // Ordered list of locales this novel has configured (NovelTranslation exists)
+  const novelLocaleSet = new Set(novel.translations.map((tr) => tr.locale))
+  const novelLocales = ALL_LOCALES.filter((l) => novelLocaleSet.has(l))
+
+  // Locales where a translation job is actively running
+  const processingLocales = new Set(
+    translationRequests
+      .filter((r) => r.triggerRunId && (r.status === 'pending' || r.status === 'processing'))
+      .map((r) => r.targetLocale)
+  )
 
   return (
     <div>
@@ -66,14 +97,15 @@ export default async function AuthorChapterListPage({
           <div className={styles.listHeader}>
             <span className={styles.colOrder}>#</span>
             <span className={styles.colTitle}>章节标题</span>
-            <span className={styles.colStatus}>状态</span>
+            <span className={styles.colLocales}>语言版本</span>
             <span className={styles.colActions}>操作</span>
           </div>
           {novel.chapters.map((chapter) => {
-            const tr =
-              chapter.translations.find((t) => t.locale === novel.sourceLocale) ??
+            const displayTr =
+              chapter.translations.find((tr) => tr.locale === locale) ??
+              chapter.translations.find((tr) => tr.locale === novel.sourceLocale) ??
               chapter.translations[0]
-            const isDraft = chapter.publishStatus === 'draft'
+
             return (
               <div key={chapter.id} className={styles.listRow}>
                 <span className={styles.colOrder}>{chapter.order}</span>
@@ -81,13 +113,34 @@ export default async function AuthorChapterListPage({
                   href={`/author/novels/${id}/chapters/${chapter.id}/edit`}
                   className={styles.chapterTitleLink}
                 >
-                  {tr?.title ?? chapter.title}
+                  {displayTr?.title ?? chapter.title}
                 </Link>
-                <span className={styles.colStatus}>
-                  <span className={isDraft ? styles.badgeDraft : styles.badgePublished}>
-                    {isDraft ? t('draft') : t('published')}
-                  </span>
-                </span>
+                <div className={styles.colLocales}>
+                  {novelLocales.map((loc) => {
+                    const chTr = chapter.translations.find((tr) => tr.locale === loc)
+                    const isProcessing = processingLocales.has(loc)
+                    const label = LOCALE_SHORT[loc] ?? loc
+
+                    if (isProcessing && !chTr) {
+                      return (
+                        <span key={loc} className={styles.badgeProcessing}>{label}</span>
+                      )
+                    }
+                    if (chTr?.status === 'published') {
+                      return (
+                        <span key={loc} className={styles.badgePublished}>{label}</span>
+                      )
+                    }
+                    if (chTr?.status === 'draft') {
+                      return (
+                        <span key={loc} className={styles.badgeDraft}>{label}</span>
+                      )
+                    }
+                    return (
+                      <span key={loc} className={styles.badgeNone}>{label}</span>
+                    )
+                  })}
+                </div>
                 <div className={styles.colActions}>
                   <Link
                     href={`/novels/${id}/chapters/${chapter.id}`}

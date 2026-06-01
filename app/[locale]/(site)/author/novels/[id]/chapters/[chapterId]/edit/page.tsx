@@ -22,10 +22,10 @@ export default async function EditChapterPage({
         select: {
           authorId: true,
           sourceLocale: true,
-          translations: { where: { locale }, select: { title: true } },
+          translations: { select: { locale: true, title: true } },
         },
       },
-      translations: { select: { locale: true, title: true, content: true } },
+      translations: { select: { locale: true, title: true, content: true, status: true } },
     },
   })
 
@@ -36,7 +36,12 @@ export default async function EditChapterPage({
     chapter.translations.find((t) => t.locale === chapter.novel.sourceLocale) ??
     chapter.translations[0]
 
-  const novelTitle = chapter.novel.translations[0]?.title ?? ''
+  const novelTitle =
+    chapter.novel.translations.find((t) => t.locale === locale)?.title ??
+    chapter.novel.translations.find((t) => t.locale === chapter.novel.sourceLocale)?.title ??
+    ''
+
+  const novelLocales = chapter.novel.translations.map((t) => t.locale)
 
   return (
     <div className={styles.page}>
@@ -59,8 +64,10 @@ export default async function EditChapterPage({
           order: chapter.order,
           publishStatus: chapter.publishStatus,
           sourceLocale: chapter.novel.sourceLocale,
+          translations: chapter.translations,
         }}
         locale={locale}
+        novelLocales={novelLocales}
       />
     </div>
   )

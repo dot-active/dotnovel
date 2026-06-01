@@ -263,3 +263,55 @@
   color: var(--color-text-muted);
   margin-top: 12px;
 }
+
+/* ── Highlighted card (from ?lang= param) ── */
+.cardHighlighted {
+  border-color: #e8c96a;
+  box-shadow: 0 0 0 2px rgba(232, 201, 106, 0.25);
+}
+
+/* ── Pause button ── */
+.btnPause {
+  font-size: 0.8125rem;
+  padding: 5px 14px;
+  background: transparent;
+  color: #666;
+  border: 1px solid #bbb;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btnPause:hover:not(:disabled) {
+  border-color: #888;
+  color: #333;
+}
+
+.btnPause:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Paused badge ── */
+.badgePaused {
+  background: #f4f4f4;
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+/* ── Published tag ── */
+.publishedTag {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #1a7a40;
+  padding: 5px 0;
+}
+
+/* ── Paused tag ── */
+.pausedTag {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #888;
+  padding: 5px 0;
+}

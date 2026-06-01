@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { updateNovel, deleteNovel } from '@/lib/actions/author'
@@ -37,13 +37,35 @@ interface Category {
   slug: string
 }
 
+interface Translation {
+  locale: string
+  title: string
+  description: string
+  status: string
+}
+
+interface TranslationRequest {
+  targetLocale: string
+  status: string
+}
+
 interface Props {
   novel: NovelData
   categories: Category[]
   locale: string
+  translations: Translation[]
+  translationRequests: TranslationRequest[]
+  initialLang?: string | null
 }
 
-export default function EditNovelForm({ novel, categories, locale }: Props) {
+export default function EditNovelForm({
+  novel,
+  categories,
+  locale,
+  translations,
+  translationRequests,
+  initialLang,
+}: Props) {
   const t = useTranslations('author.form')
   const tAuthor = useTranslations('author')
   const tCat = useTranslations('categories')
@@ -57,12 +79,59 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
-  const [titleLen, setTitleLen] = useState(novel.title.length)
-  const [descLen, setDescLen] = useState(novel.description.length)
   const [selectedCats, setSelectedCats] = useState<string[]>(novel.categoryIds)
   const [isAdult, setIsAdult] = useState(novel.isAdult)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Language switching
+  const [selectedLang, setSelectedLang] = useState(initialLang ?? novel.sourceLocale)
+  const [titleValue, setTitleValue] = useState(novel.title)
+  const [descValue, setDescValue] = useState(novel.description)
+  const [titleLen, setTitleLen] = useState(novel.title.length)
+  const [descLen, setDescLen] = useState(novel.description.length)
+
+  const isSourceSelected = selectedLang === novel.sourceLocale
+
+  // Build available locales for dropdown: source + existing translations + active requests
+  const availableLocales = new Set<string>([novel.sourceLocale])
+  translations.forEach(tr => availableLocales.add(tr.locale))
+  translationRequests
+    .filter(r => ['pending', 'processing'].includes(r.status))
+    .forEach(r => availableLocales.add(r.targetLocale))
+
+  function getLocaleStatusLabel(localeValue: string): string {
+    if (localeValue === novel.sourceLocale) return '写作语言'
+    const tr = translations.find(t => t.locale === localeValue)
+    if (tr?.status === 'published') return '已发布'
+    if (tr?.status === 'draft') return '草稿'
+    const req = translationRequests.find(r => r.targetLocale === localeValue)
+    if (req?.status === 'processing' || req?.status === 'pending') return '翻译中'
+    return ''
+  }
+
+  // Update displayed content when language changes
+  useEffect(() => {
+    if (isSourceSelected) {
+      setTitleValue(novel.title)
+      setDescValue(novel.description)
+      setTitleLen(novel.title.length)
+      setDescLen(novel.description.length)
+    } else {
+      const tr = translations.find(t => t.locale === selectedLang)
+      setTitleValue(tr?.title ?? '')
+      setDescValue(tr?.description ?? '')
+      setTitleLen((tr?.title ?? '').length)
+      setDescLen((tr?.description ?? '').length)
+    }
+  }, [selectedLang])
+
+  const currentTr = isSourceSelected ? null : translations.find(t => t.locale === selectedLang)
+  const isProcessingLocale = !isSourceSelected && translationRequests.some(
+    r => r.targetLocale === selectedLang && (r.status === 'processing' || r.status === 'pending')
+  )
+  const isDraftLocale = !isSourceSelected && currentTr?.status === 'draft'
+  const isPublishedLocale = !isSourceSelected && currentTr?.status === 'published'
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -85,6 +154,7 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!isSourceSelected) return
     setSubmitting(true)
     setError(null)
 
@@ -133,12 +203,21 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
       {/* ── Section 1: Cover · Title & Synopsis ── */}
       <div className={styles.secDivider}>
         <span className={styles.secCh}>{t('sectionMeta')}</span>
+        {!isSourceSelected && (
+          <span className={isDraftLocale ? styles.langStatusDraft : isPublishedLocale ? styles.langStatusPublished : styles.langStatusProcessing}>
+            {isDraftLocale ? '草稿' : isPublishedLocale ? '已发布' : '翻译中'}
+          </span>
+        )}
       </div>
 
       <div className={styles.headRow}>
         {/* Cover (left) */}
         <div className={styles.coverBlock}>
-          <div className={styles.coverArea} onClick={() => fileInputRef.current?.click()}>
+          <div
+            className={styles.coverArea}
+            onClick={() => { if (isSourceSelected) fileInputRef.current?.click() }}
+            style={!isSourceSelected ? { cursor: 'default' } : undefined}
+          >
             {coverPreview ? (
               <img src={coverPreview} alt="cover" className={styles.coverPreview} />
             ) : (
@@ -152,13 +231,15 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
             JPG · PNG · WebP
             <span className={styles.coverSpec}>1200 × 1600 · max 2 MB</span>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className={styles.fileInput}
-            onChange={handleFileChange}
-          />
+          {isSourceSelected && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className={styles.fileInput}
+              onChange={handleFileChange}
+            />
+          )}
           {fileError && <p className={styles.fieldError}>{fileError}</p>}
         </div>
 
@@ -166,35 +247,37 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
         <div>
           <div className={styles.field}>
             <div className={styles.fieldLabel}>
-              <span>{t('title')} <span className={styles.req}>*</span></span>
+              <span>{t('title')} {isSourceSelected && <span className={styles.req}>*</span>}</span>
               <span className={styles.count}>{titleLen} / 30</span>
             </div>
             <input
-              name="title"
+              name={isSourceSelected ? 'title' : undefined}
               type="text"
-              required
+              required={isSourceSelected}
               maxLength={30}
-              defaultValue={novel.title}
-              placeholder={t('titlePlaceholder')}
-              className={styles.input}
-              onChange={e => setTitleLen(e.target.value.length)}
+              value={titleValue}
+              readOnly={!isSourceSelected}
+              placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('titlePlaceholder')}
+              className={isSourceSelected ? styles.input : styles.inputReadOnly}
+              onChange={isSourceSelected ? e => { setTitleValue(e.target.value); setTitleLen(e.target.value.length) } : undefined}
             />
           </div>
 
           <div className={styles.field}>
             <div className={styles.fieldLabel}>
-              <span>{t('description')} <span className={styles.req}>*</span></span>
+              <span>{t('description')} {isSourceSelected && <span className={styles.req}>*</span>}</span>
               <span className={styles.count}>{descLen} / 300</span>
             </div>
             <textarea
-              name="description"
-              required
+              name={isSourceSelected ? 'description' : undefined}
+              required={isSourceSelected}
               rows={5}
               maxLength={300}
-              defaultValue={novel.description}
-              placeholder={t('descriptionPlaceholder')}
-              className={styles.textarea}
-              onChange={e => setDescLen(e.target.value.length)}
+              value={descValue}
+              readOnly={!isSourceSelected}
+              placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('descriptionPlaceholder')}
+              className={isSourceSelected ? styles.textarea : styles.textareaReadOnly}
+              onChange={isSourceSelected ? e => { setDescValue(e.target.value); setDescLen(e.target.value.length) } : undefined}
             />
           </div>
         </div>
@@ -213,13 +296,14 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
             <label
               key={cat.id}
               className={`${styles.tagCheck}${isOn ? ` ${styles.on}` : ''}`}
+              style={!isSourceSelected ? { pointerEvents: 'none', opacity: 0.6 } : undefined}
             >
               <input
                 type="checkbox"
                 name="categoryIds"
                 value={cat.id}
                 checked={isOn}
-                onChange={() => toggleCat(cat.id)}
+                onChange={() => isSourceSelected && toggleCat(cat.id)}
               />
               {tCat(cat.slug as Parameters<typeof tCat>[0])}
             </label>
@@ -237,7 +321,12 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
         <div className={styles.field}>
           <div className={styles.fieldLabel}><span>{t('storyStatus')}</span></div>
           <div className={styles.selectWrap}>
-            <select name="status" defaultValue={novel.status} className={styles.select}>
+            <select
+              name="status"
+              defaultValue={novel.status}
+              className={styles.select}
+              disabled={!isSourceSelected}
+            >
               {STATUS_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>
                   {tStatus(s.labelKey as Parameters<typeof tStatus>[0])}
@@ -247,22 +336,35 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
           </div>
         </div>
 
-        {/* Language (locked) */}
+        {/* Language dropdown */}
         <div className={styles.field}>
           <div className={styles.fieldLabel}><span>{t('language')}</span></div>
-          <div className={styles.inputLocked}>
-            <span>{LOCALE_OPTIONS.find(l => l.value === novel.sourceLocale)?.label ?? novel.sourceLocale}</span>
-            <span className={styles.lockText}>{t('languageLocked')}</span>
+          <div className={styles.selectWrap}>
+            <select
+              value={selectedLang}
+              onChange={e => setSelectedLang(e.target.value)}
+              className={styles.select}
+            >
+              {Array.from(availableLocales).map(lv => {
+                const label = LOCALE_OPTIONS.find(o => o.value === lv)?.label ?? lv
+                const statusLabel = getLocaleStatusLabel(lv)
+                return (
+                  <option key={lv} value={lv}>
+                    {label}{statusLabel ? `（${statusLabel}）` : ''}
+                  </option>
+                )
+              })}
+            </select>
           </div>
         </div>
 
         {/* 18+ toggle */}
         <div className={styles.field}>
           <div className={styles.fieldLabel}><span>{t('isAdult')}</span></div>
-          <label className={styles.toggleInline}>
+          <label className={styles.toggleInline} style={!isSourceSelected ? { pointerEvents: 'none', opacity: 0.6 } : undefined}>
             <div
               className={`${styles.toggle}${isAdult ? ` ${styles.on}` : ''}`}
-              onClick={e => { e.preventDefault(); setIsAdult(a => !a) }}
+              onClick={e => { if (!isSourceSelected) return; e.preventDefault(); setIsAdult(a => !a) }}
             />
             <span className={styles.toggleSub}>{t('isAdultHint')}</span>
           </label>
@@ -271,49 +373,64 @@ export default function EditNovelForm({ novel, categories, locale }: Props) {
 
       {error && <p className={styles.formError}>{error}</p>}
 
-      {/* ── Footer bar ── */}
-      <div className={styles.footerBar}>
-        <div className={styles.dangerBit}>
-          <span className={styles.dangerBitLabel}>{tAuthor('dangerZone')}</span>
-          {deleteConfirm ? (
-            <>
+      {/* ── Footer bar (source locale only) ── */}
+      {isSourceSelected && (
+        <div className={styles.footerBar}>
+          <div className={styles.dangerBit}>
+            <span className={styles.dangerBitLabel}>{tAuthor('dangerZone')}</span>
+            {deleteConfirm ? (
+              <>
+                <button
+                  type="button"
+                  className={styles.btnDanger}
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? '删除中…' : '确认删除'}
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnCancel}
+                  onClick={() => setDeleteConfirm(false)}
+                >
+                  {t('cancel')}
+                </button>
+              </>
+            ) : (
               <button
                 type="button"
                 className={styles.btnDanger}
-                onClick={handleDelete}
-                disabled={deleting}
+                onClick={() => setDeleteConfirm(true)}
               >
-                {deleting ? '删除中…' : '确认删除'}
+                删除
               </button>
-              <button
-                type="button"
-                className={styles.btnCancel}
-                onClick={() => setDeleteConfirm(false)}
-              >
-                {t('cancel')}
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              className={styles.btnDanger}
-              onClick={() => setDeleteConfirm(true)}
-            >
-              删除
-            </button>
-          )}
+            )}
+          </div>
+
+          <span className={styles.footerNote}>{t('saveNote')}</span>
+          <span className={styles.spacer} />
+
+          <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
+            {t('cancel')}
+          </Link>
+          <button type="submit" disabled={submitting} className={styles.btn}>
+            {submitting ? t('submitting') : t('saveChanges')}
+          </button>
         </div>
+      )}
 
-        <span className={styles.footerNote}>{t('saveNote')}</span>
-        <span className={styles.spacer} />
-
-        <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
-          {t('cancel')}
-        </Link>
-        <button type="submit" disabled={submitting} className={styles.btn}>
-          {submitting ? t('submitting') : t('saveChanges')}
-        </button>
-      </div>
+      {/* Non-source locale info bar */}
+      {!isSourceSelected && (
+        <div className={styles.readOnlyBar}>
+          <span className={styles.readOnlyText}>
+            {isProcessingLocale
+              ? '此语言版本翻译进行中，完成后可在「语言版本管理」中发布。'
+              : isDraftLocale
+              ? '此语言版本为草稿，请在下方「语言版本管理」中审阅并发布。'
+              : '此语言版本已发布。如需修改，请重新翻译。'}
+          </span>
+        </div>
+      )}
     </form>
   )
 }
