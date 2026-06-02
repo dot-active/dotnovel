@@ -1,21 +1,25 @@
-.page {
-  max-width: 820px;
-}
 
 .pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 28px;
 }
 
-.backLink {
-  display: inline-block;
+.backButton {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  margin-bottom: 10px;
-  transition: color 0.15s;
+  border: 1px solid var(--color-text-secondary);
+  border-radius: 4px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
 }
 
-.backLink:hover {
+.backButton:hover {
   color: var(--color-text-primary);
+  border-color: var(--color-text-primary);
 }
 
 .title {
