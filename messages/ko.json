@@ -8,6 +8,11 @@
     "signIn": "로그인",
     "signUp": "회원가입"
   },
+  "footer": {
+    "about": "소개",
+    "terms": "이용약관",
+    "contact": "문의"
+  },
   "home": {
     "heroTitle": "방대한 소설, 독서를 즐기세요",
     "heroTagline": "소음 속에 독서의 불빛 하나.",

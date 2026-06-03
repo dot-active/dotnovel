@@ -136,6 +136,20 @@ a {
   flex-wrap: wrap;
 }
 
+.site-footer__nav {
+  display: flex;
+  gap: 20px;
+}
+
+.site-footer__nav a {
+  color: var(--bark-soft);
+  transition: color 0.15s;
+}
+
+.site-footer__nav a:hover {
+  color: var(--bark);
+}
+
 /* ── Header auth section ── */
 .site-header__auth {
   margin-left: auto;

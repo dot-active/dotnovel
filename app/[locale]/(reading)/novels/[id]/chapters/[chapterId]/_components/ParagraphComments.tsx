@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
 import styles from './ParagraphComments.module.css'
@@ -81,9 +81,9 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
   const avatar = userInfo?.imageUrl
 
   return (
-    <div className={styles.commentNode} style={{ '--indent': indentLevel } as React.CSSProperties}>
-      <div className={styles.commentBody}>
-        <div className={styles.commentHeader}>
+    <span className={styles.commentNode} style={{ '--indent': indentLevel } as React.CSSProperties}>
+      <span className={styles.commentBody}>
+        <span className={styles.commentHeader}>
           {avatar ? (
             <img src={avatar} alt={name} className={styles.avatar} />
           ) : (
@@ -100,11 +100,11 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
               删除
             </button>
           )}
-        </div>
+        </span>
         {comment.isDeleted ? (
-          <p className={styles.deletedPlaceholder}>该评论已删除</p>
+          <span className={styles.deletedPlaceholder}>该评论已删除</span>
         ) : (
-          <p className={styles.commentContent}>{comment.content}</p>
+          <span className={styles.commentContent}>{comment.content}</span>
         )}
         {!comment.isDeleted && (
           <button
@@ -114,9 +114,9 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
             回复
           </button>
         )}
-      </div>
+      </span>
       {comment.replies.length > 0 && (
-        <div className={styles.replies}>
+        <span className={styles.replies}>
           {comment.replies.map((r) => (
             <CommentNode
               key={r.id}
@@ -129,9 +129,9 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
               onDeleted={onDeleted}
             />
           ))}
-        </div>
+        </span>
       )}
-    </div>
+    </span>
   )
 }
 
@@ -140,9 +140,10 @@ interface Props {
   paragraphIndex: number
   currentUserId: string | null
   initialCount: number
+  show?: boolean
 }
 
-export default function ParagraphComments({ chapterId, paragraphIndex, currentUserId, initialCount }: Props) {
+export default function ParagraphComments({ chapterId, paragraphIndex, currentUserId, initialCount, show }: Props) {
   const [open, setOpen] = useState(false)
   const [comments, setComments] = useState<CommentData[]>([])
   const [count, setCount] = useState<number>(initialCount)
@@ -150,6 +151,18 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   const [replyTo, setReplyTo] = useState<{ parentId: string; authorName: string } | null>(null)
   const [inputValue, setInputValue] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const rootRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
 
   async function loadComments() {
     setLoading(true)
@@ -238,18 +251,18 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   }
 
   return (
-    <div className={styles.root}>
-      <button className={styles.trigger} onClick={handleToggle} title="查看评论">
+    <span className={styles.root} ref={rootRef}>
+      <button className={`${styles.trigger} ${show || open || count > 0 ? styles.triggerVisible : ''}`} onClick={handleToggle} title="查看评论">
         <FontAwesomeIcon icon={faComment} className={styles.triggerIcon} />
         {count > 0 && <span className={styles.triggerCount}>{count}</span>}
       </button>
 
       {open && (
-        <div className={styles.panel}>
-          {loading && <p className={styles.loading}>加载中…</p>}
+        <span className={styles.panel}>
+          {loading && <span className={styles.loading}>加载中…</span>}
 
           {!loading && comments.length === 0 && (
-            <p className={styles.empty}>暂无评论，来发表第一条吧</p>
+            <span className={styles.empty}>暂无评论，来发表第一条吧</span>
           )}
 
           {comments.map((c) => (
@@ -265,12 +278,12 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
             />
           ))}
 
-          <div className={styles.inputArea}>
+          <span className={styles.inputArea}>
             {replyTo && (
-              <div className={styles.replyHint}>
+              <span className={styles.replyHint}>
                 回复 @{replyTo.authorName}
                 <button className={styles.cancelReply} onClick={() => setReplyTo(null)}>✕</button>
-              </div>
+              </span>
             )}
             {currentUserId ? (
               <>
@@ -290,11 +303,11 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
                 </button>
               </>
             ) : (
-              <p className={styles.loginHint}>请登录后评论</p>
+              <span className={styles.loginHint}>请登录后评论</span>
             )}
-          </div>
-        </div>
+          </span>
+        </span>
       )}
-    </div>
+    </span>
   )
 }

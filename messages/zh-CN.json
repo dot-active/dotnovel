@@ -8,6 +8,11 @@
     "signIn": "登录",
     "signUp": "注册"
   },
+  "footer": {
+    "about": "关于我们",
+    "terms": "使用条款",
+    "contact": "联系我们"
+  },
   "home": {
     "heroTitle": "海量小说，畅享阅读",
     "heroTagline": "在喧嚣里，留一盏读书的灯。",

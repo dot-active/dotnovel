@@ -8,6 +8,11 @@
     "signIn": "Sign In",
     "signUp": "Sign Up"
   },
+  "footer": {
+    "about": "About",
+    "terms": "Terms of Use",
+    "contact": "Contact"
+  },
   "home": {
     "heroTitle": "Vast Library, Endless Reading",
     "heroTagline": "A light left on for reading, amid the noise.",

@@ -18,6 +18,7 @@ export default async function SiteLayout({
 }) {
   setRequestLocale(locale)
   const t = await getTranslations('nav')
+  const tf = await getTranslations('footer')
 
   return (
     <>
@@ -36,6 +37,11 @@ export default async function SiteLayout({
       <footer className="site-footer">
         <div className="site-footer__inner">
           <span>© 2026 NovelPhere</span>
+          <nav className="site-footer__nav">
+            <Link href="/about">{tf('about')}</Link>
+            <Link href="/terms">{tf('terms')}</Link>
+            <Link href="/contact">{tf('contact')}</Link>
+          </nav>
         </div>
       </footer>
     </>

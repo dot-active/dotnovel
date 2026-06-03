@@ -75,8 +75,9 @@ export default function ReaderClient({
   tCatalog,
 }: ReaderClientProps) {
   const [fontSize, setFontSize] = useState<FontSize>(18)
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>('sepia')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [hoveredPara, setHoveredPara] = useState<number | null>(null)
 
   const toggleSettings = useCallback(() => setSettingsOpen((v) => !v), [])
   const closeSettings  = useCallback(() => setSettingsOpen(false), [])
@@ -95,7 +96,7 @@ export default function ReaderClient({
         <Link href={`/novels/${novelId}`} className={styles.backLink}>
           ← {novelTitle}
         </Link>
-        <span className={styles.topBarChapter}>{chapterTitle}</span>
+
         <button
           className={`${styles.settingsBtn} ${settingsOpen ? styles.settingsBtnActive : ''}`}
           onClick={toggleSettings}
@@ -179,14 +180,21 @@ export default function ReaderClient({
         <h1 className={styles.chapterTitle}>{chapterTitle}</h1>
         <div className={styles.body} style={{ fontSize: `${fontSize}px` }}>
           {paragraphs.map(({ text, commentCount }, i) => (
-            <div key={i} id={`para-${i}`} className={styles.paraWrapper}>
-              <p>{text}</p>
-              <ParagraphComments
+            <div
+              key={i}
+              id={`para-${i}`}
+              className={styles.paraWrapper}
+              onMouseEnter={() => setHoveredPara(i)}
+              onMouseLeave={() => setHoveredPara(null)}
+            >
+              <p>{text}               <ParagraphComments
                 chapterId={chapterId}
                 paragraphIndex={i}
                 currentUserId={userId}
                 initialCount={commentCount}
-              />
+                show={hoveredPara === i}
+              /></p>
+
             </div>
           ))}
         </div>

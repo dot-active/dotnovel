@@ -8,6 +8,11 @@
     "signIn": "ログイン",
     "signUp": "登録"
   },
+  "footer": {
+    "about": "サイト概要",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
+  },
   "home": {
     "heroTitle": "豊富な小説、読書を楽しもう",
     "heroTagline": "喧騒の中に、読書の灯を。",

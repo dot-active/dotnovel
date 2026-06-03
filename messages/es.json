@@ -8,6 +8,11 @@
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse"
   },
+  "footer": {
+    "about": "Acerca de",
+    "terms": "Términos de uso",
+    "contact": "Contacto"
+  },
   "home": {
     "heroTitle": "Miles de novelas, lectura sin fin",
     "heroTagline": "En el ruido, una luz para leer.",
