@@ -6,7 +6,8 @@
     "favorites": "我的收藏",
     "myWorks": "我的作品",
     "signIn": "登录",
-    "signUp": "注册"
+    "signUp": "注册",
+    "novels": "全部小说"
   },
   "footer": {
     "about": "关于我们",
@@ -31,7 +32,28 @@
     "prevPage": "← 上一页",
     "nextPage": "下一页 →",
     "empty": "暂无数据，请运行 npm run db:seed 插入测试数据。",
-    "featuredNovels": "精选小说"
+    "featuredNovels": "精选小说",
+    "landingLine1": "一次写作，",
+    "landingLine2": "全球阅读。",
+    "eyebrow": "AI 自动翻译 · 全球发行",
+    "landingSub": "用母语写下你的故事，AI 即时翻译成多种语言——让世界各地的读者同步读到同一个你。",
+    "ctaRead": "开始阅读",
+    "ctaPublish": "发布小说",
+    "featuredKicker": "Featured",
+    "featuredSub": "编辑亲选 · 已翻译多语种，全球同步连载",
+    "featuredBrowse": "浏览全部书馆 →",
+    "translatedIn": "已翻译",
+    "langCount": "{count} 种语言",
+    "trendingKicker": "Trending",
+    "trendingTitle": "热门排行榜",
+    "trendingSub": "按全球阅读量排序",
+    "trendingBrowse": "查看完整榜单 →",
+    "recruitKicker": "For Writers · 写手招募",
+    "recruitTitle": "你的故事，值得被全世界读到。",
+    "recruitCta": "立即入驻",
+    "flowStep1": "发布你的小说",
+    "flowStep2": "AI 自动翻译",
+    "flowStep3": "触达全球读者"
   },
   "novel": {
     "backToHome": "← 返回首页",

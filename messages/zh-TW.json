@@ -6,7 +6,8 @@
     "favorites": "我的收藏",
     "myWorks": "我的作品",
     "signIn": "登入",
-    "signUp": "註冊"
+    "signUp": "註冊",
+    "novels": "全部小說"
   },
   "footer": {
     "about": "關於我們",
@@ -31,7 +32,28 @@
     "prevPage": "← 上一頁",
     "nextPage": "下一頁 →",
     "empty": "暫無資料，請執行 npm run db:seed 插入測試資料。",
-    "featuredNovels": "精選小說"
+    "featuredNovels": "精選小說",
+    "landingLine1": "一次寫作，",
+    "landingLine2": "全球閱讀。",
+    "eyebrow": "AI 自動翻譯 · 全球發行",
+    "landingSub": "用母語寫下你的故事，AI 即時翻譯成多種語言——讓世界各地的讀者同步讀到同一個你。",
+    "ctaRead": "開始閱讀",
+    "ctaPublish": "發布小說",
+    "featuredKicker": "Featured",
+    "featuredSub": "編輯親選 · 已翻譯多語種，全球同步連載",
+    "featuredBrowse": "瀏覽全部書館 →",
+    "translatedIn": "已翻譯",
+    "langCount": "{count} 種語言",
+    "trendingKicker": "Trending",
+    "trendingTitle": "熱門排行榜",
+    "trendingSub": "按全球閱讀量排序",
+    "trendingBrowse": "查看完整榜單 →",
+    "recruitKicker": "For Writers · 寫手招募",
+    "recruitTitle": "你的故事，值得被全世界讀到。",
+    "recruitCta": "立即入駐",
+    "flowStep1": "發布你的小說",
+    "flowStep2": "AI 自動翻譯",
+    "flowStep3": "觸達全球讀者"
   },
   "novel": {
     "backToHome": "← 返回首頁",

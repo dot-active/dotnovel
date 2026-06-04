@@ -6,7 +6,8 @@
     "favorites": "Mis favoritos",
     "myWorks": "Mis obras",
     "signIn": "Iniciar sesión",
-    "signUp": "Registrarse"
+    "signUp": "Registrarse",
+    "novels": "Todas las novelas"
   },
   "footer": {
     "about": "Acerca de",
@@ -31,7 +32,28 @@
     "prevPage": "← Anterior",
     "nextPage": "Siguiente →",
     "empty": "Sin datos. Ejecute npm run db:seed para insertar datos de prueba.",
-    "featuredNovels": "Destacados"
+    "featuredNovels": "Destacados",
+    "landingLine1": "Escribe una vez,",
+    "landingLine2": "Lee en todo el mundo.",
+    "eyebrow": "Traducción automática IA · Publicación global",
+    "landingSub": "Escribe en tu lengua materna y la IA lo traduce al instante a múltiples idiomas — lectores de todo el mundo leen el mismo tú.",
+    "ctaRead": "Empezar a leer",
+    "ctaPublish": "Publicar novela",
+    "featuredKicker": "Featured",
+    "featuredSub": "Selección del editor · Traducida a múltiples idiomas, publicación global",
+    "featuredBrowse": "Ver toda la biblioteca →",
+    "translatedIn": "Traducida en",
+    "langCount": "{count} idiomas",
+    "trendingKicker": "Trending",
+    "trendingTitle": "Más populares",
+    "trendingSub": "Por número de lecturas globales",
+    "trendingBrowse": "Ver ranking completo →",
+    "recruitKicker": "For Writers",
+    "recruitTitle": "Tu historia merece ser leída por todo el mundo.",
+    "recruitCta": "Únete ahora",
+    "flowStep1": "Publica tu novela",
+    "flowStep2": "IA la traduce automáticamente",
+    "flowStep3": "Llega a lectores globales"
   },
   "novel": {
     "backToHome": "← Volver al inicio",

@@ -6,7 +6,8 @@
     "favorites": "My Favorites",
     "myWorks": "My Works",
     "signIn": "Sign In",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "novels": "All Novels"
   },
   "footer": {
     "about": "About",
@@ -31,7 +32,28 @@
     "prevPage": "← Previous",
     "nextPage": "Next →",
     "empty": "No novels yet. Run npm run db:seed to add test data.",
-    "featuredNovels": "Featured"
+    "featuredNovels": "Featured",
+    "landingLine1": "Write once,",
+    "landingLine2": "Read globally.",
+    "eyebrow": "AI Auto-Translation · Global Publishing",
+    "landingSub": "Write your story in your native language. AI translates it instantly into multiple languages — readers worldwide read the same you.",
+    "ctaRead": "Start Reading",
+    "ctaPublish": "Publish a Novel",
+    "featuredKicker": "Featured",
+    "featuredSub": "Editor's picks · Translated into multiple languages, publishing globally",
+    "featuredBrowse": "Browse all novels →",
+    "translatedIn": "Translated in",
+    "langCount": "{count} languages",
+    "trendingKicker": "Trending",
+    "trendingTitle": "Top Charts",
+    "trendingSub": "Ranked by global read count",
+    "trendingBrowse": "See full rankings →",
+    "recruitKicker": "For Writers",
+    "recruitTitle": "Your story deserves to be read by the whole world.",
+    "recruitCta": "Join now",
+    "flowStep1": "Publish your novel",
+    "flowStep2": "AI auto-translates",
+    "flowStep3": "Reach global readers"
   },
   "novel": {
     "backToHome": "← Back to Home",

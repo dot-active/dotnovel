@@ -27,6 +27,9 @@ export default async function SiteLayout({
           <Link href="/" className="site-header__logo">
             <Image src={logoSrc} alt="NovelPhere" height={36} />
           </Link>
+          <nav className="site-header__nav">
+            <Link href="/novels">{t('novels')}</Link>
+          </nav>
           <div className="site-header__auth">
             <LocaleSwitcher />
             <HeaderAuth />

@@ -6,7 +6,8 @@
     "favorites": "즐겨찾기",
     "myWorks": "내 작품",
     "signIn": "로그인",
-    "signUp": "회원가입"
+    "signUp": "회원가입",
+    "novels": "전체 소설"
   },
   "footer": {
     "about": "소개",
@@ -31,7 +32,28 @@
     "prevPage": "← 이전",
     "nextPage": "다음 →",
     "empty": "데이터가 없습니다. npm run db:seed 를 실행하세요.",
-    "featuredNovels": "추천 작품"
+    "featuredNovels": "추천 작품",
+    "landingLine1": "한 번 쓰면,",
+    "landingLine2": "전 세계에서 읽힌다.",
+    "eyebrow": "AI 자동 번역 · 글로벌 출판",
+    "landingSub": "모국어로 쓴 이야기를 AI가 즉시 다국어로 번역합니다. 전 세계 독자들이 같은 당신을 만납니다.",
+    "ctaRead": "읽기 시작",
+    "ctaPublish": "소설 출간하기",
+    "featuredKicker": "Featured",
+    "featuredSub": "에디터 엄선 · 다국어 번역 완료, 글로벌 연재 중",
+    "featuredBrowse": "전체 서관 보기 →",
+    "translatedIn": "번역됨",
+    "langCount": "{count}개 언어",
+    "trendingKicker": "Trending",
+    "trendingTitle": "인기 순위",
+    "trendingSub": "글로벌 독서량 기준",
+    "trendingBrowse": "전체 순위 보기 →",
+    "recruitKicker": "For Writers · 작가 모집",
+    "recruitTitle": "당신의 이야기는 전 세계가 읽을 가치가 있습니다。",
+    "recruitCta": "지금 참여하기",
+    "flowStep1": "소설을 출간한다",
+    "flowStep2": "AI가 자동 번역",
+    "flowStep3": "전 세계 독자에게 닿는다"
   },
   "novel": {
     "backToHome": "← 홈으로 돌아가기",

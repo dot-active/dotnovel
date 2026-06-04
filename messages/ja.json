@@ -6,7 +6,8 @@
     "favorites": "お気に入り",
     "myWorks": "マイ作品",
     "signIn": "ログイン",
-    "signUp": "登録"
+    "signUp": "登録",
+    "novels": "すべての小説"
   },
   "footer": {
     "about": "サイト概要",
@@ -31,7 +32,28 @@
     "prevPage": "← 前へ",
     "nextPage": "次へ →",
     "empty": "データがありません。npm run db:seed を実行してください。",
-    "featuredNovels": "注目作品"
+    "featuredNovels": "注目作品",
+    "landingLine1": "一度書いて、",
+    "landingLine2": "世界中で読まれる。",
+    "eyebrow": "AI 自動翻訳 · グローバル配信",
+    "landingSub": "母国語で書いた物語を、AIが即時に多言語翻訳。世界中の読者に同じ「あなた」を届けます。",
+    "ctaRead": "読み始める",
+    "ctaPublish": "小説を投稿する",
+    "featuredKicker": "Featured",
+    "featuredSub": "編集部厳選 · 多言語翻訳済み、グローバル連載中",
+    "featuredBrowse": "書館を全て見る →",
+    "translatedIn": "翻訳済み",
+    "langCount": "{count} 言語",
+    "trendingKicker": "Trending",
+    "trendingTitle": "人気ランキング",
+    "trendingSub": "グローバル読書数順",
+    "trendingBrowse": "ランキング全体を見る →",
+    "recruitKicker": "For Writers · 作家募集",
+    "recruitTitle": "あなたの物語は、全世界に読まれる価値がある。",
+    "recruitCta": "今すぐ参加",
+    "flowStep1": "小説を投稿する",
+    "flowStep2": "AIが自動翻訳",
+    "flowStep3": "世界中の読者に届く"
   },
   "novel": {
     "backToHome": "← ホームへ戻る",

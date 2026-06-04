@@ -1,201 +1,175 @@
 import { cookies } from 'next/headers'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import { formatCount } from '@/lib/formatCount'
-import FilterBar from './_components/FilterBar'
 import styles from './page.module.css'
 
-const NOVELS_PER_PAGE = 20
-
-const COVER_VARIANTS = [
-  'coverDark',
-  'coverTerracotta',
-  'coverOlive',
-  'coverBone',
-  'coverInk',
-  'coverDefault',
-] as const
-
-function toRoman(n: number): string {
-  const map: [number, string][] = [
-    [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
-    [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
-    [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
-  ]
-  let result = ''
-  let num = n
-  for (const [value, numeral] of map) {
-    while (num >= value) { result += numeral; num -= value }
-  }
-  return result
+const LOCALE_FLAGS: Record<string, string> = {
+  'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼', en: '🇺🇸', ja: '🇯🇵', ko: '🇰🇷', es: '🇪🇸',
 }
 
-function buildPageUrl(q: string, category: string, sort: string, page: number) {
-  const sp = new URLSearchParams()
-  if (q) sp.set('q', q)
-  if (category) sp.set('category', category)
-  if (sort) sp.set('sort', sort)
-  if (page > 1) sp.set('page', String(page))
-  const qs = sp.toString()
-  return qs ? `?${qs}` : '?'
+const COVER_CLASSES = [
+  'cvDark', 'cvTerra', 'cvOlive', 'cvBlue', 'cvClay', 'cvInk', 'cvPlum', 'cvSage',
+] as const
+
+function getFlags(locales: string[]): string {
+  return locales.map((l) => LOCALE_FLAGS[l] ?? '').filter(Boolean).join(' ')
 }
 
 export default async function HomePage({
   params: { locale },
-  searchParams,
 }: {
   params: { locale: string }
-  searchParams: { q?: string; category?: string; sort?: string; page?: string }
 }) {
   setRequestLocale(locale)
   const t = await getTranslations('home')
-  const tNovel = await getTranslations('novel')
 
   const ageVerified = cookies().get('age_verified')?.value === '1'
+  const adultFilter = ageVerified ? {} : { isAdult: false as const }
 
-  const q = (searchParams.q ?? '').trim()
-  const categoryParam = searchParams.category ?? ''
-  const selectedCategories = categoryParam ? categoryParam.split(',').filter(Boolean) : []
-  const sort = searchParams.sort ?? ''
-  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
-
-  const orderBy =
-    sort === 'views'
-      ? { viewCount: 'desc' as const }
-      : sort === 'favorites'
-      ? { favoriteCount: 'desc' as const }
-      : { updatedAt: 'desc' as const }
-
-  const baseWhere = {
-    publishStatus: 'published',
-    ...(ageVerified ? {} : { isAdult: false }),
-    ...(selectedCategories.length > 0
-      ? { categories: { some: { category: { slug: { in: selectedCategories } } } } }
-      : {}),
-    ...(q
-      ? {
-          AND: [
-            { translations: { some: { locale } } },
-            {
-              OR: [
-                { translations: { some: { locale, title: { contains: q, mode: 'insensitive' as const } } } },
-                { translations: { some: { locale, description: { contains: q, mode: 'insensitive' as const } } } },
-                { author: { contains: q, mode: 'insensitive' as const } },
-              ],
-            },
-          ],
-        }
-      : { translations: { some: { locale } } }),
-  }
-
-  const [novels, total, categories, featuredNovels] = await Promise.all([
+  const [featuredNovels, trendingNovels] = await Promise.all([
     prisma.novel.findMany({
-      where: baseWhere,
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        description: true,
-        coverUrl: true,
-        status: true,
-        viewCount: true,
-        favoriteCount: true,
-        translations: { where: { locale }, select: { title: true, description: true } },
-        _count: { select: { chapters: { where: { translations: { some: { locale, status: 'published' } } } } } },
-      },
-      orderBy,
-      take: NOVELS_PER_PAGE,
-      skip: (page - 1) * NOVELS_PER_PAGE,
-    }),
-    prisma.novel.count({ where: baseWhere }),
-    prisma.category.findMany({ orderBy: { slug: 'asc' } }),
-    prisma.novel.findMany({
-      where: {
-        isFeatured: true,
-        publishStatus: 'published',
-        ...(ageVerified ? {} : { isAdult: false }),
-      },
+      where: { isFeatured: true, publishStatus: 'published', ...adultFilter },
       select: {
         id: true,
         title: true,
         author: true,
         coverUrl: true,
-        isAdult: true,
-        categories: { include: { category: { select: { slug: true } } } },
-        translations: { where: { locale, status: 'published' }, select: { title: true } },
+        translations: {
+          where: { status: 'published' },
+          select: { locale: true, title: true, description: true },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     }),
+    prisma.novel.findMany({
+      where: { publishStatus: 'published', ...adultFilter },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        viewCount: true,
+        updatedAt: true,
+        translations: {
+          where: { status: 'published' },
+          select: { locale: true, title: true },
+        },
+      },
+      orderBy: { viewCount: 'desc' },
+      take: 8,
+    }),
   ])
 
-  const totalPages = Math.ceil(total / NOVELS_PER_PAGE)
-  const featured = novels[0]
-
   return (
-    <div>
-      {/* Hero */}
+    <div className={styles.page}>
+
+      {/* ===== HERO ===== */}
       <section className={styles.hero}>
         <div className={styles.heroLeft}>
-          <h1 className={styles.heroTitle}>{t('heroTitle')}</h1>
-          <p className={styles.heroZh}>{t('heroTagline')}</p>
-          <p className={styles.heroLede}>{t('heroSubtitle')}</p>
-        </div>
-        {featured && (
-          <div className={styles.heroRight}>
-            <Link href={`/novels/${featured.id}`} className={styles.featuredCard}>
-              <div className={`${styles.featuredCover} ${styles.coverDark}`}>
-                {featured.coverUrl ? (
-                  <img src={featured.coverUrl} alt="" className={styles.featuredCoverImg} />
-                ) : (
-                  (featured.translations[0]?.title ?? featured.title).slice(0, 6)
-                )}
-              </div>
-              <div>
-                <div className={styles.featuredTag}>{t('featuredTag')}</div>
-                <h3 className={styles.featuredTitle}>
-                  {featured.translations[0]?.title ?? featured.title}
-                </h3>
-                <div className={styles.featuredAuthor}>{featured.author}</div>
-                <p className={styles.featuredBlurb}>
-                  {featured.translations[0]?.description ?? featured.description}
-                </p>
-                <span className={styles.featuredCta}>{t('featuredCta')}</span>
-              </div>
+          <div className={styles.eyebrow}>
+            <span className={styles.eyebrowDot} />
+            {t('eyebrow')}
+          </div>
+          <h1 className={styles.headline}>
+            <span className={styles.line1}>{t('landingLine1')}</span>
+            <em className={styles.line2}>{t('landingLine2')}</em>
+          </h1>
+          <p className={styles.sub}>{t('landingSub')}</p>
+          <div className={styles.ctas}>
+            <Link href="/novels" className={styles.ctaPrimary}>
+              {t('ctaRead')} <span className={styles.arr}>→</span>
+            </Link>
+            <Link href="/author/novels/new" className={styles.ctaSecondary}>
+              {t('ctaPublish')}
             </Link>
           </div>
-        )}
+        </div>
+
+        <div className={styles.heroRight}>
+          <div className={styles.transCard}>
+            <div className={styles.transHead}>
+              <span className={`${styles.tcDot} ${styles.tcDotAccent}`} />
+              <span className={styles.tcDot} />
+              <span className={styles.tcDot} />
+              <span className={styles.tcTitle}>Claude Opus 4.6</span>
+            </div>
+            <div className={styles.transSource}>
+              <div className={styles.tsLabel}>🇨🇳 中文 · 原文</div>
+              <div className={styles.tsText}>她推开门，看见了整片星海。</div>
+            </div>
+            <div className={styles.transLines}>
+              <div className={`${styles.tl} ${styles.tlEn}`}>
+                <span className={styles.tlFlag}>🇺🇸</span>
+                <span className={styles.tlText}>She opened the door to an ocean of stars.</span>
+                <span className={styles.tlLang}>EN</span>
+              </div>
+              <div className={`${styles.tl} ${styles.tlJa}`}>
+                <span className={styles.tlFlag}>🇯🇵</span>
+                <span className={styles.tlText}>扉を開けると、一面の星の海が広がっていた。</span>
+                <span className={styles.tlLang}>JA</span>
+              </div>
+              <div className={`${styles.tl} ${styles.tlEs}`}>
+                <span className={styles.tlFlag}>🇪🇸</span>
+                <span className={styles.tlText}>Abrió la puerta a un océano de estrellas.</span>
+                <span className={styles.tlLang}>ES</span>
+              </div>
+              <div className={styles.tl}>
+                <span className={styles.tlFlag}>🇰🇷</span>
+                <span className={styles.tlText}>문을 열자, 온통 별의 바다가 펼쳐져 있었다。</span>
+                <span className={styles.tlLang}>KO</span>
+              </div>
+            </div>
+            <div className={styles.transCardFoot}>
+              <span className={styles.aiBadge}>
+                <span className={styles.aiDot} />
+                AI 翻译中
+              </span>
+              <span className={styles.moreLangs}>5 种语言</span>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Featured novels */}
+      {/* ===== FEATURED ===== */}
       {featuredNovels.length > 0 && (
-        <section className={styles.featuredSection}>
-          <h2 className={styles.featuredSectionTitle}>{t('featuredNovels')}</h2>
-          <div className={styles.featuredScroll}>
-            {featuredNovels.map((novel) => {
-              const tr = novel.translations[0]
+        <section className={styles.section}>
+          <div className={styles.secHead}>
+            <div>
+              <div className={styles.secKicker}>{t('featuredKicker')}</div>
+              <h2 className={styles.secTitle}>{t('featuredNovels')}</h2>
+              <p className={styles.secSub}>{t('featuredSub')}</p>
+            </div>
+            <Link href="/novels" className={styles.secLink}>{t('featuredBrowse')}</Link>
+          </div>
+          <div className={styles.featGrid}>
+            {featuredNovels.map((novel, i) => {
+              const tr = novel.translations.find((t) => t.locale === locale)
+                ?? novel.translations[0]
+              const coverClass = COVER_CLASSES[i % COVER_CLASSES.length]
+              const locales = novel.translations.map((t) => t.locale)
+              const flags = getFlags(locales)
               return (
-                <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.featuredScrollCard}>
-                  <div className={`${styles.featuredScrollCover} ${styles.coverDark}`}>
-                    {novel.coverUrl ? (
-                      <img src={novel.coverUrl} alt="" className={styles.featuredScrollCoverImg} />
-                    ) : (
-                      (tr?.title ?? novel.title).slice(0, 6)
-                    )}
+                <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.fcard}>
+                  <div className={`${styles.fcardCover} ${styles[coverClass]}`}>
+                    {novel.coverUrl
+                      ? <img src={novel.coverUrl} alt="" className={styles.fcardCoverImg} />
+                      : (tr?.title ?? novel.title).slice(0, 6)
+                    }
                   </div>
-                  <div className={styles.featuredScrollInfo}>
-                    <div className={styles.featuredScrollStar}>⭐</div>
-                    <h3 className={styles.featuredScrollTitle}>{tr?.title ?? novel.title}</h3>
-                    <p className={styles.featuredScrollAuthor}>{novel.author}</p>
-                    {novel.categories.length > 0 && (
-                      <div className={styles.featuredScrollCategories}>
-                        {novel.categories.slice(0, 2).map((c) => (
-                          <span key={c.category.slug} className={styles.featuredScrollCategory}>
-                            {c.category.slug}
-                          </span>
-                        ))}
-                      </div>
+                  <div className={styles.fcardBody}>
+                    <h3 className={styles.fcardTitle}>{tr?.title ?? novel.title}</h3>
+                    <p className={styles.fcardAuthor}>{novel.author}</p>
+                    {tr?.description && (
+                      <p className={styles.fcardBlurb}>{tr.description}</p>
                     )}
+                    <div className={styles.langTag}>
+                      {flags && <span className={styles.langFlags}>{flags}</span>}
+                      <span className={styles.langMeta}>
+                        <span className={styles.langCap}>{t('translatedIn')}</span>
+                        <b className={styles.langCount}>{t('langCount', { count: locales.length })}</b>
+                      </span>
+                    </div>
                   </div>
                 </Link>
               )
@@ -204,97 +178,72 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* Filters + sort */}
-      <FilterBar
-        categories={categories}
-        currentCategories={selectedCategories}
-        currentSort={sort}
-        currentQ={q}
-        total={total}
-      />
-
-      {/* Section header */}
-
-
-      {/* Library grid */}
-      {novels.length === 0 ? (
-        <p className={styles.empty}>{t('empty')}</p>
-      ) : (
-        <section className={styles.library}>
-          {novels.map((novel, i) => {
-            const tr = novel.translations[0]
-            const coverVariant = COVER_VARIANTS[i % COVER_VARIANTS.length]
-            const isLive = novel.status === 'ONGOING'
-            return (
-              <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.book}>
-                <span className={styles.bookNum}>{toRoman(i + 1)}.</span>
-                <div className={`${styles.bookCover} ${styles[coverVariant]}`}>
-                  {novel.coverUrl ? (
-                    <img src={novel.coverUrl} alt="" className={styles.bookCoverImg} />
-                  ) : (
-                    (tr?.title ?? novel.title).slice(0, 6)
-                  )}
-                </div>
-                <div className={styles.bookStatus}>
-                  <span className={`${styles.blip} ${isLive ? styles.blipLive : styles.blipDone}`} />
-                  {isLive
-                    ? tNovel('ongoingStatus', { count: novel._count.chapters })
-                    : tNovel(`status.${novel.status}`)}
-                </div>
-                <h3 className={styles.bookTitle}>{tr?.title ?? novel.title}</h3>
-                <p className={styles.bookAuthor}>{novel.author}</p>
-                <div className={styles.bookFoot}>
-                  <span className={styles.bookChapters}>
-                    {tNovel('chapterCount', { count: novel._count.chapters })}
+      {/* ===== TRENDING ===== */}
+      {trendingNovels.length > 0 && (
+        <section className={styles.section}>
+          <div className={styles.secHead}>
+            <div>
+              <div className={styles.secKicker}>{t('trendingKicker')}</div>
+              <h2 className={styles.secTitle}>{t('trendingTitle')}</h2>
+              <p className={styles.secSub}>{t('trendingSub')}</p>
+            </div>
+            <Link href="/novels?sort=views" className={styles.secLink}>{t('trendingBrowse')}</Link>
+          </div>
+          <div className={styles.rankWrap}>
+            {trendingNovels.map((novel, i) => {
+              const tr = novel.translations.find((t) => t.locale === locale)
+                ?? novel.translations[0]
+              const locales = novel.translations.map((t) => t.locale)
+              const flags = getFlags(locales)
+              return (
+                <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.rankRow}>
+                  <span className={`${styles.rankNum} ${i < 3 ? styles.rankNumTop : ''}`}>
+                    {i + 1}
                   </span>
-                  <span className={styles.bookStats}>
-                    <span>{tNovel('viewCount', { count: formatCount(novel.viewCount) })}</span>
-                    <span>♡ {formatCount(novel.favoriteCount)}</span>
-                  </span>
-                </div>
-              </Link>
-            )
-          })}
+                  <div className={styles.rankMain}>
+                    <span className={styles.rankTitle}>{tr?.title ?? novel.title}</span>
+                    <span className={styles.rankAuthor}>{novel.author}</span>
+                  </div>
+                  <div className={styles.rankSide}>
+                    {flags && <span className={styles.rankLangs}>{flags}</span>}
+                    <span className={styles.rankViews}>{formatCount(novel.viewCount)} 阅</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
         </section>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className={styles.pagination}>
-          {page > 1 && (
-            <a href={buildPageUrl(q, categoryParam, sort, page - 1)} className={styles.pageBtn}>
-              {t('prevPage')}
-            </a>
-          )}
-          <div className={styles.pageNumbers}>
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
-              .reduce<(number | '…')[]>((acc, p, idx, arr) => {
-                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
-                acc.push(p)
-                return acc
-              }, [])
-              .map((p, i) =>
-                p === '…' ? (
-                  <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>…</span>
-                ) : (
-                  <a
-                    key={p}
-                    href={buildPageUrl(q, categoryParam, sort, p as number)}
-                    className={`${styles.pageNum} ${p === page ? styles.pageNumActive : ''}`}
-                  >
-                    {p}
-                  </a>
-                )
-              )}
+      {/* ===== RECRUIT ===== */}
+      <div className={styles.recruit}>
+        <div className={styles.recruitInner}>
+          <div className={styles.recruitCopy}>
+            <div className={styles.recruitKicker}>{t('recruitKicker')}</div>
+            <h2 className={styles.recruitTitle}>{t('recruitTitle')}</h2>
+            <div className={styles.recruitFlow}>
+              <span className={styles.flowStep}>
+                <span className={styles.flowIc}>✍️</span>
+                {t('flowStep1')}
+              </span>
+              <span className={styles.flowArrow}>→</span>
+              <span className={styles.flowStep}>
+                <span className={styles.flowIc}>🌐</span>
+                {t('flowStep2')}
+              </span>
+              <span className={styles.flowArrow}>→</span>
+              <span className={styles.flowStep}>
+                <span className={styles.flowIc}>📖</span>
+                {t('flowStep3')}
+              </span>
+            </div>
           </div>
-          {page < totalPages && (
-            <a href={buildPageUrl(q, categoryParam, sort, page + 1)} className={styles.pageBtn}>
-              {t('nextPage')}
-            </a>
-          )}
+          <Link href="/author/novels/new" className={styles.recruitBtn}>
+            {t('recruitCta')} <span className={styles.arr}>→</span>
+          </Link>
         </div>
-      )}
+      </div>
+
     </div>
   )
 }
