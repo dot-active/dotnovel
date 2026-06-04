@@ -227,3 +227,48 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Featured toggle buttons ── */
+.btnFeatured {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d97706;
+  background: var(--color-surface);
+  color: #d97706;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btnFeatured:hover:not(:disabled) {
+  background: #fef3c7;
+}
+
+.btnFeaturedActive {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d97706;
+  background: #d97706;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btnFeaturedActive:hover:not(:disabled) {
+  background: #b45309;
+  border-color: #b45309;
+}
+
+.btnFeatured:disabled,
+.btnFeaturedActive:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.starIcon {
+  margin-right: 4px;
+  font-size: 0.875rem;
+}

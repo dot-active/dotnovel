@@ -18,6 +18,7 @@ model Novel {
   status              NovelStatus          @default(ONGOING)
   publishStatus       String               @default("published")
   isAdult             Boolean              @default(false)
+  isFeatured          Boolean              @default(false)
   authorId            String?
   sourceLocale        String               @default("zh-CN")
   viewCount           Int                  @default(0)

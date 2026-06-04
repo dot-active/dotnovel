@@ -30,7 +30,8 @@
     "sortFavorites": "お気に入り順",
     "prevPage": "← 前へ",
     "nextPage": "次へ →",
-    "empty": "データがありません。npm run db:seed を実行してください。"
+    "empty": "データがありません。npm run db:seed を実行してください。",
+    "featuredNovels": "注目作品"
   },
   "novel": {
     "backToHome": "← ホームへ戻る",

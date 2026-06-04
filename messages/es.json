@@ -30,7 +30,8 @@
     "sortFavorites": "Más favoritos",
     "prevPage": "← Anterior",
     "nextPage": "Siguiente →",
-    "empty": "Sin datos. Ejecute npm run db:seed para insertar datos de prueba."
+    "empty": "Sin datos. Ejecute npm run db:seed para insertar datos de prueba.",
+    "featuredNovels": "Destacados"
   },
   "novel": {
     "backToHome": "← Volver al inicio",

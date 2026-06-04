@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { toggleNovelPublishStatus, deleteNovelAdmin, updateNovelStats } from '@/lib/actions/admin'
+import { toggleNovelPublishStatus, deleteNovelAdmin, updateNovelStats, toggleNovelFeatured } from '@/lib/actions/admin'
 import { formatCount } from '@/lib/formatCount'
 import styles from '../page.module.css'
 
@@ -12,6 +12,7 @@ interface Novel {
   categorySlugs: string[]
   sourceLocale: string
   isAdult: boolean
+  isFeatured: boolean
   publishStatus: string
   chapterCount: number
   viewCount: number
@@ -27,6 +28,17 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
   const [favInput, setFavInput] = useState(String(novel.favoriteCount))
 
   const isPublished = novel.publishStatus === 'published'
+  const [isFeatured, setIsFeatured] = useState(novel.isFeatured)
+
+  function handleToggleFeatured() {
+    const fd = new FormData()
+    fd.set('novelId', novel.id)
+    fd.set('isFeatured', String(isFeatured))
+    startTransition(async () => {
+      await toggleNovelFeatured(fd)
+      setIsFeatured((v) => !v)
+    })
+  }
 
   function handleToggle() {
     const fd = new FormData()
@@ -63,7 +75,10 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
   return (
     <>
       <tr className={`${styles.row} ${!isPublished ? styles.rowUnpublished : ''}`}>
-        <td className={styles.tdTitle}>{novel.title}</td>
+        <td className={styles.tdTitle}>
+          {isFeatured && <span className={styles.starIcon}>⭐</span>}
+          {novel.title}
+        </td>
         <td>
           {novel.categorySlugs.length > 0 ? (
             <span className={styles.slugList}>
@@ -84,6 +99,13 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
         <td className={styles.tdStat}>{formatCount(novel.viewCount)}</td>
         <td className={styles.tdStat}>{formatCount(novel.favoriteCount)}</td>
         <td className={styles.tdActions}>
+          <button
+            onClick={handleToggleFeatured}
+            disabled={isPending}
+            className={isFeatured ? styles.btnFeaturedActive : styles.btnFeatured}
+          >
+            {isFeatured ? '取消精选' : '设为精选'}
+          </button>
           <button onClick={handleToggle} disabled={isPending} className={styles.btnToggle}>
             {isPublished ? '下架' : '上架'}
           </button>

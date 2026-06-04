@@ -441,6 +441,136 @@
   font-size: 13px;
 }
 
+/* ── Featured section (horizontal scroll) ── */
+.featuredSection {
+  padding: 40px 0 0;
+  border-bottom: 1px solid var(--cream-line);
+  margin-bottom: 0;
+}
+
+.featuredSectionTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 3vw, 28px);
+  color: var(--bark);
+  font-weight: 500;
+  margin: 0 0 20px;
+  letter-spacing: -0.005em;
+}
+
+.featuredScroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cream-line) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.featuredScroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.featuredScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.featuredScroll::-webkit-scrollbar-thumb {
+  background: var(--cream-line);
+  border-radius: 2px;
+}
+
+.featuredScrollCard {
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  border: 1.5px solid #d97706;
+  padding: 14px;
+  background: var(--cream-deep);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.featuredScrollCard:hover {
+  border-color: #b45309;
+  background: #fef9ee;
+}
+
+.featuredScrollCover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
+  font-size: 16px;
+  line-height: 1.3;
+  position: relative;
+  overflow: hidden;
+  color: var(--cream);
+}
+
+.featuredScrollCoverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+.featuredScrollInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.featuredScrollStar {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.featuredScrollTitle {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.featuredScrollAuthor {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--bark-soft);
+  margin: 0;
+}
+
+.featuredScrollCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.featuredScrollCategory {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  padding: 1px 5px;
+  border: 1px solid #d97706;
+  color: #d97706;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
 /* ── Responsive ── */
 @media (max-width: 960px) {
   .hero {

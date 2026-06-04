@@ -30,7 +30,8 @@
     "sortFavorites": "最多收藏",
     "prevPage": "← 上一页",
     "nextPage": "下一页 →",
-    "empty": "暂无数据，请运行 npm run db:seed 插入测试数据。"
+    "empty": "暂无数据，请运行 npm run db:seed 插入测试数据。",
+    "featuredNovels": "精选小说"
   },
   "novel": {
     "backToHome": "← 返回首页",

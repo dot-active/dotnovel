@@ -28,6 +28,7 @@ export default async function AdminNovelsPage({
     categorySlugs: n.categories.map((c) => c.category.slug),
     sourceLocale: n.sourceLocale,
     isAdult: n.isAdult,
+    isFeatured: n.isFeatured,
     publishStatus: n.publishStatus,
     chapterCount: n._count.chapters,
     viewCount: n.viewCount,

@@ -30,7 +30,8 @@
     "sortFavorites": "Most Favorited",
     "prevPage": "← Previous",
     "nextPage": "Next →",
-    "empty": "No novels yet. Run npm run db:seed to add test data."
+    "empty": "No novels yet. Run npm run db:seed to add test data.",
+    "featuredNovels": "Featured"
   },
   "novel": {
     "backToHome": "← Back to Home",

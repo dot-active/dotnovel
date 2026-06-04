@@ -57,6 +57,19 @@ export async function unbanUser(formData: FormData) {
   revalidatePath('/[locale]/admin/users')
 }
 
+export async function toggleNovelFeatured(formData: FormData) {
+  await assertAdmin()
+  const novelId = formData.get('novelId') as string
+  const current = formData.get('isFeatured') === 'true'
+
+  await prisma.novel.update({
+    where: { id: novelId },
+    data: { isFeatured: !current },
+  })
+
+  revalidatePath('/', 'layout')
+}
+
 // ── Novel stats ──────────────────────────────────────────────────────────────
 
 export async function updateNovelStats(formData: FormData) {

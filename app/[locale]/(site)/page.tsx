@@ -89,7 +89,7 @@ export default async function HomePage({
       : { translations: { some: { locale } } }),
   }
 
-  const [novels, total, categories] = await Promise.all([
+  const [novels, total, categories, featuredNovels] = await Promise.all([
     prisma.novel.findMany({
       where: baseWhere,
       select: {
@@ -110,6 +110,23 @@ export default async function HomePage({
     }),
     prisma.novel.count({ where: baseWhere }),
     prisma.category.findMany({ orderBy: { slug: 'asc' } }),
+    prisma.novel.findMany({
+      where: {
+        isFeatured: true,
+        publishStatus: 'published',
+        ...(ageVerified ? {} : { isAdult: false }),
+      },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        coverUrl: true,
+        isAdult: true,
+        categories: { include: { category: { select: { slug: true } } } },
+        translations: { where: { locale, status: 'published' }, select: { title: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    }),
   ])
 
   const totalPages = Math.ceil(total / NOVELS_PER_PAGE)
@@ -149,6 +166,43 @@ export default async function HomePage({
           </div>
         )}
       </section>
+
+      {/* Featured novels */}
+      {featuredNovels.length > 0 && (
+        <section className={styles.featuredSection}>
+          <h2 className={styles.featuredSectionTitle}>{t('featuredNovels')}</h2>
+          <div className={styles.featuredScroll}>
+            {featuredNovels.map((novel) => {
+              const tr = novel.translations[0]
+              return (
+                <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.featuredScrollCard}>
+                  <div className={`${styles.featuredScrollCover} ${styles.coverDark}`}>
+                    {novel.coverUrl ? (
+                      <img src={novel.coverUrl} alt="" className={styles.featuredScrollCoverImg} />
+                    ) : (
+                      (tr?.title ?? novel.title).slice(0, 6)
+                    )}
+                  </div>
+                  <div className={styles.featuredScrollInfo}>
+                    <div className={styles.featuredScrollStar}>⭐</div>
+                    <h3 className={styles.featuredScrollTitle}>{tr?.title ?? novel.title}</h3>
+                    <p className={styles.featuredScrollAuthor}>{novel.author}</p>
+                    {novel.categories.length > 0 && (
+                      <div className={styles.featuredScrollCategories}>
+                        {novel.categories.slice(0, 2).map((c) => (
+                          <span key={c.category.slug} className={styles.featuredScrollCategory}>
+                            {c.category.slug}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Filters + sort */}
       <FilterBar
