@@ -141,7 +141,7 @@ export default async function HomePage({
             <div>
               <div className={styles.secKicker}>{t('featuredKicker')}</div>
               <h2 className={styles.secTitle}>{t('featuredNovels')}</h2>
-              <p className={styles.secSub}>{t('featuredSub')}</p>
+ 
             </div>
             <Link href="/novels" className={styles.secLink}>{t('featuredBrowse')}</Link>
           </div>
@@ -184,13 +184,13 @@ export default async function HomePage({
 
       {/* ===== TRENDING ===== */}
       {trendingNovels.length > 0 && (
-        <section className={styles.section}>
+        <section className={`${styles.whitebg}  ${styles.section}`}>
           <div className={styles.container}>
           <div className={styles.secHead}>
             <div>
               <div className={styles.secKicker}>{t('trendingKicker')}</div>
               <h2 className={styles.secTitle}>{t('trendingTitle')}</h2>
-              <p className={styles.secSub}>{t('trendingSub')}</p>
+
             </div>
             <Link href="/novels?sort=views" className={styles.secLink}>{t('trendingBrowse')}</Link>
           </div>
@@ -222,8 +222,8 @@ export default async function HomePage({
       )}
 
       {/* ===== RECRUIT ===== */}
-      <div className={styles.recruit}>
-        <div className={`${styles.recruitInner} ${styles.container}`}>
+      <div className={`${styles.recruit}  ${styles.container}`}>
+        <div className={styles.recruitInner}>
           <div className={styles.recruitCopy}>
             <div className={styles.recruitKicker}>{t('recruitKicker')}</div>
             <h2 className={styles.recruitTitle}>{t('recruitTitle')}</h2>

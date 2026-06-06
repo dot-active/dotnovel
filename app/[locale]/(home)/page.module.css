@@ -15,6 +15,7 @@ display: grid;
   background: #fff;
 
 }
+.whitebg{background:#fff;}
 .hero  .container{  display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -320,12 +321,12 @@ display: grid;
 }
 
 .secKicker {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 12px;
+
 }
 
 .secTitle {
@@ -728,34 +729,273 @@ display: grid;
 }
 
 @media (max-width: 680px) {
+  /* Tighter container padding on mobile */
+  .container {
+    padding: 0 20px;
+  }
+
+  /* ── Hero ── */
   .hero {
-    padding: 48px 0;
+    padding: 36px 0 32px;
+    min-height: auto;
   }
 
-  .featGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+  .hero .container {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
-  .rankLangs {
-    display: none;
+  .heroRight {
+    margin-top: 28px;
+    justify-content: flex-start;
   }
 
-  .recruitInner {
-    padding: 36px 28px;
+  .headline {
+    font-size: 52px;
+    line-height: 1.0;
   }
 
-  .secHead {
-    flex-direction: column;
-    align-items: flex-start;
+  .line2 {
+    padding-left: 0;
+  }
+
+  .sub {
+    font-size: 14px;
+    margin-top: 16px;
   }
 
   .ctas {
-    flex-direction: column;
+    flex-wrap: nowrap;
     gap: 10px;
+    margin-top: 24px;
   }
 
-  .page {
-    padding: 0 22px;
+  .ctaPrimary,
+  .ctaSecondary {
+    flex: 1;
+    justify-content: center;
+    padding: 11px 16px;
+    font-size: 13.5px;
+  }
+
+  /* ── Translation card ── */
+  .transCard {
+    border-radius: 16px;
+    max-width: 100%;
+  }
+
+  .transHead {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .tcDot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .transSource {
+    padding: 18px 18px 14px;
+  }
+
+  .tsText {
+    font-size: 18px;
+  }
+
+  .tl {
+    gap: 12px;
+    padding: 11px 18px;
+  }
+
+  .tlFlag {
+    font-size: 15px;
+  }
+
+  .tlText {
+    font-size: 12.5px;
+  }
+
+  .tlEn .tlText,
+  .tlEs .tlText {
+    font-size: 14px;
+  }
+
+  .tlLang {
+    font-size: 8.5px;
+  }
+
+  .transCardFoot {
+    padding: 10px 18px;
+    gap: 8px;
+  }
+
+  /* ── Sections ── */
+  .section {
+    padding: 32px 0;
+  }
+
+  .secHead {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 20px;
+  }
+
+  .secKicker {
+    font-size: 9.5px;
+    margin-bottom: 4px;
+  }
+
+  .secTitle {
+    font-size: 26px;
+  }
+
+  .secLink {
+    font-size: 12px;
+  }
+
+  /* ── Featured cards ── */
+  .featGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .fcardCover {
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 14px;
+    box-shadow: 0 8px 20px -12px rgba(43, 37, 33, 0.5);
+  }
+
+  .fcardTitle {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .fcardAuthor {
+    font-size: 11px;
+    margin-top: 3px;
+  }
+
+  .fcardBlurb {
+    display: none;
+  }
+
+  .langTag {
+    margin-top: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  .langFlags {
+    font-size: 11px;
+  }
+
+  .langMeta {
+    font-size: 10px;
+  }
+
+  /* ── Ranking ── */
+  .rankWrap {
+    border-radius: 14px;
+  }
+
+  .rankRow {
+    display: flex;
+    grid-template-columns: unset;
+    gap: 14px;
+    padding: 13px 16px;
+  }
+
+  .rankNum {
+    font-size: 24px;
+    width: 32px;
+    flex: none;
+  }
+
+  .rankMain {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .rankTitle {
+    font-size: 14.5px;
+  }
+
+  .rankAuthor {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .rankSide {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  .rankLangs {
+    display: flex;
+    font-size: 11px;
+  }
+
+  .rankViews {
+    font-size: 10.5px;
+  }
+
+  /* ── Recruit banner ── */
+  .recruit {
+    padding: 0 0 32px;
+  }
+
+  .recruitInner {
+    margin: 0 20px;
+    padding: 32px 24px;
+    border-radius: 18px;
+    flex-direction: column;
+    align-items: stretch;
+    width: auto;
+    max-width: none;
+  }
+
+  .recruitInner::before {
+    font-size: 160px;
+    right: -20px;
+    bottom: -50px;
+  }
+
+  .recruitKicker {
+    font-size: 9.5px;
+  }
+
+  .recruitTitle {
+    font-size: 28px;
+  }
+
+  .recruitFlow {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .flowStep {
+    font-size: 13px;
+  }
+
+  .flowIc {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .flowArrow {
+    font-size: 12px;
+    color: #d9a18f;
+    margin-left: 10px;
+  }
+
+  .recruitBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
   }
 }

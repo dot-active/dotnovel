@@ -7,6 +7,7 @@
     "myWorks": "My Works",
     "signIn": "Sign In",
     "signUp": "Sign Up",
+    "signOut": "Sign Out",
     "novels": "All Novels"
   },
   "footer": {
@@ -33,8 +34,8 @@
     "nextPage": "Next →",
     "empty": "No novels yet. Run npm run db:seed to add test data.",
     "featuredNovels": "Featured",
-    "landingLine1": "Don't let your language",
-    "landingLine2": "trap your story.",
+    "landingLine1": "Don't let language",
+    "landingLine2": "cage your story.",
     "eyebrow": "AI Auto-Translation · Global Publishing",
     "landingSub": "Write your story in your native language. AI translates it instantly into multiple languages — readers worldwide read the same you.",
     "ctaRead": "Start Reading",

@@ -7,6 +7,7 @@
     "myWorks": "マイ作品",
     "signIn": "ログイン",
     "signUp": "登録",
+    "signOut": "ログアウト",
     "novels": "すべての小説"
   },
   "footer": {
@@ -33,8 +34,8 @@
     "nextPage": "次へ →",
     "empty": "データがありません。npm run db:seed を実行してください。",
     "featuredNovels": "注目作品",
-    "landingLine1": "言語に、",
-    "landingLine2": "物語を縛らせるな。",
+    "landingLine1": "言葉に、物語を",
+    "landingLine2": "閉じ込めるな。",
     "eyebrow": "AI 自動翻訳 · グローバル配信",
     "landingSub": "母国語で書いた物語を、AIが即時に多言語翻訳。世界中の読者に同じ「あなた」を届けます。",
     "ctaRead": "読み始める",
