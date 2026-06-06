@@ -38,7 +38,9 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('author',{}\\),ensure_ascii=False,indent=2\\)\\)\")",
       "Bash(xargs cat)",
       "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart, 10000\\))",
-      "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart + 10000, 8000\\))"
+      "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart + 10000, 8000\\))",
+      "PowerShell(Get-ChildItem \"d:\\\\creation\\\\dotnovel\\\\app\\\\[locale]\" -Recurse -File | Where-Object { $_.Name -match \"layout|page\" } | Select-Object FullName | Head -20)",
+      "PowerShell(Get-ChildItem \"d:\\\\creation\\\\dotnovel\\\\app\\\\[locale]\" -Recurse -File | Where-Object { $_.Name -match \"layout|page\" } | Select-Object FullName -First 20)"
     ],
     "additionalDirectories": [
       "D:\\creation\\dotnovel\\app\\[locale]\\author",
