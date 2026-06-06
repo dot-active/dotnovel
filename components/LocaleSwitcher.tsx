@@ -41,7 +41,7 @@ export default function LocaleSwitcher() {
   return (
     <div ref={ref} className={styles.wrapper}>
       <button className={styles.trigger} onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        <span>{current.flag}</span>
+      
         <span className={styles.name}>{current.name}</span>
         <span className={styles.arrow}>{open ? '▲' : '▼'}</span>
       </button>
@@ -54,7 +54,7 @@ export default function LocaleSwitcher() {
                 className={`${styles.option} ${l === locale ? styles.optionActive : ''}`}
                 onClick={() => select(l)}
               >
-                <span>{LOCALE_META[l].flag}</span>
+               
                 <span>{LOCALE_META[l].name}</span>
               </button>
             </li>

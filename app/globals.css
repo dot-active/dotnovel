@@ -116,6 +116,16 @@ a {
   margin: 0 auto;
   padding: 32px;
 }
+.container{
+    flex: 1;
+  max-width: var(--max-width);
+  width: 100%;
+}
+.home-main {
+  flex: 1;
+  width: 100%;
+  overflow-x: hidden;
+}
 
 /* ── Footer ── */
 .site-footer {

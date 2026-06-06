@@ -62,10 +62,11 @@ export default async function HomePage({
   ])
 
   return (
-    <div className={styles.page}>
+    <>
 
       {/* ===== HERO ===== */}
       <section className={styles.hero}>
+        <div className={styles.container}>
         <div className={styles.heroLeft}>
           <div className={styles.eyebrow}>
             <span className={styles.eyebrowDot} />
@@ -129,11 +130,13 @@ export default async function HomePage({
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* ===== FEATURED ===== */}
       {featuredNovels.length > 0 && (
         <section className={styles.section}>
+          <div className={styles.container}>
           <div className={styles.secHead}>
             <div>
               <div className={styles.secKicker}>{t('featuredKicker')}</div>
@@ -175,12 +178,14 @@ export default async function HomePage({
               )
             })}
           </div>
+          </div>
         </section>
       )}
 
       {/* ===== TRENDING ===== */}
       {trendingNovels.length > 0 && (
         <section className={styles.section}>
+          <div className={styles.container}>
           <div className={styles.secHead}>
             <div>
               <div className={styles.secKicker}>{t('trendingKicker')}</div>
@@ -212,12 +217,13 @@ export default async function HomePage({
               )
             })}
           </div>
+          </div>
         </section>
       )}
 
       {/* ===== RECRUIT ===== */}
       <div className={styles.recruit}>
-        <div className={styles.recruitInner}>
+        <div className={`${styles.recruitInner} ${styles.container}`}>
           <div className={styles.recruitCopy}>
             <div className={styles.recruitKicker}>{t('recruitKicker')}</div>
             <h2 className={styles.recruitTitle}>{t('recruitTitle')}</h2>
@@ -244,6 +250,6 @@ export default async function HomePage({
         </div>
       </div>
 
-    </div>
+    </>
   )
 }
