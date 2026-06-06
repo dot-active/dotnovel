@@ -74,7 +74,7 @@ export default async function HomePage({
           </div>
           <h1 className={styles.headline}>
             <span className={styles.line1}>{t('landingLine1')}</span>
-            <em className={styles.line2}>{t('landingLine2')}</em>
+            <span className={styles.line2}>{t('landingLine2')}</span>
           </h1>
           <p className={styles.sub}>{t('landingSub')}</p>
           <div className={styles.ctas}>

@@ -12,7 +12,7 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: 'DotNovel · 在线小说阅读',
+  title: 'NovelPhere · 在线小说阅读',
   description: '海量正版小说，畅享阅读乐趣',
   icons: {
     icon: [
