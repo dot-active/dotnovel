@@ -40,12 +40,15 @@
       "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart, 10000\\))",
       "PowerShell($content = Get-Content \"d:\\\\creation\\\\dotnovel\\\\edit-v2.html\" -Raw -Encoding UTF8; $templateIdx = $content.LastIndexOf\\('<script type=\"__bundler/template\"'\\); $endIdx = $content.IndexOf\\('</script>', $templateIdx\\); $templateContent = $content.Substring\\($templateIdx + 34, $endIdx - $templateIdx - 34\\); $decoded = $templateContent | ConvertFrom-Json; $cssStart = $decoded.IndexOf\\(':root'\\); Write-Host $decoded.Substring\\($cssStart + 10000, 8000\\))",
       "PowerShell(Get-ChildItem \"d:\\\\creation\\\\dotnovel\\\\app\\\\[locale]\" -Recurse -File | Where-Object { $_.Name -match \"layout|page\" } | Select-Object FullName | Head -20)",
-      "PowerShell(Get-ChildItem \"d:\\\\creation\\\\dotnovel\\\\app\\\\[locale]\" -Recurse -File | Where-Object { $_.Name -match \"layout|page\" } | Select-Object FullName -First 20)"
+      "PowerShell(Get-ChildItem \"d:\\\\creation\\\\dotnovel\\\\app\\\\[locale]\" -Recurse -File | Where-Object { $_.Name -match \"layout|page\" } | Select-Object FullName -First 20)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
     ],
     "additionalDirectories": [
       "D:\\creation\\dotnovel\\app\\[locale]\\author",
       "D:\\creation\\dotnovel\\app\\[locale]\\(site)\\author\\novels\\new\\_components",
-      "d:\\creation\\dotnovel\\app\\[locale]\\(site)\\author\\novels\\[id]\\chapters\\new\\_components"
+      "d:\\creation\\dotnovel\\app\\[locale]\\(site)\\author\\novels\\[id]\\chapters\\new\\_components",
+      "C:\\Users\\rudtr\\.claude"
     ]
   }
 }
