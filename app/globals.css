@@ -70,42 +70,91 @@ a {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(251, 247, 237, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(251, 247, 237, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--cream-line);
 }
 
 .site-header__inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 32px;
-  height: 64px;
+  padding: 0 40px;
+  height: 62px;
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 0;
 }
 
 .site-header__logo {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  margin-right: 48px;
 }
 
-.site-header__nav {
+/* Center nav */
+.topnav-links {
   display: flex;
-  gap: 28px;
+  align-items: center;
+  gap: 2px;
 }
 
-.site-header__nav a {
+.topnav-links a {
   font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--bark);
-  transition: color 0.15s;
+  font-size: 13.5px;
+  color: var(--bark-soft);
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: color 0.16s, background 0.16s;
 }
 
-.site-header__nav a:hover {
+.topnav-links a:hover {
   color: var(--ink);
+  background: var(--cream-deep);
+}
+
+/* Right cluster */
+.topnav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Vertical divider */
+.topnav-div {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: var(--cream-line);
+  margin: 0 4px;
+}
+
+/* Icon button (write/publish) */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--bark-soft);
+  border: 1px solid transparent;
+  transition: color 0.16s, background 0.16s, border-color 0.16s;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  background: var(--cream-deep);
+  border-color: var(--cream-line);
+}
+
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
 }
 
 /* ── Main ── */
@@ -160,24 +209,6 @@ a {
   color: var(--bark);
 }
 
-/* ── Header auth section ── */
-.site-header__auth {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.site-header__nav-link {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--bark);
-  transition: color 0.15s;
-}
-
-.site-header__nav-link:hover {
-  color: var(--ink);
-}
 
 .btn-ghost {
   font-size: 0.8125rem;
