@@ -231,14 +231,13 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
       newComment.replies = []
 
       if (replyTo) {
-        function appendReply(list: CommentData[]): CommentData[] {
-          return list.map((c) => {
+        const appendReply = (list: CommentData[]): CommentData[] =>
+          list.map((c) => {
             if (c.id === replyTo!.parentId) {
               return { ...c, replies: [...c.replies, newComment] }
             }
             return { ...c, replies: appendReply(c.replies) }
           })
-        }
         setComments((prev) => appendReply(prev))
       } else {
         setComments((prev) => [...prev, newComment])
