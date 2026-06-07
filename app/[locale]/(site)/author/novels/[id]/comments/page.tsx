@@ -62,7 +62,15 @@ export default async function AuthorCommentsPage({
     }),
   ])
 
-  const chaptersWithComments = chapters.filter((c) => c.comments.length > 0)
+  const chaptersWithComments = chapters
+    .filter((c) => c.comments.length > 0)
+    .map((c) => ({
+      ...c,
+      comments: c.comments.map((comment) => ({
+        ...comment,
+        createdAt: comment.createdAt.toISOString(),
+      })),
+    }))
 
   return (
     <div className={styles.page}>
