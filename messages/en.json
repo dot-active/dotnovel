@@ -108,7 +108,7 @@
     "other": "Other"
   },
   "onboarding": {
-    "title": "Welcome to DotNovel",
+    "title": "Welcome to NovelPhere",
     "desc": "This site contains adult content. By continuing, you confirm that you are 18 years of age or older and consent to viewing adult content.",
     "checkLabel": "I am 18 or older and agree to view adult content",
     "confirm": "Confirm & Continue",
@@ -203,7 +203,7 @@
     "readersPara": "We provide a rich and diverse library spanning fantasy, romance, sci-fi, mystery, and many more genres, updated continuously. Reading is free, bookmarking is open, and every story is accessible in your preferred language.",
     "contactTitle": "Contact Us",
     "contactPara": "For questions, feedback, or partnership inquiries, please reach us at:",
-    "contactEmail": "contact@dotnovel.com"
+    "contactEmail": "contact@novelphere.com"
   },
   "termsPage": {
     "pageTitle": "Terms of Use",
@@ -220,7 +220,7 @@
     "s5Title": "5. Intellectual Property",
     "s5Body": "Works published to the platform remain the copyright of the original author. By publishing, authors grant the platform a non-exclusive, royalty-free, worldwide license to display and translate the works in order to provide services to readers.\n\nThe platform's interface design, trademarks, code, and related assets are the property of NovelPhere and may not be reproduced or used without authorization.",
     "s6Title": "6. Privacy",
-    "s6Body": "We value your privacy. User information collected by the platform is used solely for providing and improving our services and will not be sold to third parties.\n\nFor privacy-related inquiries, please contact contact@dotnovel.com.",
+    "s6Body": "We value your privacy. User information collected by the platform is used solely for providing and improving our services and will not be sold to third parties.\n\nFor privacy-related inquiries, please contact contact@novelphere.com.",
     "s7Title": "7. Disclaimer",
     "s7Body": "The platform provides services \"as is\" without express or implied warranties regarding continuous availability, freedom from errors, or fitness for a particular purpose.\n\nTo the maximum extent permitted by law, the platform shall not be liable for any direct, indirect, incidental, or consequential damages arising from the use or inability to use the services.",
     "s8Title": "8. Amendments",
