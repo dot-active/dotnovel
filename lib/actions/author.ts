@@ -178,6 +178,7 @@ export async function updateChapter(
   const publishStatus = (formData.get('publishStatus') as string) || 'published'
   const browsingLocale = formData.get('browsingLocale') as string
   const editLocale = formData.get('editLocale') as string | null
+  const retranslateLocales = (formData.getAll('retranslateLocales') as string[]).filter(Boolean)
 
   if (!title || !content) return { error: 'Title and content are required' }
   if (isNaN(order)) return { error: 'Invalid chapter order' }
@@ -189,8 +190,9 @@ export async function updateChapter(
   if (!chapter || chapter.novel.authorId !== userId) return { error: 'Not authorized' }
 
   const targetLocale = editLocale || chapter.novel.sourceLocale
+  const sourceLocale = chapter.novel.sourceLocale
 
-  if (targetLocale === chapter.novel.sourceLocale) {
+  if (targetLocale === sourceLocale) {
     await prisma.chapter.update({
       where: { id: chapterId },
       data: { title, content, order, publishStatus },
@@ -208,6 +210,23 @@ export async function updateChapter(
     update: { title, content, status: publishStatus },
     create: { chapterId, locale: targetLocale, title, content, status: publishStatus },
   })
+
+  if (targetLocale === sourceLocale) {
+    const locales = retranslateLocales.filter((loc) => loc !== sourceLocale)
+    if (locales.length > 0) {
+      await prisma.chapterTranslation.deleteMany({
+        where: { chapterId, locale: { in: locales } },
+      })
+      for (const loc of locales) {
+        await tasks.trigger<typeof translateChapter>('translate-chapter', {
+          chapterId,
+          novelId,
+          sourceLocale,
+          targetLocale: loc,
+        })
+      }
+    }
+  }
 
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 

@@ -43,6 +43,12 @@ export default async function EditChapterPage({
 
   const novelLocales = chapter.novel.translations.map((t) => t.locale)
 
+  const completedRequests = await prisma.translationRequest.findMany({
+    where: { novelId: id, status: 'completed' },
+    select: { targetLocale: true },
+  })
+  const autoTranslateLocales = completedRequests.map((r) => r.targetLocale)
+
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
@@ -69,6 +75,7 @@ export default async function EditChapterPage({
         }}
         locale={locale}
         novelLocales={novelLocales}
+        autoTranslateLocales={autoTranslateLocales}
       />
     </div>
   )

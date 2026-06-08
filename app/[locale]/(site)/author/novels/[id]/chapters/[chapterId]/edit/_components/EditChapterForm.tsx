@@ -37,9 +37,10 @@ interface Props {
   chapter: ChapterData
   locale: string
   novelLocales: string[]
+  autoTranslateLocales: string[]
 }
 
-export default function EditChapterForm({ chapter, locale, novelLocales }: Props) {
+export default function EditChapterForm({ chapter, locale, novelLocales, autoTranslateLocales }: Props) {
   const t = useTranslations('author.form')
   const tAuthor = useTranslations('author')
   const router = useRouter()
@@ -54,6 +55,14 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
   const [selectedStatus, setSelectedStatus] = useState<'draft' | 'published'>(
     (sourceTr?.status ?? chapter.publishStatus) === 'published' ? 'published' : 'draft'
   )
+  const [showRetranslateDialog, setShowRetranslateDialog] = useState(false)
+  const [retranslateLocales, setRetranslateLocales] = useState<string[]>([])
+
+  function toggleRetranslateLocale(loc: string) {
+    setRetranslateLocales((prev) =>
+      prev.includes(loc) ? prev.filter((l) => l !== loc) : [...prev, loc]
+    )
+  }
 
   function handleLocaleChange(newLocale: string) {
     const tr = chapter.translations.find((tr) => tr.locale === newLocale)
@@ -63,7 +72,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
     setSelectedStatus(tr?.status === 'published' ? 'published' : 'draft')
   }
 
-  async function handleSubmit(publishStatus: 'published' | 'draft') {
+  async function handleSubmit(publishStatus: 'published' | 'draft', retranslate: string[] = []) {
     setSubmitting(publishStatus)
     setError(null)
 
@@ -74,6 +83,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
       formData.set('browsingLocale', locale)
       formData.set('editLocale', selectedLocale)
       formData.set('publishStatus', publishStatus)
+      retranslate.forEach((loc) => formData.append('retranslateLocales', loc))
 
       const result = await updateChapter(formData)
       if ('error' in result && result.error) {
@@ -116,6 +126,23 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
 
   const busy = submitting !== null
   const currentTranslation = chapter.translations.find((tr) => tr.locale === selectedLocale)
+
+  function handleSaveClick() {
+    const isNativeLocale = selectedLocale === chapter.sourceLocale
+    const contentChanged = editTitle !== chapter.title || editContent !== chapter.content
+
+    if (isNativeLocale && contentChanged && autoTranslateLocales.length > 0) {
+      setRetranslateLocales(autoTranslateLocales)
+      setShowRetranslateDialog(true)
+      return
+    }
+
+    handleSubmit(selectedStatus)
+  }
+
+  function localeLabel(value: string) {
+    return ALL_LOCALES.find((l) => l.value === value)?.label ?? value
+  }
 
   return (
     <form ref={formRef} className={styles.form}>
@@ -218,12 +245,65 @@ export default function EditChapterForm({ chapter, locale, novelLocales }: Props
             type="button"
             disabled={busy}
             className={styles.primaryBtn}
-            onClick={() => handleSubmit(selectedStatus)}
+            onClick={handleSaveClick}
           >
             {submitting === 'draft' || submitting === 'published' ? '…' : t('saveChanges')}
           </button>
         </div>
       </div>
+
+      {showRetranslateDialog && (
+        <div className={styles.dialogOverlay}>
+          <div className={styles.dialog}>
+            <h3 className={styles.dialogTitle}>您修改了原文内容</h3>
+            <p className={styles.dialogText}>是否要重新翻译以下语言版本？</p>
+            <div className={styles.dialogLocales}>
+              {autoTranslateLocales.map((loc) => (
+                <label key={loc} className={styles.dialogCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={retranslateLocales.includes(loc)}
+                    onChange={() => toggleRetranslateLocale(loc)}
+                  />
+                  {localeLabel(loc)}
+                </label>
+              ))}
+            </div>
+            <div className={styles.dialogActions}>
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                disabled={busy}
+                onClick={() => setShowRetranslateDialog(false)}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className={styles.draftBtn}
+                disabled={busy}
+                onClick={() => {
+                  setShowRetranslateDialog(false)
+                  handleSubmit(selectedStatus)
+                }}
+              >
+                仅保存，不翻译
+              </button>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                disabled={busy}
+                onClick={() => {
+                  setShowRetranslateDialog(false)
+                  handleSubmit(selectedStatus, retranslateLocales)
+                }}
+              >
+                保存并重新翻译
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   )
 }
