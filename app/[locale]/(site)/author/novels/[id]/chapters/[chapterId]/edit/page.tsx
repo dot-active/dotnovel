@@ -44,7 +44,7 @@ export default async function EditChapterPage({
   const novelLocales = chapter.novel.translations.map((t) => t.locale)
 
   const completedRequests = await prisma.translationRequest.findMany({
-    where: { novelId: id, status: 'completed' },
+    where: { novelId: id, status: { in: ['completed', 'published'] } },
     select: { targetLocale: true },
   })
   const autoTranslateLocales = completedRequests.map((r) => r.targetLocale)

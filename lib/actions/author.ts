@@ -109,7 +109,7 @@ export async function createChapter(
 
   if (publishStatus === 'published') {
     const completedRequests = await prisma.translationRequest.findMany({
-      where: { novelId, status: 'completed' },
+      where: { novelId, status: { in: ['completed', 'published'] } },
       select: { targetLocale: true },
     })
     for (const { targetLocale } of completedRequests) {
