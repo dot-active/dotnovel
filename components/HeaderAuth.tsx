@@ -26,9 +26,9 @@ export default function HeaderAuth() {
               <Link href="/novels">{t('novels')}</Link>
               <Link href="/favorites">{t('favorites')}</Link>
             </SignedIn>
-            <SignedOut>
+            {/* <SignedOut>
               <Link href="/novels">{t('novels')}</Link>
-            </SignedOut>
+            </SignedOut> */}
           </nav>
 
           <div className="topnav-right">

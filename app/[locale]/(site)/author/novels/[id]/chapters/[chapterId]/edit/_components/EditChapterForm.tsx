@@ -167,7 +167,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
           <input
             name="order"
             type="number"
-            min={1}
+            min={0}
             defaultValue={chapter.order}
             required
             className={styles.input}

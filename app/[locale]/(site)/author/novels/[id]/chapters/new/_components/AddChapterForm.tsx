@@ -82,7 +82,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
           <input
             name="order"
             type="number"
-            min={1}
+            min={0}
             defaultValue={defaultOrder}
             required
             className={styles.input}

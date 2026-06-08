@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import { formatCount } from '@/lib/formatCount'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPenNib, faGlobe, faBookOpen, faEye } from '@fortawesome/free-solid-svg-icons'
 import styles from './page.module.css'
 
 const LOCALE_FLAGS: Record<string, string> = {
@@ -126,7 +128,7 @@ export default async function HomePage({
                 <span className={styles.aiDot} />
                 AI 翻译中
               </span>
-              <span className={styles.moreLangs}>5 种语言</span>
+        
             </div>
           </div>
         </div>
@@ -210,8 +212,9 @@ export default async function HomePage({
                     <span className={styles.rankAuthor}>{novel.author}</span>
                   </div>
                   <div className={styles.rankSide}>
-                    {flags && <span className={styles.rankLangs}>{flags}</span>}
-                    <span className={styles.rankViews}>{formatCount(novel.viewCount)} 阅</span>
+                     
+                    <span className={styles.rankViews}>{formatCount(novel.viewCount)}<FontAwesomeIcon className={styles.viewIcon} icon={faEye} /></span>
+ 
                   </div>
                 </Link>
               )
@@ -229,17 +232,17 @@ export default async function HomePage({
             <h2 className={styles.recruitTitle}>{t('recruitTitle')}</h2>
             <div className={styles.recruitFlow}>
               <span className={styles.flowStep}>
-                <span className={styles.flowIc}>✍️</span>
+                <span className={styles.flowIc}><FontAwesomeIcon icon={faPenNib} /></span>
                 {t('flowStep1')}
               </span>
               <span className={styles.flowArrow}>→</span>
               <span className={styles.flowStep}>
-                <span className={styles.flowIc}>🌐</span>
+                <span className={styles.flowIc}><FontAwesomeIcon icon={faGlobe} /></span>
                 {t('flowStep2')}
               </span>
               <span className={styles.flowArrow}>→</span>
               <span className={styles.flowStep}>
-                <span className={styles.flowIc}>📖</span>
+                <span className={styles.flowIc}><FontAwesomeIcon icon={faBookOpen} /></span>
                 {t('flowStep3')}
               </span>
             </div>

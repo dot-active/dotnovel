@@ -182,7 +182,7 @@ display: grid;
 }
 
 .tcTitle {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  
   font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--bark-faint);
@@ -195,7 +195,7 @@ display: grid;
 }
 
 .tsLabel {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  
   font-size: 9.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -257,7 +257,7 @@ display: grid;
 }
 
 .tlLang {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  
   font-size: 9px;
   letter-spacing: 0.12em;
   color: var(--bark-faint);
@@ -298,7 +298,7 @@ display: grid;
 
 .moreLangs {
   margin-left: auto;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  
   font-size: 10px;
   letter-spacing: 0.1em;
   color: var(--bark-faint);
@@ -496,7 +496,7 @@ display: grid;
 
 .langCap {
   display: block;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  
   font-size: 8.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -591,16 +591,18 @@ display: grid;
 
 .rankViews {
   font-family: var(--font-sans);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--bark-soft);
   white-space: nowrap;
 }
+.rankViews svg{width:12px; margin-left:5px;}
 
 /* ═══════════════════════════════════════
    RECRUIT BANNER
 ═══════════════════════════════════════ */
 .recruit {
-  padding: 76px 0 90px;
+  padding-top:76px;
+  padding-bottom:76px;
 }
 
 .recruitInner {
@@ -636,7 +638,7 @@ display: grid;
 }
 
 .recruitKicker {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -671,10 +673,10 @@ display: grid;
 }
 
 .flowIc {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid rgba(251, 247, 237, 0.25);
+  width: 20px;
+  height: 20px;
+
+
   display: grid;
   place-items: center;
   font-size: 14px;
@@ -944,7 +946,8 @@ display: grid;
 
   /* ── Recruit banner ── */
   .recruit {
-    padding: 0 0 32px;
+    padding:32px 0;
+
   }
 
   .recruitInner {
