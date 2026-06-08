@@ -64,7 +64,7 @@ export default async function AuthorDashboardPage({
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.title}>{t('myNovels')}</h1>
-          <p className={styles.subtitle}>{t('dashboard')}</p>
+          {/* <p className={styles.subtitle}>{t('dashboard')}</p> */}
         </div>
         <Link href="/author/novels/new" className={styles.createBtn}>
           + {t('createNovel')}

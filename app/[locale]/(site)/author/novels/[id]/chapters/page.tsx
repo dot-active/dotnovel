@@ -72,12 +72,12 @@ export default async function AuthorChapterListPage({
           <Link href="/author/dashboard" className={styles.backLink}>
             ← {t('myNovels')}
           </Link>
-          <h1 className={styles.title}>{t('manageChapters')}</h1>
-          <p className={styles.novelName}>{novelTitle}</p>
+          <h1 className={styles.title}>{novelTitle}-{t('manageChapters')}</h1>
+        
         </div>
         <div className={styles.headerBtns}>
           <Link href={`/author/novels/${id}/edit`} className={styles.settingsBtn}>
-            作品设定
+            {t('novelSettings')}
           </Link>
           <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
             + {t('addChapter')}
@@ -96,9 +96,9 @@ export default async function AuthorChapterListPage({
         <div className={styles.list}>
           <div className={styles.listHeader}>
             <span className={styles.colOrder}>#</span>
-            <span className={styles.colTitle}>章节标题</span>
-            <span className={styles.colLocales}>语言版本</span>
-            <span className={styles.colActions}>操作</span>
+            <span className={styles.colTitle}>{t('chapterTitle')}</span>
+            <span className={styles.colLocales}>{t('languageVersions')}</span>
+            <span className={styles.colActions}>{t('actions')}</span>
           </div>
           {novel.chapters.map((chapter) => {
             const displayTr =
@@ -147,7 +147,7 @@ export default async function AuthorChapterListPage({
                     className={styles.editBtn}
                     target="_blank"
                   >
-                    预览
+                    {t('preview')}
                   </Link>
                 </div>
               </div>

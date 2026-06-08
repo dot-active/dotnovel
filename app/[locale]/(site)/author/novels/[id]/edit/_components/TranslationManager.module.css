@@ -81,17 +81,17 @@
   border: 1px solid #a8d0f0;
 }
 
-.badgeDraft {
+.badgeDraft，  .badgePublished {
   background: #fff8e8;
   color: #9a6200;
   border: 1px solid #e8c96a;
 }
 
-.badgePublished {
+/* .badgePublished {
   background: #e8f8ee;
   color: #1a7a40;
   border: 1px solid #7dc99a;
-}
+} */
 
 .badgeFailed {
   background: #fff0f0;

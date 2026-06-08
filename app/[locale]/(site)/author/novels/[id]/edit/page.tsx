@@ -43,12 +43,13 @@ export default async function EditNovelPage({
 
   return (
     <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.title}>{t('editNovel')} · {sourceTr?.title ?? novel.title}</h1>
+      {/* <div className={styles.pageHeader}>
         <Link href="/author/dashboard" className={styles.primaryBtn}>
-           {t('myNovels')}
+          ← {t('myNovels')}
         </Link>
-      </div>
+        <h1 className={styles.title}>{t('editNovel')} · {sourceTr?.title ?? novel.title}</h1>
+
+      </div> */}
 
       <EditNovelForm
         novel={{

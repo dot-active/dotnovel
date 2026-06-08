@@ -264,7 +264,13 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                     {/* Fully published — chapters published too */}
                     {(req?.status === 'published' || (!req && tr?.status === 'published')) && (
                       <>
-                        <span className={styles.publishedTag}>✓ 已发布</span>
+                        <button
+                          className={styles.btnPause}
+                          disabled={isBusy}
+                          onClick={() => handlePause(value)}
+                        >
+                          {isBusy ? '操作中…' : '暂停翻译'}
+                        </button>
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
