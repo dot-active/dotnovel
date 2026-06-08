@@ -22,13 +22,10 @@ export async function POST(req: NextRequest) {
     where: { novelId_locale: { novelId, locale: targetLocale } },
   })
 
-  if (existingTr) {
-    if (existingTr.status === 'published' && !overwrite) {
-      return NextResponse.json({ conflict: 'published' }, { status: 409 })
-    }
-    if ((existingTr.status === 'draft') && !overwrite) {
-      return NextResponse.json({ conflict: 'draft' }, { status: 409 })
-    }
+  // NovelTranslation never sits in 'draft' — it's published as soon as it's
+  // created/translated. Only chapters carry a draft/published distinction.
+  if (existingTr && existingTr.status === 'published' && !overwrite) {
+    return NextResponse.json({ conflict: 'published' }, { status: 409 })
   }
 
   // Check for existing in-progress request

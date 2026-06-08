@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
+import PublishAllDraftsButton from './_components/PublishAllDraftsButton'
 import styles from './page.module.css'
 
 export default async function AuthorDashboardPage({
@@ -79,12 +80,12 @@ export default async function AuthorDashboardPage({
         </div>
       ) : (
         <div className={styles.table}>
-          <div className={styles.tableHeader}>
+          {/* <div className={styles.tableHeader}>
             <span>小说</span>
             <span>章节</span>
             <span>发布时间</span>
             <span>操作</span>
-          </div>
+          </div> */}
           {novels.map((novel) => {
             const tr = novel.translations[0]
             const publishedCount = novel.chapters.filter((c) => c.publishStatus === 'published').length
@@ -112,21 +113,24 @@ export default async function AuthorDashboardPage({
                 </div>
                 <div className={styles.chapterStats}>
                   <span>{t('novelCount', { count: publishedCount })}</span>
-                  {draftCount > 0 && (
+                  {/* {draftCount > 0 && (
                     <span className={styles.draftBadge}>{draftCount} 草稿</span>
-                  )}
+                  )} */}
                 </div>
                 <span className={styles.date}>
                   {new Date(novel.createdAt).toLocaleDateString('zh-CN')}
                 </span>
                 <div className={styles.actions}>
-                  {hasDraftTranslation.has(novel.id) && (
+                  {/* {hasDraftTranslation.has(novel.id) && (
                     <Link
                       href={`/author/novels/${novel.id}/edit?lang=${draftLocaleMap[novel.id] ?? ''}`}
                       className={`${styles.actionBtn} ${styles.actionBtnDraft}`}
                     >
                       有新翻译草稿待审阅
                     </Link>
+                  )} */}
+                  {hasDraftTranslation.has(novel.id) && (
+                    <PublishAllDraftsButton novelId={novel.id} />
                   )}
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
@@ -134,9 +138,9 @@ export default async function AuthorDashboardPage({
                   >
                     留言管理
                     {unread > 0 && (
-                      <span className={styles.unreadBadge}>
+                      <div className={styles.unreadBadge}>
                         {unread > 99 ? '99+' : unread}
-                      </span>
+                      </div>
                     )}
                   </Link>
                 </div>

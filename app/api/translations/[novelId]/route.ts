@@ -63,12 +63,8 @@ export async function POST(
     const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
     if (!novel) return NextResponse.json({ success: false, error: 'Not found' }, { status: 403 })
 
-    // Publish all draft translations for targetLocale
-    await prisma.novelTranslation.updateMany({
-      where: { novelId, locale: targetLocale, status: 'draft' },
-      data: { status: 'published' },
-    })
-
+    // Only chapters carry a draft/published distinction — NovelTranslation
+    // (title/synopsis) is published as soon as it's translated.
     const chapterIds = await prisma.chapter.findMany({
       where: { novelId },
       select: { id: true },

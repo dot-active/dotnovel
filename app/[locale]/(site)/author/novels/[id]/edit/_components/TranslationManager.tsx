@@ -195,7 +195,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                 {confirmState?.locale === value ? (
                   <div className={styles.confirmRow}>
                     <span className={styles.confirmText}>
-                      {confirmState.conflict === 'published' ? '已有发布版本，确认覆盖？' : confirmState.conflict === 'paused' ? '此语言已暂停，确认重新翻译？' : '已有草稿，确认重新翻译？'}
+                      {confirmState.conflict === 'paused' ? '此语言已暂停，确认重新翻译？' : '已有发布版本，确认覆盖？'}
                     </span>
                     <button
                       className={styles.btnDangerSm}
@@ -229,8 +229,8 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                     {req?.triggerRunId && (req.status === 'pending' || req.status === 'processing') && (
                       <span className={styles.infoText}>翻译进行中…</span>
                     )}
-                    {/* Draft - show pause button */}
-                    {tr?.status === 'draft' && req?.status !== 'processing' && req?.status !== 'paused' && !(req?.status === 'pending' && req.triggerRunId) && (
+                    {/* Translation completed — chapters are drafts awaiting publish */}
+                    {req?.status === 'completed' && (
                       <>
                         <button
                           className={styles.btnPause}
@@ -261,8 +261,8 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                         </button>
                       </>
                     )}
-                    {/* Published */}
-                    {tr?.status === 'published' && req?.status !== 'processing' && !(req?.status === 'pending' && req.triggerRunId) && (
+                    {/* Fully published — chapters published too */}
+                    {(req?.status === 'published' || (!req && tr?.status === 'published')) && (
                       <>
                         <span className={styles.publishedTag}>✓ 已发布</span>
                         <button
@@ -301,7 +301,7 @@ function StatusBadge({ status, req }: { status: string; req?: TranslationRequest
       翻译中
     </span>
   )
-  if (status === 'completed' || status === 'draft') return <span className={`${styles.badge} ${styles.badgeDraft}`}>草稿待发布</span>
+  if (status === 'completed') return <span className={`${styles.badge} ${styles.badgeDraft}`}>已完成</span>
   if (status === 'published') return <span className={`${styles.badge} ${styles.badgePublished}`}>已发布</span>
   if (status === 'paused') return <span className={`${styles.badge} ${styles.badgePaused}`}>已暂停</span>
   if (status === 'failed') return <span className={`${styles.badge} ${styles.badgeFailed}`}>翻译失败</span>

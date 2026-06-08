@@ -1,0 +1,23 @@
+.publishBtn {
+  font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 5px 12px;
+  border: 1px solid #e8c96a;
+  border-radius: var(--radius-sm);
+  color: #9a6200;
+  background: #fff8e8;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.publishBtn:hover:not(:disabled) {
+  background: #fdf0cc;
+  border-color: #d4900a;
+  color: #7a4e00;
+}
+
+.publishBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

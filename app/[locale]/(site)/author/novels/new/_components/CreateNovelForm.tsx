@@ -232,7 +232,7 @@ export default function CreateNovelForm({ categories, locale }: Props) {
       {/* ── Section 4: Translation languages ── */}
       <div className={styles.secDivider}>
         <span className={styles.secCh}>翻 译 语 言</span>
-        <span className={styles.secNote}>发布后可在编辑页一键触发 AI 翻译</span>
+        <span className={styles.secNote}>选择后将立即自动开始 AI 翻译</span>
       </div>
 
       <div className={styles.tagGrid}>

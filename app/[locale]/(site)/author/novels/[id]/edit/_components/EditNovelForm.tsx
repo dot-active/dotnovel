@@ -104,7 +104,6 @@ export default function EditNovelForm({
     if (localeValue === novel.sourceLocale) return '写作语言'
     const tr = translations.find(t => t.locale === localeValue)
     if (tr?.status === 'published') return '已发布'
-    if (tr?.status === 'draft') return '草稿'
     const req = translationRequests.find(r => r.targetLocale === localeValue)
     if (req?.status === 'processing' || req?.status === 'pending') return '翻译中'
     return ''
@@ -130,7 +129,6 @@ export default function EditNovelForm({
   const isProcessingLocale = !isSourceSelected && translationRequests.some(
     r => r.targetLocale === selectedLang && (r.status === 'processing' || r.status === 'pending')
   )
-  const isDraftLocale = !isSourceSelected && currentTr?.status === 'draft'
   const isPublishedLocale = !isSourceSelected && currentTr?.status === 'published'
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -154,7 +152,6 @@ export default function EditNovelForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!isSourceSelected) return
     setSubmitting(true)
     setError(null)
 
@@ -172,10 +169,13 @@ export default function EditNovelForm({
       const formData = new FormData(formRef.current!)
       formData.set('novelId', novel.id)
       formData.set('locale', locale)
+      formData.set('editLocale', selectedLang)
       formData.set('isAdult', isAdult ? 'true' : 'false')
       if (coverUrl) formData.set('coverUrl', coverUrl)
 
       await updateNovel(formData)
+      // Translation-locale saves resolve normally (no redirect) — reset the button
+      setSubmitting(false)
     } catch (err) {
       if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) throw err
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -204,8 +204,8 @@ export default function EditNovelForm({
       <div className={styles.secDivider}>
         <span className={styles.secCh}>{t('sectionMeta')}</span>
         {!isSourceSelected && (
-          <span className={isDraftLocale ? styles.langStatusDraft : isPublishedLocale ? styles.langStatusPublished : styles.langStatusProcessing}>
-            {isDraftLocale ? '草稿' : isPublishedLocale ? '已发布' : '翻译中'}
+          <span className={isPublishedLocale ? styles.langStatusPublished : styles.langStatusProcessing}>
+            {isPublishedLocale ? '已发布' : '翻译中'}
           </span>
         )}
       </div>
@@ -247,37 +247,35 @@ export default function EditNovelForm({
         <div>
           <div className={styles.field}>
             <div className={styles.fieldLabel}>
-              <span>{t('title')} {isSourceSelected && <span className={styles.req}>*</span>}</span>
+              <span>{t('title')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{titleLen} / 30</span>
             </div>
             <input
-              name={isSourceSelected ? 'title' : undefined}
+              name="title"
               type="text"
-              required={isSourceSelected}
+              required
               maxLength={30}
               value={titleValue}
-              readOnly={!isSourceSelected}
               placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('titlePlaceholder')}
-              className={isSourceSelected ? styles.input : styles.inputReadOnly}
-              onChange={isSourceSelected ? e => { setTitleValue(e.target.value); setTitleLen(e.target.value.length) } : undefined}
+              className={styles.input}
+              onChange={e => { setTitleValue(e.target.value); setTitleLen(e.target.value.length) }}
             />
           </div>
 
           <div className={styles.field}>
             <div className={styles.fieldLabel}>
-              <span>{t('description')} {isSourceSelected && <span className={styles.req}>*</span>}</span>
+              <span>{t('description')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{descLen} / 300</span>
             </div>
             <textarea
-              name={isSourceSelected ? 'description' : undefined}
-              required={isSourceSelected}
+              name="description"
+              required
               rows={5}
               maxLength={300}
               value={descValue}
-              readOnly={!isSourceSelected}
               placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('descriptionPlaceholder')}
-              className={isSourceSelected ? styles.textarea : styles.textareaReadOnly}
-              onChange={isSourceSelected ? e => { setDescValue(e.target.value); setDescLen(e.target.value.length) } : undefined}
+              className={styles.textarea}
+              onChange={e => { setDescValue(e.target.value); setDescLen(e.target.value.length) }}
             />
           </div>
         </div>
@@ -373,64 +371,49 @@ export default function EditNovelForm({
 
       {error && <p className={styles.formError}>{error}</p>}
 
-      {/* ── Footer bar (source locale only) ── */}
-      {isSourceSelected && (
-        <div className={styles.footerBar}>
-          <div className={styles.dangerBit}>
-            <span className={styles.dangerBitLabel}>{tAuthor('dangerZone')}</span>
-            {deleteConfirm ? (
-              <>
-                <button
-                  type="button"
-                  className={styles.btnDanger}
-                  onClick={handleDelete}
-                  disabled={deleting}
-                >
-                  {deleting ? '删除中…' : '确认删除'}
-                </button>
-                <button
-                  type="button"
-                  className={styles.btnCancel}
-                  onClick={() => setDeleteConfirm(false)}
-                >
-                  {t('cancel')}
-                </button>
-              </>
-            ) : (
+      {/* ── Footer bar ── */}
+      <div className={styles.footerBar}>
+        <div className={styles.dangerBit}>
+          <span className={styles.dangerBitLabel}>{tAuthor('dangerZone')}</span>
+          {deleteConfirm ? (
+            <>
               <button
                 type="button"
                 className={styles.btnDanger}
-                onClick={() => setDeleteConfirm(true)}
+                onClick={handleDelete}
+                disabled={deleting}
               >
-                删除
+                {deleting ? '删除中…' : '确认删除'}
               </button>
-            )}
-          </div>
-
-          <span className={styles.footerNote}>{t('saveNote')}</span>
-          <span className={styles.spacer} />
-
-          <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
-            {t('cancel')}
-          </Link>
-          <button type="submit" disabled={submitting} className={styles.btn}>
-            {submitting ? t('submitting') : t('saveChanges')}
-          </button>
+              <button
+                type="button"
+                className={styles.btnCancel}
+                onClick={() => setDeleteConfirm(false)}
+              >
+                {t('cancel')}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className={styles.btnDanger}
+              onClick={() => setDeleteConfirm(true)}
+            >
+              删除
+            </button>
+          )}
         </div>
-      )}
 
-      {/* Non-source locale info bar */}
-      {!isSourceSelected && (
-        <div className={styles.readOnlyBar}>
-          <span className={styles.readOnlyText}>
-            {isProcessingLocale
-              ? '此语言版本翻译进行中，完成后可在「语言版本管理」中发布。'
-              : isDraftLocale
-              ? '此语言版本为草稿，请在下方「语言版本管理」中审阅并发布。'
-              : '此语言版本已发布。如需修改，请重新翻译。'}
-          </span>
-        </div>
-      )}
+        <span className={styles.footerNote}>{t('saveNote')}</span>
+        <span className={styles.spacer} />
+
+        <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
+          {t('cancel')}
+        </Link>
+        <button type="submit" disabled={submitting} className={styles.btn}>
+          {submitting ? t('submitting') : t('saveChanges')}
+        </button>
+      </div>
     </form>
   )
 }

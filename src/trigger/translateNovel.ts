@@ -97,12 +97,12 @@ export const translateNovel = task({
             locale: targetLocale,
             title: convertZh(srcNovelTr.title, sourceLocale),
             description: convertZh(srcNovelTr.description, sourceLocale),
-            status: 'draft',
+            status: 'published',
           },
           update: {
             title: convertZh(srcNovelTr.title, sourceLocale),
             description: convertZh(srcNovelTr.description, sourceLocale),
-            status: 'draft',
+            status: 'published',
           },
         })
 
@@ -139,8 +139,8 @@ export const translateNovel = task({
 
         await prisma.novelTranslation.upsert({
           where: { novelId_locale: { novelId, locale: targetLocale } },
-          create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'draft' },
-          update: { title: translatedTitle, description: translatedDesc, status: 'draft' },
+          create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'published' },
+          update: { title: translatedTitle, description: translatedDesc, status: 'published' },
         })
 
         for (let i = 0; i < chapters.length; i++) {
