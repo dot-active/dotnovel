@@ -12,8 +12,8 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: 'NovelPhere · 在线小说阅读',
-  description: '海量正版小说，畅享阅读乐趣',
+  title: 'NovelPhere · Read & Publish Novels in Any Language, Powered by AI',
+  description: 'Write once, be read everywhere. dotnovel uses AI to instantly translate novels into 6+ languages, connecting writers with readers worldwide.',
   icons: {
     icon: [
       { url: '/favicons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },

@@ -41,6 +41,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
       }
       if (result.redirectUrl) {
         router.push(result.redirectUrl)
+        router.refresh()
         // keep overlay visible until component unmounts after navigation
       }
     } catch (err) {

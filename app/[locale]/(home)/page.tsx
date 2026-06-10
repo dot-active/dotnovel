@@ -168,13 +168,13 @@ export default async function HomePage({
                     {tr?.description && (
                       <p className={styles.fcardBlurb}>{tr.description}</p>
                     )}
-                    <div className={styles.langTag}>
+                    {/* <div className={styles.langTag}>
                       {flags && <span className={styles.langFlags}>{flags}</span>}
                       <span className={styles.langMeta}>
                         <span className={styles.langCap}>{t('translatedIn')}</span>
                         <b className={styles.langCount}>{t('langCount', { count: locales.length })}</b>
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </Link>
               )

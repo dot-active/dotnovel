@@ -12,7 +12,8 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
-    "trigger:dev": "npx trigger.dev@latest dev"
+    "trigger:dev": "npx trigger.dev@latest dev",
+    "import:novels": "npx --yes tsx scripts/importNovels.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
