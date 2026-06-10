@@ -69,6 +69,10 @@
     "chapterCount": "{count} 章",
     "ongoingStatus": "连载中 · 第 {count} 章",
     "viewCount": "{count} 阅",
+    "authorLabel": "作者",
+    "writtenBy": "{author} 著",
+    "views": "阅读",
+    "favoritesLabel": "收藏",
     "status": {
       "ONGOING": "连载中",
       "COMPLETED": "已完结",
@@ -186,7 +190,13 @@
     "draft": "草稿",
     "published": "已发布",
     "deleteChapter": "删除章节",
-    "deleteChapterConfirm": "确定要删除此章节吗？删除后无法恢复。"
+    "deleteChapterConfirm": "确定要删除此章节吗？删除后无法恢复。",
+    "manageComments": "留言管理",
+    "commentsPageTitle": "《{title}》留言管理",
+    "backToDashboard": "← 返回仪表盘",
+    "noComments": "暂无留言",
+    "publishAllDrafts": "发布所有草稿",
+    "publishingAll": "发布中…"
   },
   "aboutPage": {
     "pageTitle": "关于我们",

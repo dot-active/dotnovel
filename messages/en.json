@@ -69,6 +69,10 @@
     "chapterCount": "{count} ch.",
     "ongoingStatus": "Ongoing · Ch. {count}",
     "viewCount": "{count} views",
+    "authorLabel": "Author",
+    "writtenBy": "by {author}",
+    "views": "Views",
+    "favoritesLabel": "Favorites",
     "status": {
       "ONGOING": "Ongoing",
       "COMPLETED": "Completed",
@@ -186,7 +190,13 @@
     "draft": "Draft",
     "published": "Published",
     "deleteChapter": "Delete Chapter",
-    "deleteChapterConfirm": "Are you sure you want to delete this chapter? This cannot be undone."
+    "deleteChapterConfirm": "Are you sure you want to delete this chapter? This cannot be undone.",
+    "manageComments": "Comments",
+    "commentsPageTitle": "《{title}》Comments",
+    "backToDashboard": "← Back to Dashboard",
+    "noComments": "No comments yet",
+    "publishAllDrafts": "Publish All Drafts",
+    "publishingAll": "Publishing…"
   },
   "aboutPage": {
     "pageTitle": "About Us",

@@ -69,6 +69,10 @@
     "chapterCount": "{count} 章",
     "ongoingStatus": "連載中 · 第{count}話",
     "viewCount": "{count} 閲覧",
+    "authorLabel": "著者",
+    "writtenBy": "{author} 著",
+    "views": "閲覧",
+    "favoritesLabel": "お気に入り",
     "status": {
       "ONGOING": "連載中",
       "COMPLETED": "完結",
@@ -186,7 +190,13 @@
     "draft": "下書き",
     "published": "公開済み",
     "deleteChapter": "章を削除",
-    "deleteChapterConfirm": "この章を削除してもよろしいですか？削除後は元に戻せません。"
+    "deleteChapterConfirm": "この章を削除してもよろしいですか？削除後は元に戻せません。",
+    "manageComments": "コメント管理",
+    "commentsPageTitle": "《{title}》コメント管理",
+    "backToDashboard": "← ダッシュボードへ戻る",
+    "noComments": "まだコメントはありません",
+    "publishAllDrafts": "すべての草稿を公開",
+    "publishingAll": "公開中…"
   },
   "aboutPage": {
     "pageTitle": "サイト概要",

@@ -69,6 +69,10 @@
     "chapterCount": "{count} cap.",
     "ongoingStatus": "En curso · Cap. {count}",
     "viewCount": "{count} vistas",
+    "authorLabel": "Autor",
+    "writtenBy": "de {author}",
+    "views": "Vistas",
+    "favoritesLabel": "Favoritos",
     "status": {
       "ONGOING": "En curso",
       "COMPLETED": "Completado",
@@ -186,7 +190,13 @@
     "draft": "Borrador",
     "published": "Publicado",
     "deleteChapter": "Eliminar capítulo",
-    "deleteChapterConfirm": "¿Estás seguro de que quieres eliminar este capítulo? Esta acción no se puede deshacer."
+    "deleteChapterConfirm": "¿Estás seguro de que quieres eliminar este capítulo? Esta acción no se puede deshacer.",
+    "manageComments": "Comentarios",
+    "commentsPageTitle": "《{title}》Comentarios",
+    "backToDashboard": "← Volver al panel",
+    "noComments": "Sin comentarios aún",
+    "publishAllDrafts": "Publicar todos los borradores",
+    "publishingAll": "Publicando…"
   },
   "aboutPage": {
     "pageTitle": "Acerca de nosotros",

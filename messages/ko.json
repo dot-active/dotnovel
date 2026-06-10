@@ -69,6 +69,10 @@
     "chapterCount": "{count} 화",
     "ongoingStatus": "연재 중 · {count}화",
     "viewCount": "{count} 조회",
+    "authorLabel": "저자",
+    "writtenBy": "{author} 저",
+    "views": "조회",
+    "favoritesLabel": "즐겨찾기",
     "status": {
       "ONGOING": "연재 중",
       "COMPLETED": "완결",
@@ -186,7 +190,13 @@
     "draft": "임시저장",
     "published": "발행됨",
     "deleteChapter": "챕터 삭제",
-    "deleteChapterConfirm": "이 챕터를 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다."
+    "deleteChapterConfirm": "이 챕터를 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다.",
+    "manageComments": "댓글 관리",
+    "commentsPageTitle": "《{title}》댓글 관리",
+    "backToDashboard": "← 대시보드로 돌아가기",
+    "noComments": "아직 댓글이 없습니다",
+    "publishAllDrafts": "모든 초안 게시",
+    "publishingAll": "게시 중…"
   },
   "aboutPage": {
     "pageTitle": "소개",

@@ -69,6 +69,10 @@
     "chapterCount": "{count} 章",
     "ongoingStatus": "連載中 · 第 {count} 章",
     "viewCount": "{count} 閱",
+    "authorLabel": "作者",
+    "writtenBy": "{author} 著",
+    "views": "閱讀",
+    "favoritesLabel": "收藏",
     "status": {
       "ONGOING": "連載中",
       "COMPLETED": "已完結",
@@ -186,7 +190,13 @@
     "draft": "草稿",
     "published": "已發布",
     "deleteChapter": "刪除章節",
-    "deleteChapterConfirm": "確定要刪除此章節嗎？刪除後無法恢復。"
+    "deleteChapterConfirm": "確定要刪除此章節嗎？刪除後無法恢復。",
+    "manageComments": "留言管理",
+    "commentsPageTitle": "《{title}》留言管理",
+    "backToDashboard": "← 返回儀表板",
+    "noComments": "暫無留言",
+    "publishAllDrafts": "發布所有草稿",
+    "publishingAll": "發布中…"
   },
   "aboutPage": {
     "pageTitle": "關於我們",

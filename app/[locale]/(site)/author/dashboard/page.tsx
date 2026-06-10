@@ -108,18 +108,10 @@ export default async function AuthorDashboardPage({
                     >
                       {tr?.title ?? novel.title}
                     </Link>
-                    <p className={styles.novelAuthor}>{novel.author}</p>
+                    <p className={styles.novelAuthor}>{t('novelCount', { count: publishedCount })}</p>
                   </div>
                 </div>
-                <div className={styles.chapterStats}>
-                  <span>{t('novelCount', { count: publishedCount })}</span>
-                  {/* {draftCount > 0 && (
-                    <span className={styles.draftBadge}>{draftCount} 草稿</span>
-                  )} */}
-                </div>
-                <span className={styles.date}>
-                  {new Date(novel.createdAt).toLocaleDateString('zh-CN')}
-                </span>
+ 
                 <div className={styles.actions}>
                   {/* {hasDraftTranslation.has(novel.id) && (
                     <Link
@@ -130,13 +122,18 @@ export default async function AuthorDashboardPage({
                     </Link>
                   )} */}
                   {hasDraftTranslation.has(novel.id) && (
-                    <PublishAllDraftsButton novelId={novel.id} />
+                    <>
+                      <PublishAllDraftsButton novelId={novel.id} />
+                      <div className={styles.unreadBadge}>
+                        {draftCount}
+                      </div>
+                    </>
                   )}
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
                     className={styles.actionBtn}
                   >
-                    留言管理
+                    {t('manageComments')}
                     {unread > 0 && (
                       <div className={styles.unreadBadge}>
                         {unread > 99 ? '99+' : unread}

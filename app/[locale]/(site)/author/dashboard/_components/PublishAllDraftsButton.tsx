@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import styles from './PublishAllDraftsButton.module.css'
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function PublishAllDraftsButton({ novelId }: Props) {
+  const t = useTranslations('author')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -25,7 +27,7 @@ export default function PublishAllDraftsButton({ novelId }: Props) {
 
   return (
     <button type="button" className={styles.publishBtn} disabled={loading} onClick={handleClick}>
-      {loading ? '发布中…' : '发布所有草稿'}
+      {loading ? t('publishingAll') : t('publishAllDrafts')}
     </button>
   )
 }

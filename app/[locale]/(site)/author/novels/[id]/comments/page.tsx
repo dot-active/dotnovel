@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
-import { setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
@@ -12,6 +12,7 @@ export default async function AuthorCommentsPage({
   params: { locale: string; id: string }
 }) {
   setRequestLocale(locale)
+  const t = await getTranslations('author')
   const { userId } = await auth()
 
   const novel = await prisma.novel.findUnique({
@@ -75,12 +76,12 @@ export default async function AuthorCommentsPage({
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <Link href="/author/dashboard" className={styles.back}>← 返回仪表盘</Link>
-        <h1 className={styles.title}>《{novelTitle}》留言管理</h1>
+        <Link href="/author/dashboard" className={styles.back}>{t('backToDashboard')}</Link>
+        <h1 className={styles.title}>{t('commentsPageTitle', { title: novelTitle })}</h1>
       </div>
 
       {chaptersWithComments.length === 0 ? (
-        <p className={styles.empty}>暂无留言</p>
+        <p className={styles.empty}>{t('noComments')}</p>
       ) : (
         <AuthorCommentList chapters={chaptersWithComments} novelId={id} />
       )}

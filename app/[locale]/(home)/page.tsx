@@ -7,17 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenNib, faGlobe, faBookOpen, faEye } from '@fortawesome/free-solid-svg-icons'
 import styles from './page.module.css'
 
-const LOCALE_FLAGS: Record<string, string> = {
-  'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼', en: '🇺🇸', ja: '🇯🇵', ko: '🇰🇷', es: '🇪🇸',
-}
-
 const COVER_CLASSES = [
   'cvDark', 'cvTerra', 'cvOlive', 'cvBlue', 'cvClay', 'cvInk', 'cvPlum', 'cvSage',
 ] as const
-
-function getFlags(locales: string[]): string {
-  return locales.map((l) => LOCALE_FLAGS[l] ?? '').filter(Boolean).join(' ')
-}
 
 export default async function HomePage({
   params: { locale },
@@ -32,30 +24,38 @@ export default async function HomePage({
 
   const [featuredNovels, trendingNovels] = await Promise.all([
     prisma.novel.findMany({
-      where: { isFeatured: true, publishStatus: 'published', ...adultFilter },
+      where: {
+        isFeatured: true,
+        publishStatus: 'published',
+        translations: { some: { locale } },
+        ...adultFilter,
+      },
       select: {
         id: true,
         title: true,
         author: true,
         coverUrl: true,
         translations: {
-          where: { status: 'published' },
-          select: { locale: true, title: true, description: true },
+          where: { locale },
+          select: { title: true, description: true },
         },
       },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.novel.findMany({
-      where: { publishStatus: 'published', ...adultFilter },
+      where: {
+        publishStatus: 'published',
+        translations: { some: { locale } },
+        ...adultFilter,
+      },
       select: {
         id: true,
         title: true,
         author: true,
         viewCount: true,
-        updatedAt: true,
         translations: {
-          where: { status: 'published' },
-          select: { locale: true, title: true },
+          where: { locale },
+          select: { title: true },
         },
       },
       orderBy: { viewCount: 'desc' },
@@ -149,11 +149,8 @@ export default async function HomePage({
           </div>
           <div className={styles.featGrid}>
             {featuredNovels.map((novel, i) => {
-              const tr = novel.translations.find((t) => t.locale === locale)
-                ?? novel.translations[0]
+              const tr = novel.translations[0]
               const coverClass = COVER_CLASSES[i % COVER_CLASSES.length]
-              const locales = novel.translations.map((t) => t.locale)
-              const flags = getFlags(locales)
               return (
                 <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.fcard}>
                   <div className={`${styles.fcardCover} ${styles[coverClass]}`}>
@@ -198,10 +195,7 @@ export default async function HomePage({
           </div>
           <div className={styles.rankWrap}>
             {trendingNovels.map((novel, i) => {
-              const tr = novel.translations.find((t) => t.locale === locale)
-                ?? novel.translations[0]
-              const locales = novel.translations.map((t) => t.locale)
-              const flags = getFlags(locales)
+              const tr = novel.translations[0]
               return (
                 <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.rankRow}>
                   <span className={`${styles.rankNum} ${i < 3 ? styles.rankNumTop : ''}`}>

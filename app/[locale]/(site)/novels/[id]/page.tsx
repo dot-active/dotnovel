@@ -22,10 +22,31 @@ function toRoman(n: number): string {
   return result
 }
 
-function formatWords(chars: number): string {
-  if (chars >= 10000) return `${(chars / 10000).toFixed(1)}万字`
-  if (chars >= 1000) return `${(chars / 1000).toFixed(1)}k字`
-  return `${chars}字`
+function formatWords(chars: number, locale: string): string {
+  if (locale.startsWith('zh') || locale === 'ja') {
+    if (chars >= 10000) return `${(chars / 10000).toFixed(1)}万字`
+    if (chars >= 1000) return `${(chars / 1000).toFixed(1)}千字`
+    return `${chars}字`
+  }
+  if (locale === 'ko') {
+    if (chars >= 10000) return `${(chars / 10000).toFixed(1)}만자`
+    if (chars >= 1000) return `${(chars / 1000).toFixed(1)}천자`
+    return `${chars}자`
+  }
+  if (chars >= 1000) return `${(chars / 1000).toFixed(1)}K`
+  return `${chars}`
+}
+
+function formatCharStat(chars: number, locale: string): string {
+  if (locale.startsWith('zh') || locale === 'ja') {
+    if (chars >= 10000) return `${(chars / 10000).toFixed(1)}万`
+    return `${(chars / 1000).toFixed(0)}千`
+  }
+  if (locale === 'ko') {
+    if (chars >= 10000) return `${(chars / 10000).toFixed(1)}만`
+    return `${(chars / 1000).toFixed(0)}천`
+  }
+  return `${(chars / 1000).toFixed(0)}K`
 }
 
 export default async function NovelDetailPage({
@@ -35,6 +56,7 @@ export default async function NovelDetailPage({
 }) {
   setRequestLocale(locale)
   const t = await getTranslations('novel')
+  const tNav = await getTranslations('nav')
   const { userId } = await auth()
 
   const [novel, favoriteRecord] = await Promise.all([
@@ -83,7 +105,7 @@ export default async function NovelDetailPage({
     <div>
       {/* Breadcrumb */}
       <div className={styles.crumbs}>
-        <Link href="/">书馆</Link>
+        <Link href="/novels">{tNav('novels')}</Link>
         <span className={styles.crumbSep}>/</span>
         <span>{tr.title}</span>
       </div>
@@ -99,7 +121,7 @@ export default async function NovelDetailPage({
               <>
                 <div className={styles.coverTop}>{novel.sourceLocale}</div>
                 <div className={styles.coverTitle}>{tr.title.slice(0, 8)}</div>
-                <div className={styles.coverBot}>{novel.author} 著</div>
+                <div className={styles.coverBot}>{t('writtenBy', { author: novel.author })}</div>
               </>
             )}
           </div>
@@ -112,14 +134,14 @@ export default async function NovelDetailPage({
           <div className={styles.byRow}>
             <div className={styles.pip}>{novel.author[0]}</div>
             <div className={styles.byText}>
-              <div className={styles.byRole}>作者</div>
+              <div className={styles.byRole}>{t('authorLabel')}</div>
               <div className={styles.byName}>{novel.author}</div>
             </div>
           </div>
 
           <div className={styles.tags}>
             <span className={`${styles.tag} ${isLive ? styles.tagLive : styles.tagCompleted}`}>
-              {isLive ? '● 连载中' : t(`status.${novel.status}`)}
+              {isLive ? `● ${t('status.ONGOING')}` : t(`status.${novel.status}`)}
             </span>
           </div>
 
@@ -145,23 +167,19 @@ export default async function NovelDetailPage({
           <div className={styles.statGrid}>
             <div className={styles.stat}>
               <div className={styles.statN}>{novel.chapters.length}</div>
-              <div className={styles.statL}>章节</div>
+              <div className={styles.statL}>{t('chapters')}</div>
             </div>
             <div className={styles.stat}>
-              <div className={styles.statN}>
-                {totalChars >= 10000
-                  ? `${(totalChars / 10000).toFixed(1)}万`
-                  : `${(totalChars / 1000).toFixed(0)}k`}
-              </div>
-              <div className={styles.statL}>字数</div>
+              <div className={styles.statN}>{formatCharStat(totalChars, locale)}</div>
+              <div className={styles.statL}>{t('words')}</div>
             </div>
             <div className={styles.stat}>
               <div className={styles.statN}>{formatCount(novel.viewCount)}</div>
-              <div className={styles.statL}>阅读</div>
+              <div className={styles.statL}>{t('views')}</div>
             </div>
             <div className={styles.stat}>
               <div className={styles.statN}>{formatCount(novel.favoriteCount)}</div>
-              <div className={styles.statL}>收藏</div>
+              <div className={styles.statL}>{t('favoritesLabel')}</div>
             </div>
           </div>
         </aside>
@@ -178,7 +196,7 @@ export default async function NovelDetailPage({
             {novel.chapters.map((chapter, i) => {
               const chTr = chapter.translations[0]
               const wordCount = chTr?.content.length ?? 0
-              const dateStr = new Date(chapter.createdAt).toLocaleDateString('zh-CN', {
+              const dateStr = new Date(chapter.createdAt).toLocaleDateString(locale, {
                 month: 'long',
                 day: 'numeric',
               })
@@ -191,7 +209,7 @@ export default async function NovelDetailPage({
                   <span className={styles.chapIdx}>{toRoman(i + 1)}.</span>
                   <div className={styles.chapName}>{chTr?.title ?? ''}</div>
                   <span className={styles.chapWhen}>{dateStr}</span>
-                  <span className={styles.chapLen}>{formatWords(wordCount)}</span>
+                  <span className={styles.chapLen}>{formatWords(wordCount, locale)}</span>
                 </Link>
               )
             })}
