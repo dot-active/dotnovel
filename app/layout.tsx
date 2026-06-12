@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Cormorant_Garamond } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -32,7 +33,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider afterSignUpUrl="/onboarding">
       <html lang="zh-CN" className={cormorant.variable}>
-        <body>{children}</body>
+        <body>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-7ZJJ3YS3JL"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-7ZJJ3YS3JL');
+            `}
+          </Script>
+          {children}
+        </body>
       </html>
     </ClerkProvider>
   )
