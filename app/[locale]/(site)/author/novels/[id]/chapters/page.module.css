@@ -198,11 +198,11 @@
   border: 1px solid #d4b87a;
 }
 
-/* 翻译中 — blue */
+/* 翻译中 — gray */
 .badgeProcessing {
-  background: #e8f0fe;
-  color: #1a5fc8;
-  border: 1px solid #93b8f5;
+  background: #e1e1e1;
+  color: #999;
+  border: 1px solid #ccc;
 }
 
 /* 不存在 — gray */

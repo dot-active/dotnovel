@@ -8,19 +8,6 @@ import { formatCount } from '@/lib/formatCount'
 import FavoriteButton from './_components/FavoriteButton'
 import styles from './page.module.css'
 
-function toRoman(n: number): string {
-  const map: [number, string][] = [
-    [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
-    [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
-    [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
-  ]
-  let result = ''
-  let num = n
-  for (const [value, numeral] of map) {
-    while (num >= value) { result += numeral; num -= value }
-  }
-  return result
-}
 
 function formatWords(chars: number, locale: string): string {
   if (locale.startsWith('zh') || locale === 'ja') {
@@ -206,7 +193,7 @@ export default async function NovelDetailPage({
                   href={`/novels/${novel.id}/chapters/${chapter.id}`}
                   className={styles.chap}
                 >
-                  <span className={styles.chapIdx}>{toRoman(i + 1)}.</span>
+                  <span className={styles.chapIdx}>{i + 1}.</span>
                   <div className={styles.chapName}>{chTr?.title ?? ''}</div>
                   <span className={styles.chapWhen}>{dateStr}</span>
                   <span className={styles.chapLen}>{formatWords(wordCount, locale)}</span>

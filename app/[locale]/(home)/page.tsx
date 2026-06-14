@@ -11,6 +11,74 @@ const COVER_CLASSES = [
   'cvDark', 'cvTerra', 'cvOlive', 'cvBlue', 'cvClay', 'cvInk', 'cvPlum', 'cvSage',
 ] as const
 
+const TRANS_CARD_DATA: Record<string, {
+  sourceFlag: string
+  sourceLabel: string
+  sourceText: string
+  lines: { flag: string; text: string; lang: string; style: string }[]
+}> = {
+  'zh-CN': {
+    sourceFlag: '🇨🇳', sourceLabel: '中文 · 原文',
+    sourceText: '她推开门，看见了整片星海。',
+    lines: [
+      { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
+      { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
+      { flag: '🇪🇸', text: 'Abrió la puerta a un océano de estrellas.', lang: 'ES', style: 'tlEs' },
+      { flag: '🇰🇷', text: '문을 열자, 온통 별의 바다가 펼쳐져 있었다。', lang: 'KO', style: '' },
+    ],
+  },
+  'zh-TW': {
+    sourceFlag: '🇹🇼', sourceLabel: '繁體中文 · 原文',
+    sourceText: '她推開門，看見了整片星海。',
+    lines: [
+      { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
+      { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
+      { flag: '🇪🇸', text: 'Abrió la puerta a un océano de estrellas.', lang: 'ES', style: 'tlEs' },
+      { flag: '🇰🇷', text: '문을 열자, 온통 별의 바다가 펼쳐져 있었다。', lang: 'KO', style: '' },
+    ],
+  },
+  'en': {
+    sourceFlag: '🇺🇸', sourceLabel: 'English · Source',
+    sourceText: 'She opened the door to an ocean of stars.',
+    lines: [
+      { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
+      { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
+      { flag: '🇪🇸', text: 'Abrió la puerta a un océano de estrellas.', lang: 'ES', style: 'tlEs' },
+      { flag: '🇰🇷', text: '문을 열자, 온통 별의 바다가 펼쳐져 있었다。', lang: 'KO', style: '' },
+    ],
+  },
+  'ja': {
+    sourceFlag: '🇯🇵', sourceLabel: '日本語 · 原文',
+    sourceText: '扉を開けると、一面の星の海が広がっていた。',
+    lines: [
+      { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
+      { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
+      { flag: '🇪🇸', text: 'Abrió la puerta a un océano de estrellas.', lang: 'ES', style: 'tlEs' },
+      { flag: '🇰🇷', text: '문을 열자, 온통 별의 바다가 펼쳐져 있었다。', lang: 'KO', style: '' },
+    ],
+  },
+  'ko': {
+    sourceFlag: '🇰🇷', sourceLabel: '한국어 · 원문',
+    sourceText: '문을 열자, 온통 별의 바다가 펼쳐져 있었다.',
+    lines: [
+      { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
+      { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
+      { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
+      { flag: '🇪🇸', text: 'Abrió la puerta a un océano de estrellas.', lang: 'ES', style: 'tlEs' },
+    ],
+  },
+  'es': {
+    sourceFlag: '🇪🇸', sourceLabel: 'Español · Original',
+    sourceText: 'Abrió la puerta a un océano de estrellas.',
+    lines: [
+      { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
+      { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
+      { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
+      { flag: '🇰🇷', text: '문을 열자, 온통 별의 바다가 펼쳐져 있었다。', lang: 'KO', style: '' },
+    ],
+  },
+}
+
 export default async function HomePage({
   params: { locale },
 }: {
@@ -21,6 +89,8 @@ export default async function HomePage({
 
   const ageVerified = cookies().get('age_verified')?.value === '1'
   const adultFilter = ageVerified ? {} : { isAdult: false as const }
+
+  const card = TRANS_CARD_DATA[locale] ?? TRANS_CARD_DATA['zh-CN']
 
   const [featuredNovels, trendingNovels] = await Promise.all([
     prisma.novel.findMany({
@@ -98,30 +168,17 @@ export default async function HomePage({
               <span className={styles.tcTitle}>Claude Opus 4.6</span>
             </div>
             <div className={styles.transSource}>
-              <div className={styles.tsLabel}>🇨🇳 中文 · 原文</div>
-              <div className={styles.tsText}>她推开门，看见了整片星海。</div>
+              <div className={styles.tsLabel}>{card.sourceFlag} {card.sourceLabel}</div>
+              <div className={styles.tsText}>{card.sourceText}</div>
             </div>
             <div className={styles.transLines}>
-              <div className={`${styles.tl} ${styles.tlEn}`}>
-                <span className={styles.tlFlag}>🇺🇸</span>
-                <span className={styles.tlText}>She opened the door to an ocean of stars.</span>
-                <span className={styles.tlLang}>EN</span>
-              </div>
-              <div className={`${styles.tl} ${styles.tlJa}`}>
-                <span className={styles.tlFlag}>🇯🇵</span>
-                <span className={styles.tlText}>扉を開けると、一面の星の海が広がっていた。</span>
-                <span className={styles.tlLang}>JA</span>
-              </div>
-              <div className={`${styles.tl} ${styles.tlEs}`}>
-                <span className={styles.tlFlag}>🇪🇸</span>
-                <span className={styles.tlText}>Abrió la puerta a un océano de estrellas.</span>
-                <span className={styles.tlLang}>ES</span>
-              </div>
-              <div className={styles.tl}>
-                <span className={styles.tlFlag}>🇰🇷</span>
-                <span className={styles.tlText}>문을 열자, 온통 별의 바다가 펼쳐져 있었다。</span>
-                <span className={styles.tlLang}>KO</span>
-              </div>
+              {card.lines.map((line) => (
+                <div key={line.lang} className={`${styles.tl}${line.style ? ` ${styles[line.style]}` : ''}`}>
+                  <span className={styles.tlFlag}>{line.flag}</span>
+                  <span className={styles.tlText}>{line.text}</span>
+                  <span className={styles.tlLang}>{line.lang}</span>
+                </div>
+              ))}
             </div>
             <div className={styles.transCardFoot}>
               <span className={styles.aiBadge}>

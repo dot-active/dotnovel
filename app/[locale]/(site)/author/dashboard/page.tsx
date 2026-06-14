@@ -25,18 +25,12 @@ export default async function AuthorDashboardPage({
 
   const novelIds = novels.map((n) => n.id)
 
-  // novels with completed (draft) translations pending review
-  const draftTranslations = await prisma.translationRequest.findMany({
-    where: { novelId: { in: novelIds }, status: 'completed' },
-    select: { novelId: true, targetLocale: true },
-    orderBy: { updatedAt: 'desc' },
+  // draft ChapterTranslation counts per chapter (any language)
+  const draftCtGroups = await prisma.chapterTranslation.groupBy({
+    by: ['chapterId'],
+    where: { status: 'draft', chapter: { novelId: { in: novelIds } } },
+    _count: { id: true },
   })
-  const hasDraftTranslation = new Set(draftTranslations.map((t) => t.novelId))
-  // most recent completed translation locale per novel
-  const draftLocaleMap: Record<string, string> = {}
-  for (const dt of draftTranslations) {
-    if (!draftLocaleMap[dt.novelId]) draftLocaleMap[dt.novelId] = dt.targetLocale
-  }
 
   // unread comment counts per novel
   const unreadGroups = await prisma.comment.groupBy({
@@ -57,6 +51,12 @@ export default async function AuthorDashboardPage({
   unreadGroups.forEach((g) => {
     const nid = chapterNovelMap[g.chapterId]
     if (nid) unreadByNovel[nid] = (unreadByNovel[nid] ?? 0) + g._count.id
+  })
+
+  const draftTranslationCountByNovel: Record<string, number> = {}
+  draftCtGroups.forEach((g) => {
+    const nid = chapterNovelMap[g.chapterId]
+    if (nid) draftTranslationCountByNovel[nid] = (draftTranslationCountByNovel[nid] ?? 0) + g._count.id
   })
 
   return (
@@ -89,7 +89,7 @@ export default async function AuthorDashboardPage({
           {novels.map((novel) => {
             const tr = novel.translations[0]
             const publishedCount = novel.chapters.filter((c) => c.publishStatus === 'published').length
-            const draftCount = novel.chapters.filter((c) => c.publishStatus === 'draft').length
+            const draftCount = draftTranslationCountByNovel[novel.id] ?? 0
             const unread = unreadByNovel[novel.id] ?? 0
             return (
               <div key={novel.id} className={styles.tableRow}>
@@ -121,13 +121,11 @@ export default async function AuthorDashboardPage({
                       有新翻译草稿待审阅
                     </Link>
                   )} */}
-                  {hasDraftTranslation.has(novel.id) && (
-                    <>
+                  {draftCount > 0 && (
+                    <div  className={styles.btnContainer}>
                       <PublishAllDraftsButton novelId={novel.id} />
-                      <div className={styles.unreadBadge}>
-                        {draftCount}
-                      </div>
-                    </>
+                      <div className={styles.unreadBadge}>{draftCount}</div>
+                    </div>
                   )}
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
