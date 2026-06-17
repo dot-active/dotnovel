@@ -35,7 +35,7 @@ export const translateNovel = task({
     async function translateWithClaude(text: string): Promise<string> {
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120_000 })
       const msg = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 4096,
         system: `你是专业小说翻译，将内容翻译成${targetLang}，保持文学风格，只输出翻译结果。`,
         messages: [{ role: 'user', content: text }],

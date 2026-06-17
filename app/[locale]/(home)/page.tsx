@@ -15,11 +15,13 @@ const TRANS_CARD_DATA: Record<string, {
   sourceFlag: string
   sourceLabel: string
   sourceText: string
+  aiLabel: string
   lines: { flag: string; text: string; lang: string; style: string }[]
 }> = {
   'zh-CN': {
     sourceFlag: '🇨🇳', sourceLabel: '中文 · 原文',
     sourceText: '她推开门，看见了整片星海。',
+    aiLabel: 'AI 翻译中',
     lines: [
       { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
       { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
@@ -30,6 +32,7 @@ const TRANS_CARD_DATA: Record<string, {
   'zh-TW': {
     sourceFlag: '🇹🇼', sourceLabel: '繁體中文 · 原文',
     sourceText: '她推開門，看見了整片星海。',
+    aiLabel: 'AI 翻譯中',
     lines: [
       { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
       { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
@@ -40,6 +43,7 @@ const TRANS_CARD_DATA: Record<string, {
   'en': {
     sourceFlag: '🇺🇸', sourceLabel: 'English · Source',
     sourceText: 'She opened the door to an ocean of stars.',
+    aiLabel: 'AI Translating',
     lines: [
       { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
       { flag: '🇯🇵', text: '扉を開けると、一面の星の海が広がっていた。', lang: 'JA', style: 'tlJa' },
@@ -50,6 +54,7 @@ const TRANS_CARD_DATA: Record<string, {
   'ja': {
     sourceFlag: '🇯🇵', sourceLabel: '日本語 · 原文',
     sourceText: '扉を開けると、一面の星の海が広がっていた。',
+    aiLabel: 'AI 翻訳中',
     lines: [
       { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
       { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
@@ -60,6 +65,7 @@ const TRANS_CARD_DATA: Record<string, {
   'ko': {
     sourceFlag: '🇰🇷', sourceLabel: '한국어 · 원문',
     sourceText: '문을 열자, 온통 별의 바다가 펼쳐져 있었다.',
+    aiLabel: 'AI 번역 중',
     lines: [
       { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
       { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
@@ -70,6 +76,7 @@ const TRANS_CARD_DATA: Record<string, {
   'es': {
     sourceFlag: '🇪🇸', sourceLabel: 'Español · Original',
     sourceText: 'Abrió la puerta a un océano de estrellas.',
+    aiLabel: 'Traduciendo con IA',
     lines: [
       { flag: '🇹🇼', text: '她推開門，看見了整片星海。', lang: 'ZH', style: 'tlZh' },
       { flag: '🇺🇸', text: 'She opened the door to an ocean of stars.', lang: 'EN', style: 'tlEn' },
@@ -183,7 +190,7 @@ export default async function HomePage({
             <div className={styles.transCardFoot}>
               <span className={styles.aiBadge}>
                 <span className={styles.aiDot} />
-                AI 翻译中
+                {card.aiLabel}
               </span>
         
             </div>
