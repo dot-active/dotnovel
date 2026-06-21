@@ -83,7 +83,21 @@
   "reader": {
     "catalog": "Índice",
     "firstChapter": "Este es el primer capítulo",
-    "lastChapter": "Este es el último capítulo"
+    "lastChapter": "Este es el último capítulo",
+    "settingsAria": "Ajustes de lectura",
+    "fontSizeLabel": "Tamaño de letra",
+    "themeModeLabel": "Modo de lectura",
+    "languageLabel": "Idioma",
+    "sizeXs": "XS",
+    "sizeS": "S",
+    "sizeM": "M",
+    "sizeL": "L",
+    "sizeXl": "XL",
+    "themeLight": "Día",
+    "themeDark": "Noche",
+    "themeSepia": "Modo ocular",
+    "noChapterTitle": "Este capítulo aún no tiene traducción en este idioma",
+    "noChapterNote": "* {locales} aún no tiene traducción de este capítulo"
   },
   "favorites": {
     "title": "Mis favoritos",

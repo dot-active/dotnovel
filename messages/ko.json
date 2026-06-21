@@ -83,7 +83,21 @@
   "reader": {
     "catalog": "목차",
     "firstChapter": "첫 번째 챕터입니다",
-    "lastChapter": "마지막 챕터입니다"
+    "lastChapter": "마지막 챕터입니다",
+    "settingsAria": "읽기 설정",
+    "fontSizeLabel": "글자 크기",
+    "themeModeLabel": "읽기 모드",
+    "languageLabel": "언어",
+    "sizeXs": "특소",
+    "sizeS": "소",
+    "sizeM": "중",
+    "sizeL": "대",
+    "sizeXl": "특대",
+    "themeLight": "낮",
+    "themeDark": "밤",
+    "themeSepia": "눈 보호",
+    "noChapterTitle": "이 챕터는 아직 이 언어로 번역되지 않았습니다",
+    "noChapterNote": "* {locales}에는 아직 이 챕터 번역이 없습니다"
   },
   "favorites": {
     "title": "즐겨찾기",

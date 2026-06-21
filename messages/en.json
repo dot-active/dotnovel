@@ -83,7 +83,21 @@
   "reader": {
     "catalog": "Contents",
     "firstChapter": "This is the first chapter",
-    "lastChapter": "This is the last chapter"
+    "lastChapter": "This is the last chapter",
+    "settingsAria": "Reading settings",
+    "fontSizeLabel": "Font Size",
+    "themeModeLabel": "Reading Mode",
+    "languageLabel": "Language",
+    "sizeXs": "XS",
+    "sizeS": "S",
+    "sizeM": "M",
+    "sizeL": "L",
+    "sizeXl": "XL",
+    "themeLight": "Day",
+    "themeDark": "Night",
+    "themeSepia": "Eye Care",
+    "noChapterTitle": "This chapter has no translation in this language yet",
+    "noChapterNote": "* {locales} has no translation for this chapter yet"
   },
   "favorites": {
     "title": "My Favorites",

@@ -83,7 +83,21 @@
   "reader": {
     "catalog": "目次",
     "firstChapter": "これが最初の章です",
-    "lastChapter": "これが最後の章です"
+    "lastChapter": "これが最後の章です",
+    "settingsAria": "読書設定",
+    "fontSizeLabel": "文字サイズ",
+    "themeModeLabel": "読書モード",
+    "languageLabel": "言語",
+    "sizeXs": "特小",
+    "sizeS": "小",
+    "sizeM": "中",
+    "sizeL": "大",
+    "sizeXl": "特大",
+    "themeLight": "昼",
+    "themeDark": "夜",
+    "themeSepia": "目に優しい",
+    "noChapterTitle": "この章はまだこの言語に翻訳されていません",
+    "noChapterNote": "* {locales}はまだこの章の翻訳がありません"
   },
   "favorites": {
     "title": "お気に入り",

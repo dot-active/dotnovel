@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import ParagraphComments from './ParagraphComments'
 import ViewTracker from './ViewTracker'
@@ -34,18 +35,18 @@ export interface ReaderClientProps {
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const FONT_SIZES: { label: string; value: FontSize }[] = [
-  { label: '特小', value: 14 },
-  { label: '小',   value: 16 },
-  { label: '中',   value: 18 },
-  { label: '大',   value: 20 },
-  { label: '特大', value: 24 },
+const FONT_SIZES: { labelKey: 'sizeXs' | 'sizeS' | 'sizeM' | 'sizeL' | 'sizeXl'; value: FontSize }[] = [
+  { labelKey: 'sizeXs', value: 14 },
+  { labelKey: 'sizeS',  value: 16 },
+  { labelKey: 'sizeM',  value: 18 },
+  { labelKey: 'sizeL',  value: 20 },
+  { labelKey: 'sizeXl', value: 24 },
 ]
 
-const THEMES: { label: string; value: Theme; icon: string }[] = [
-  { label: '白天', value: 'light', icon: '☀' },
-  { label: '黑夜', value: 'dark',  icon: '☽' },
-  { label: '护眼', value: 'sepia', icon: '◎' },
+const THEMES: { labelKey: 'themeLight' | 'themeDark' | 'themeSepia'; value: Theme; icon: string }[] = [
+  { labelKey: 'themeLight', value: 'light', icon: '☀' },
+  { labelKey: 'themeDark',  value: 'dark',  icon: '☽' },
+  { labelKey: 'themeSepia', value: 'sepia', icon: '◎' },
 ]
 
 const LOCALE_LABELS: Record<string, string> = {
@@ -74,6 +75,7 @@ export default function ReaderClient({
   tLastChapter,
   tCatalog,
 }: ReaderClientProps) {
+  const t = useTranslations('reader')
   const [fontSize, setFontSize] = useState<FontSize>(18)
   const [theme, setTheme] = useState<Theme>('sepia')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -100,7 +102,7 @@ export default function ReaderClient({
         <button
           className={`${styles.settingsBtn} ${settingsOpen ? styles.settingsBtnActive : ''}`}
           onClick={toggleSettings}
-          aria-label="阅读设置"
+          aria-label={t('settingsAria')}
         >
           ⚙
         </button>
@@ -116,15 +118,15 @@ export default function ReaderClient({
       <div className={`${styles.settingsPanel} ${settingsOpen ? styles.settingsPanelOpen : ''}`}>
         {/* Font size */}
         <div className={styles.settingsSection}>
-          <p className={styles.settingsSectionTitle}>字体大小</p>
+          <p className={styles.settingsSectionTitle}>{t('fontSizeLabel')}</p>
           <div className={styles.fontSizeOptions}>
-            {FONT_SIZES.map(({ label, value }) => (
+            {FONT_SIZES.map(({ labelKey, value }) => (
               <button
                 key={value}
                 className={`${styles.fontSizeBtn} ${fontSize === value ? styles.fontSizeBtnActive : ''}`}
                 onClick={() => setFontSize(value)}
               >
-                {label}
+                {t(labelKey)}
               </button>
             ))}
           </div>
@@ -132,16 +134,16 @@ export default function ReaderClient({
 
         {/* Theme */}
         <div className={styles.settingsSection}>
-          <p className={styles.settingsSectionTitle}>阅读模式</p>
+          <p className={styles.settingsSectionTitle}>{t('themeModeLabel')}</p>
           <div className={styles.themeOptions}>
-            {THEMES.map(({ label, value, icon }) => (
+            {THEMES.map(({ labelKey, value, icon }) => (
               <button
                 key={value}
                 className={`${styles.themeBtn} ${theme === value ? styles.themeBtnActive : ''}`}
                 onClick={() => setTheme(value)}
               >
                 <span className={styles.themeBtnIcon}>{icon}</span>
-                {label}
+                {t(labelKey)}
               </button>
             ))}
           </div>
@@ -149,7 +151,7 @@ export default function ReaderClient({
 
         {/* Language */}
         <div className={styles.settingsSection}>
-          <p className={styles.settingsSectionTitle}>语言</p>
+          <p className={styles.settingsSectionTitle}>{t('languageLabel')}</p>
           <div className={styles.langOptions}>
             {availableLocales.map(({ locale: loc, hasChapter }) =>
               hasChapter ? (
@@ -161,7 +163,7 @@ export default function ReaderClient({
                   {LOCALE_LABELS[loc] ?? loc}
                 </a>
               ) : (
-                <span key={loc} className={styles.langBtnDisabled} title="该章节暂无此语言版本">
+                <span key={loc} className={styles.langBtnDisabled} title={t('noChapterTitle')}>
                   {LOCALE_LABELS[loc] ?? loc}
                 </span>
               )
@@ -169,7 +171,7 @@ export default function ReaderClient({
           </div>
           {unavailableLocales.length > 0 && (
             <p className={styles.langUnavailableNote}>
-              * {unavailableLocales.join('、')} 暂无此章节译文
+              {t('noChapterNote', { locales: unavailableLocales.join(', ') })}
             </p>
           )}
         </div>

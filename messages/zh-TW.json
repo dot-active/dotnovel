@@ -83,7 +83,21 @@
   "reader": {
     "catalog": "目錄",
     "firstChapter": "已是第一章",
-    "lastChapter": "已是最後章"
+    "lastChapter": "已是最後章",
+    "settingsAria": "閱讀設定",
+    "fontSizeLabel": "字體大小",
+    "themeModeLabel": "閱讀模式",
+    "languageLabel": "語言",
+    "sizeXs": "特小",
+    "sizeS": "小",
+    "sizeM": "中",
+    "sizeL": "大",
+    "sizeXl": "特大",
+    "themeLight": "白天",
+    "themeDark": "黑夜",
+    "themeSepia": "護眼",
+    "noChapterTitle": "該章節暫無此語言版本",
+    "noChapterNote": "* {locales} 暫無此章節譯文"
   },
   "favorites": {
     "title": "我的收藏",
