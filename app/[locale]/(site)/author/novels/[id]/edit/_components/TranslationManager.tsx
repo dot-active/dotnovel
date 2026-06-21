@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import styles from './TranslationManager.module.css'
 
 const LOCALES = [
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export default function TranslationManager({ novelId, sourceLocale, locale, initialLang }: Props) {
+  const t = useTranslations('author.translationManager')
   const sectionRef = useRef<HTMLDivElement>(null)
   const [requests, setRequests] = useState<TranslationRequest[]>([])
   const [novelTranslations, setNovelTranslations] = useState<NovelTranslationSummary[]>([])
@@ -146,13 +148,13 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
     return { req, tr }
   }
 
-  if (loading) return <div className={styles.loadingText}>加载中…</div>
+  if (loading) return <div className={styles.loadingText}>{t('loading')}</div>
 
   return (
     <div ref={sectionRef} className={styles.section}>
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>语言版本管理</span>
-        <span className={styles.sectionSub}>自动翻译由 AI 生成，建议审阅后发布</span>
+        <span className={styles.sectionTitle}>{t('title')}</span>
+        <span className={styles.sectionSub}>{t('aiHint')}</span>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
@@ -172,7 +174,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
             >
               <div className={styles.cardTop}>
                 <span className={styles.langLabel}>{label}</span>
-                <StatusBadge status={status} req={req} />
+                <StatusBadge status={status} req={req} t={t} />
               </div>
 
               {req?.status === 'processing' && req.totalChapters > 0 && (
@@ -183,7 +185,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                       style={{ width: `${Math.round((req.doneChapters / req.totalChapters) * 100)}%` }}
                     />
                   </div>
-                  <span className={styles.progressText}>{req.doneChapters}/{req.totalChapters}章</span>
+                  <span className={styles.progressText}>{t('chaptersProgress', { done: req.doneChapters, total: req.totalChapters })}</span>
                 </div>
               )}
 
@@ -195,20 +197,20 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                 {confirmState?.locale === value ? (
                   <div className={styles.confirmRow}>
                     <span className={styles.confirmText}>
-                      {confirmState.conflict === 'paused' ? '此语言已暂停，确认重新翻译？' : '已有发布版本，确认覆盖？'}
+                      {confirmState.conflict === 'paused' ? t('confirmRetranslatePaused') : t('confirmOverwritePublished')}
                     </span>
                     <button
                       className={styles.btnDangerSm}
                       disabled={isBusy}
                       onClick={() => { setConfirmState(null); handleAdd(value, true) }}
                     >
-                      确认覆盖
+                      {t('confirmOverwrite')}
                     </button>
                     <button
                       className={styles.btnCancelSm}
                       onClick={() => setConfirmState(null)}
                     >
-                      取消
+                      {t('cancel')}
                     </button>
                   </div>
                 ) : (
@@ -216,18 +218,18 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                     {/* No request at all and no existing translation */}
                     {!req && !tr && (
                       <button className={styles.btnAdd} disabled={isBusy} onClick={() => handleAdd(value)}>
-                        {isBusy ? '触发中…' : '添加翻译'}
+                        {isBusy ? t('triggering') : t('addTranslation')}
                       </button>
                     )}
                     {/* Pre-selected at creation but not yet triggered */}
                     {req && !req.triggerRunId && req.status === 'pending' && !tr && (
                       <button className={styles.btnAdd} disabled={isBusy} onClick={() => handleAdd(value)}>
-                        {isBusy ? '触发中…' : '开始翻译'}
+                        {isBusy ? t('triggering') : t('startTranslation')}
                       </button>
                     )}
                     {/* Actually queued or running */}
                     {req?.triggerRunId && (req.status === 'pending' || req.status === 'processing') && (
-                      <span className={styles.infoText}>翻译进行中…</span>
+                      <span className={styles.infoText}>{t('translatingInProgress')}</span>
                     )}
                     {/* Translation completed — chapters are drafts awaiting publish */}
                     {req?.status === 'completed' && (
@@ -237,27 +239,27 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                           disabled={isBusy}
                           onClick={() => handlePause(value)}
                         >
-                          {isBusy ? '操作中…' : '暂停翻译'}
+                          {isBusy ? t('processing') : t('pauseTranslation')}
                         </button>
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
                           onClick={() => handleAdd(value)}
                         >
-                          {isBusy ? '触发中…' : '重新翻译'}
+                          {isBusy ? t('triggering') : t('retranslate')}
                         </button>
                       </>
                     )}
                     {/* Paused */}
                     {req?.status === 'paused' && (
                       <>
-                        <span className={styles.pausedTag}>⏸ 已暂停</span>
+                        <span className={styles.pausedTag}>⏸ {t('paused')}</span>
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
                           onClick={() => handleAdd(value)}
                         >
-                          {isBusy ? '触发中…' : '开始翻译'}
+                          {isBusy ? t('triggering') : t('startTranslation')}
                         </button>
                       </>
                     )}
@@ -269,21 +271,21 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                           disabled={isBusy}
                           onClick={() => handlePause(value)}
                         >
-                          {isBusy ? '操作中…' : '暂停翻译'}
+                          {isBusy ? t('processing') : t('pauseTranslation')}
                         </button>
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
                           onClick={() => handleAdd(value)}
                         >
-                          {isBusy ? '触发中…' : '重新翻译'}
+                          {isBusy ? t('triggering') : t('retranslate')}
                         </button>
                       </>
                     )}
                     {/* Failed */}
                     {req?.status === 'failed' && (
                       <button className={styles.btnRetry} disabled={isBusy} onClick={() => handleRetry(value)}>
-                        {isBusy ? '重试中…' : '重试'}
+                        {isBusy ? t('retrying') : t('retry')}
                       </button>
                     )}
                   </>
@@ -297,19 +299,19 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
   )
 }
 
-function StatusBadge({ status, req }: { status: string; req?: TranslationRequest }) {
-  if (!req && status === 'none') return <span className={`${styles.badge} ${styles.badgeNone}`}>未有此语言版本</span>
-  if (status === 'pending' && !req?.triggerRunId) return <span className={`${styles.badge} ${styles.badgeNone}`}>已选择</span>
-  if (status === 'pending') return <span className={`${styles.badge} ${styles.badgeProcessing}`}>等待翻译</span>
+function StatusBadge({ status, req, t }: { status: string; req?: TranslationRequest; t: ReturnType<typeof useTranslations> }) {
+  if (!req && status === 'none') return <span className={`${styles.badge} ${styles.badgeNone}`}>{t('noVersion')}</span>
+  if (status === 'pending' && !req?.triggerRunId) return <span className={`${styles.badge} ${styles.badgeNone}`}>{t('selected')}</span>
+  if (status === 'pending') return <span className={`${styles.badge} ${styles.badgeProcessing}`}>{t('waitingTranslation')}</span>
   if (status === 'processing') return (
     <span className={`${styles.badge} ${styles.badgeProcessing}`}>
       <span className={styles.spinner} />
-      翻译中
+      {t('badgeTranslating')}
     </span>
   )
-  if (status === 'completed') return <span className={`${styles.badge} ${styles.badgeDraft}`}>已完成</span>
-  if (status === 'published') return <span className={`${styles.badge} ${styles.badgePublished}`}>已发布</span>
-  if (status === 'paused') return <span className={`${styles.badge} ${styles.badgePaused}`}>已暂停</span>
-  if (status === 'failed') return <span className={`${styles.badge} ${styles.badgeFailed}`}>翻译失败</span>
-  return <span className={`${styles.badge} ${styles.badgeNone}`}>未有此语言版本</span>
+  if (status === 'completed') return <span className={`${styles.badge} ${styles.badgeDraft}`}>{t('completed')}</span>
+  if (status === 'published') return <span className={`${styles.badge} ${styles.badgePublished}`}>{t('published')}</span>
+  if (status === 'paused') return <span className={`${styles.badge} ${styles.badgePaused}`}>{t('paused')}</span>
+  if (status === 'failed') return <span className={`${styles.badge} ${styles.badgeFailed}`}>{t('translationFailed')}</span>
+  return <span className={`${styles.badge} ${styles.badgeNone}`}>{t('noVersion')}</span>
 }

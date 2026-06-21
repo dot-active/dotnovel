@@ -8,6 +8,14 @@ import { formatCount } from '@/lib/formatCount'
 import FavoriteButton from './_components/FavoriteButton'
 import styles from './page.module.css'
 
+const LOCALE_FLAGS: Record<string, string> = {
+  'zh-CN': '🇨🇳',
+  'zh-TW': '🇹🇼',
+  en: '🇺🇸',
+  ja: '🇯🇵',
+  ko: '🇰🇷',
+  es: '🇪🇸',
+}
 
 function formatWords(chars: number, locale: string): string {
   if (locale.startsWith('zh') || locale === 'ja') {
@@ -119,11 +127,17 @@ export default async function NovelDetailPage({
           <h1 className={styles.title}>{tr.title}</h1>
 
           <div className={styles.byRow}>
-            <div className={styles.pip}>{novel.author[0]}</div>
-            <div className={styles.byText}>
+        
               <div className={styles.byRole}>{t('authorLabel')}</div>
-              <div className={styles.byName}>{novel.author}</div>
-            </div>
+              <Link href={`/novels?q=${encodeURIComponent(novel.author)}`} className={styles.byName}>
+                {novel.author}
+              </Link>
+
+              <div className={styles.langGroup}>
+                <div className={styles.byRole}>{t('languageLabel')}</div>
+                <div className={styles.byName}>{LOCALE_FLAGS[novel.sourceLocale] ?? novel.sourceLocale}</div>
+              </div>
+
           </div>
 
           <div className={styles.tags}>

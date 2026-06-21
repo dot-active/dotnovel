@@ -135,11 +135,11 @@
   flex-shrink: 0;
 }
 
-.byText {}
+
 
 .byRole {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--bark-soft);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -147,8 +147,16 @@
 
 .byName {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 12px;
   color: var(--bark);
+}
+
+.langGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  text-align: right;
 }
 
 /* Tags */

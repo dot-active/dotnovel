@@ -101,11 +101,11 @@ export default function EditNovelForm({
     .forEach(r => availableLocales.add(r.targetLocale))
 
   function getLocaleStatusLabel(localeValue: string): string {
-    if (localeValue === novel.sourceLocale) return '写作语言'
+    if (localeValue === novel.sourceLocale) return t('language')
     const tr = translations.find(t => t.locale === localeValue)
-    if (tr?.status === 'published') return '已发布'
+    if (tr?.status === 'published') return tAuthor('published')
     const req = translationRequests.find(r => r.targetLocale === localeValue)
-    if (req?.status === 'processing' || req?.status === 'pending') return '翻译中'
+    if (req?.status === 'processing' || req?.status === 'pending') return t('translating')
     return ''
   }
 
@@ -205,7 +205,7 @@ export default function EditNovelForm({
         <span className={styles.secCh}>{t('sectionMeta')}</span>
         {!isSourceSelected && (
           <span className={isPublishedLocale ? styles.langStatusPublished : styles.langStatusProcessing}>
-            {isPublishedLocale ? '已发布' : '翻译中'}
+            {isPublishedLocale ? tAuthor('published') : t('translating')}
           </span>
         )}
       </div>
@@ -256,7 +256,7 @@ export default function EditNovelForm({
               required
               maxLength={30}
               value={titleValue}
-              placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('titlePlaceholder')}
+              placeholder={isProcessingLocale ? t('translatingPlaceholder') : t('titlePlaceholder')}
               className={styles.input}
               onChange={e => { setTitleValue(e.target.value); setTitleLen(e.target.value.length) }}
             />
@@ -273,7 +273,7 @@ export default function EditNovelForm({
               rows={5}
               maxLength={300}
               value={descValue}
-              placeholder={isProcessingLocale ? '翻译进行中，暂无内容' : t('descriptionPlaceholder')}
+              placeholder={isProcessingLocale ? t('translatingPlaceholder') : t('descriptionPlaceholder')}
               className={styles.textarea}
               onChange={e => { setDescValue(e.target.value); setDescLen(e.target.value.length) }}
             />
@@ -383,7 +383,7 @@ export default function EditNovelForm({
                 onClick={handleDelete}
                 disabled={deleting}
               >
-                {deleting ? '删除中…' : '确认删除'}
+                {deleting ? tAuthor('deletingNovel') : tAuthor('confirmDeleteNovel')}
               </button>
               <button
                 type="button"
@@ -399,7 +399,7 @@ export default function EditNovelForm({
               className={styles.btnDanger}
               onClick={() => setDeleteConfirm(true)}
             >
-              删除
+              {tAuthor('deleteNovelBtn')}
             </button>
           )}
         </div>
