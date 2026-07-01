@@ -31,8 +31,37 @@ model Novel {
   translations        NovelTranslation[]
   categories          NovelCategory[]
   translationRequests TranslationRequest[]
+  cards               NovelCard[]
 
   @@map("novels")
+}
+
+model NovelCard {
+  id           String                 @id @default(cuid())
+  novelId      String
+  novel        Novel                  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  imageUrl     String?
+  isActive     Boolean                @default(true)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  translations NovelCardTranslation[]
+
+  @@map("novel_cards")
+}
+
+model NovelCardTranslation {
+  id          String    @id @default(cuid())
+  cardId      String
+  card        NovelCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  locale      String
+  title       String
+  description String    @db.Text
+  status      String    @default("draft")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([cardId, locale])
+  @@map("novel_card_translations")
 }
 
 model Category {

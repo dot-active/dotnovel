@@ -13,7 +13,7 @@ export default async function ChapterPage({
   setRequestLocale(locale)
   const t = await getTranslations('reader')
 
-  const [chapter, { userId }] = await Promise.all([
+  const [chapter, { userId }, novelCards] = await Promise.all([
     prisma.chapter.findFirst({
       where: { id: chapterId, novelId: id },
       include: {
@@ -28,6 +28,13 @@ export default async function ChapterPage({
       },
     }),
     auth(),
+    prisma.novelCard.findMany({
+      where: { novelId: id, isActive: true },
+      include: {
+        translations: { where: { locale, status: 'published' } },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
   ])
 
   if (!chapter) notFound()
@@ -87,6 +94,17 @@ export default async function ChapterPage({
     commentCount: countMap[i] ?? 0,
   }))
 
+  // Map raw cards to the flat CardData shape ReaderClient expects.
+  // Only include cards that have a published translation in the reading locale.
+  const cards = novelCards
+    .filter((c) => c.translations.length > 0)
+    .map((c) => ({
+      id: c.id,
+      title: c.translations[0].title,
+      description: c.translations[0].description,
+      imageUrl: c.imageUrl,
+    }))
+
   return (
     <ReaderClient
       locale={locale}
@@ -95,6 +113,7 @@ export default async function ChapterPage({
       novelTitle={novelTitle}
       chapterTitle={chTr.title}
       paragraphs={paragraphs}
+      cards={cards}
       userId={userId ?? null}
       prevChapter={
         prevChapter

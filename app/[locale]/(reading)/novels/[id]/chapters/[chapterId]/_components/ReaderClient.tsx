@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import ParagraphComments from './ParagraphComments'
 import ViewTracker from './ViewTracker'
+import { injectCardLinks } from '@/lib/injectCardLinks'
 import styles from '../page.module.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -17,6 +18,13 @@ export interface AvailableLocale {
   hasChapter: boolean
 }
 
+export interface CardData {
+  id: string
+  title: string
+  description: string
+  imageUrl: string | null
+}
+
 export interface ReaderClientProps {
   locale: string
   novelId: string
@@ -24,6 +32,7 @@ export interface ReaderClientProps {
   novelTitle: string
   chapterTitle: string
   paragraphs: { text: string; commentCount: number }[]
+  cards: CardData[]
   userId: string | null
   prevChapter: { id: string; title: string } | null
   nextChapter: { id: string; title: string } | null
@@ -67,6 +76,7 @@ export default function ReaderClient({
   novelTitle,
   chapterTitle,
   paragraphs,
+  cards,
   userId,
   prevChapter,
   nextChapter,
@@ -80,11 +90,43 @@ export default function ReaderClient({
   const [theme, setTheme] = useState<Theme>('sepia')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [hoveredPara, setHoveredPara] = useState<number | null>(null)
+  const [activeCardId, setActiveCardId] = useState<string | null>(null)
 
   const toggleSettings = useCallback(() => setSettingsOpen((v) => !v), [])
   const closeSettings  = useCallback(() => setSettingsOpen(false), [])
 
-  // Show unavailable note if current locale has no chapter translation in target
+  const handleCardClick = useCallback((id: string) => {
+    setActiveCardId(id)
+    setSettingsOpen(false)
+  }, [])
+
+  const closeCard = useCallback(() => setActiveCardId(null), [])
+
+  // ESC key closes the card modal
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && activeCardId) closeCard()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [activeCardId, closeCard])
+
+  const activeCard = activeCardId ? cards.find((c) => c.id === activeCardId) ?? null : null
+
+  // Pre-compute card-injected nodes for all paragraphs.
+  // A shared Set ensures each card title is linked only once across the whole chapter.
+  // One shared Set per chapter render — each card title links only once
+  // across all paragraphs. injectCardLinks mutates the Set as it goes.
+  const renderedParagraphs = useMemo(() => {
+    const matchedIds = new Set<string>()
+    return paragraphs.map((para) => ({
+      commentCount: para.commentCount,
+      nodes: cards.length > 0
+        ? injectCardLinks(para.text, cards, handleCardClick, styles.cardLink, matchedIds)
+        : [para.text],
+    }))
+  }, [paragraphs, cards, handleCardClick])
+
   const unavailableLocales = availableLocales
     .filter((l) => !l.hasChapter)
     .map((l) => LOCALE_LABELS[l.locale] ?? l.locale)
@@ -98,7 +140,6 @@ export default function ReaderClient({
         <Link href={`/novels/${novelId}`} className={styles.backLink}>
           ← {novelTitle}
         </Link>
-
         <button
           className={`${styles.settingsBtn} ${settingsOpen ? styles.settingsBtnActive : ''}`}
           onClick={toggleSettings}
@@ -116,7 +157,6 @@ export default function ReaderClient({
 
       {/* ── Settings panel ── */}
       <div className={`${styles.settingsPanel} ${settingsOpen ? styles.settingsPanelOpen : ''}`}>
-        {/* Font size */}
         <div className={styles.settingsSection}>
           <p className={styles.settingsSectionTitle}>{t('fontSizeLabel')}</p>
           <div className={styles.fontSizeOptions}>
@@ -132,7 +172,6 @@ export default function ReaderClient({
           </div>
         </div>
 
-        {/* Theme */}
         <div className={styles.settingsSection}>
           <p className={styles.settingsSectionTitle}>{t('themeModeLabel')}</p>
           <div className={styles.themeOptions}>
@@ -149,7 +188,6 @@ export default function ReaderClient({
           </div>
         </div>
 
-        {/* Language */}
         <div className={styles.settingsSection}>
           <p className={styles.settingsSectionTitle}>{t('languageLabel')}</p>
           <div className={styles.langOptions}>
@@ -181,7 +219,7 @@ export default function ReaderClient({
       <article className={styles.article}>
         <h1 className={styles.chapterTitle}>{chapterTitle}</h1>
         <div className={styles.body} style={{ fontSize: `${fontSize}px` }}>
-          {paragraphs.map(({ text, commentCount }, i) => (
+          {renderedParagraphs.map(({ nodes, commentCount }, i) => (
             <div
               key={i}
               id={`para-${i}`}
@@ -189,14 +227,16 @@ export default function ReaderClient({
               onMouseEnter={() => setHoveredPara(i)}
               onMouseLeave={() => setHoveredPara(null)}
             >
-              <p>{text}               <ParagraphComments
-                chapterId={chapterId}
-                paragraphIndex={i}
-                currentUserId={userId}
-                initialCount={commentCount}
-                show={hoveredPara === i}
-              /></p>
-
+              <p>
+                {nodes}
+                <ParagraphComments
+                  chapterId={chapterId}
+                  paragraphIndex={i}
+                  currentUserId={userId}
+                  initialCount={commentCount}
+                  show={hoveredPara === i}
+                />
+              </p>
             </div>
           ))}
         </div>
@@ -206,27 +246,17 @@ export default function ReaderClient({
       <nav className={styles.nav}>
         <div className={styles.navSide}>
           {prevChapter ? (
-            <Link
-              href={`/novels/${novelId}/chapters/${prevChapter.id}`}
-              className={styles.navBtn}
-            >
+            <Link href={`/novels/${novelId}/chapters/${prevChapter.id}`} className={styles.navBtn}>
               ← {prevChapter.title}
             </Link>
           ) : (
             <span className={styles.navDisabled}>{tFirstChapter}</span>
           )}
         </div>
-
-        <Link href={`/novels/${novelId}`} className={styles.navCatalog}>
-          {tCatalog}
-        </Link>
-
+        <Link href={`/novels/${novelId}`} className={styles.navCatalog}>{tCatalog}</Link>
         <div className={`${styles.navSide} ${styles.navSideRight}`}>
           {nextChapter ? (
-            <Link
-              href={`/novels/${novelId}/chapters/${nextChapter.id}`}
-              className={styles.navBtn}
-            >
+            <Link href={`/novels/${novelId}/chapters/${nextChapter.id}`} className={styles.navBtn}>
               {nextChapter.title} →
             </Link>
           ) : (
@@ -234,6 +264,28 @@ export default function ReaderClient({
           )}
         </div>
       </nav>
+
+      {/* ── Card detail modal ── */}
+      {activeCard && (
+        <div className={styles.cardModalOverlay} onClick={closeCard}>
+          <div className={styles.cardModalBox} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.cardModalClose} onClick={closeCard} aria-label="关闭">
+              ×
+            </button>
+            {activeCard.imageUrl && (
+              <img
+                src={activeCard.imageUrl}
+                alt={activeCard.title}
+                className={styles.cardModalImg}
+              />
+            )}
+            <div className={styles.cardModalContent}>
+              <h2 className={styles.cardModalTitle}>{activeCard.title}</h2>
+              <p className={styles.cardModalDesc}>{activeCard.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

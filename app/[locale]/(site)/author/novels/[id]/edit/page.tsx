@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import EditNovelForm from './_components/EditNovelForm'
 import TranslationManager from './_components/TranslationManager'
+import CardManager from './_components/CardManager'
 import styles from './page.module.css'
 
 export default async function EditNovelPage({
@@ -79,6 +80,14 @@ export default async function EditNovelPage({
         sourceLocale={novel.sourceLocale}
         locale={locale}
         initialLang={initialLang}
+      />
+
+      <CardManager
+        novelId={novel.id}
+        sourceLocale={novel.sourceLocale}
+        availableLocales={Array.from(
+          new Set([novel.sourceLocale, ...novel.translations.map((tr) => tr.locale)])
+        )}
       />
     </div>
   )
