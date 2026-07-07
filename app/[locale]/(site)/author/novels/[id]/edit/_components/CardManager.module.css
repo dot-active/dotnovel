@@ -1,5 +1,5 @@
 /* ── Section ── */
-.section {}
+
 
 .secDivider {
   margin: 56px 0 28px;
@@ -50,7 +50,7 @@
 
 .cardImg {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   background: var(--cream-line);
   overflow: hidden;
   flex-shrink: 0;
@@ -306,7 +306,7 @@
 
 .imgUploadArea {
   width: 160px;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   background: var(--cream-deep, #faf8f4);
   border: 1px dashed var(--cream-line);
   display: flex;

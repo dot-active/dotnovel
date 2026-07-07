@@ -69,9 +69,7 @@ export default async function AuthorChapterListPage({
     <div>
       <div className={styles.pageHeader}>
         <div>
-          <Link href="/author/dashboard" className={styles.backLink}>
-            ← {t('myNovels')}
-          </Link>
+
           <h1 className={styles.title}>{novelTitle}-{t('manageChapters')}</h1>
         
         </div>

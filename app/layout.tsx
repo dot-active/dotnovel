@@ -13,7 +13,7 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: 'NovelPhere · Read & Publish Novels in Any Language, Powered by AI',
+  title: 'NovelPhere · Read & Publish Novels in Any Language',
   description: 'Write once, be read everywhere. dotnovel uses AI to instantly translate novels into 6+ languages, connecting writers with readers worldwide.',
   icons: {
     icon: [

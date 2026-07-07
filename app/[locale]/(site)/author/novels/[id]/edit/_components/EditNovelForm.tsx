@@ -208,6 +208,8 @@ export default function EditNovelForm({
             {isPublishedLocale ? tAuthor('published') : t('translating')}
           </span>
         )}
+    
+     
       </div>
 
       <div className={styles.headRow}>

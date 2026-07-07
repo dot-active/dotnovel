@@ -2,9 +2,9 @@
 
 /* ── Section dividers ── */
 .secDivider {
-  margin: 56px 0 28px;
+  margin: 56px 0 10px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--cream-line);
+
   display: flex;
   align-items: baseline;
   gap: 14px;
@@ -493,6 +493,29 @@
     border-right: 0;
     padding-right: 0;
   }
+}
+
+.cardsBtnGroup {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cardsBtn {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--bark-soft);
+  border: 1px solid var(--cream-line);
+  border-radius: 4px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.cardsBtn:hover {
+  color: var(--bark);
+  border-color: var(--bark-soft);
 }
 
 @media (max-width: 640px) {

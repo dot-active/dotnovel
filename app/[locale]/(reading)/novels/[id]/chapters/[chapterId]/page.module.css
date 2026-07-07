@@ -449,7 +449,7 @@
 .cardModalImg {
   width: 100%;
   display: block;
-  aspect-ratio: 3 / 4;
+
   object-fit: cover;
   border-radius: 11px 11px 0 0;
 }

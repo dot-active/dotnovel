@@ -6,20 +6,16 @@ export interface CardRef {
 }
 
 /**
- * Replace each card's title (first occurrence only) with a clickable <span>.
+ * Replace every occurrence of each card's title with a clickable <span>.
  * Longest titles matched first so "风清扬" wins over "风清" when both appear.
  * Titles shorter than 2 characters are skipped.
- *
- * @param matchedIds  Shared Set across paragraph calls — cards already linked
- *                    in a previous paragraph are skipped, ensuring each title
- *                    is linked at most once per chapter.
  */
 export function injectCardLinks(
   content: string,
   cards: CardRef[],
   onCardClick: (id: string) => void,
   linkClassName: string,
-  matchedIds: Set<string>
+  _matchedIds: Set<string>
 ): React.ReactNode[] {
   if (!content || cards.length === 0) return [content]
 
@@ -31,18 +27,11 @@ export function injectCardLinks(
 
   for (const card of sortedCards) {
     if (card.title.length < 2) continue
-    if (matchedIds.has(card.id)) continue // already linked in a prior paragraph
-
-    const index = processedContent.indexOf(card.title)
-    if (index === -1) continue
 
     const placeholder = `__CARD_${card.id}__`
-    processedContent =
-      processedContent.slice(0, index) +
-      placeholder +
-      processedContent.slice(index + card.title.length)
+    // Replace all occurrences at once; placeholders can't match later titles
+    processedContent = processedContent.split(card.title).join(placeholder)
     replacements.set(placeholder, card.id)
-    matchedIds.add(card.id) // mark so subsequent paragraphs skip it
   }
 
   if (replacements.size === 0) return [content]

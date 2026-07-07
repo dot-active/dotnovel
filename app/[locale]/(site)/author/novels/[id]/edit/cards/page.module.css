@@ -1,0 +1,23 @@
+.page {
+  max-width: 1200px;
+  padding-top: 40px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.back {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--bark-soft);
+  border: 1px solid var(--bark-soft);
+  border-radius: 4px;
+  padding: 6px 14px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.back:hover {
+  color: var(--bark);
+  border-color: var(--bark);
+}

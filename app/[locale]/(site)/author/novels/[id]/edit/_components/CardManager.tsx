@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import styles from './CardManager.module.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -34,20 +35,31 @@ interface Props {
   availableLocales: string[]
 }
 
-// ── Constants ──────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────
 
-const LOCALE_LABELS: Record<string, string> = {
-  'zh-CN': '简中',
-  'zh-TW': '繁中',
-  en: 'EN',
-  ja: 'JA',
-  ko: 'KO',
-  es: 'ES',
+async function extractError(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = await res.json()
+    return data?.error ?? fallback
+  } catch {
+    return fallback
+  }
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function CardManager({ novelId, sourceLocale, availableLocales }: Props) {
+  const t = useTranslations('cardManager')
+
+  const LOCALE_LABELS: Record<string, string> = {
+    'zh-CN': t('localeZhCN'),
+    'zh-TW': t('localeZhTW'),
+    en: 'EN',
+    ja: 'JA',
+    ko: 'KO',
+    es: 'ES',
+  }
+
   // ── List state ──
   const [cards, setCards] = useState<NovelCard[]>([])
   const [loading, setLoading] = useState(true)
@@ -117,7 +129,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   function openEdit(card: NovelCard) {
     setEditingCard(card)
     setImageUrl(card.imageUrl ?? '')
-    setImagePreview(card.imageUrl ?? '')
+    setImagePreview(cardImgSrc(card) ?? '')
     setImageFile(null)
     setFileError('')
     setSelectedLocale(sourceLocale)
@@ -145,7 +157,6 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   function getLocaleTabStatus(locale: string): 'published' | 'draft' | 'none' {
     const content = contents[locale]
     if (content?.title || content?.description) {
-      // Has unsaved content — treat as draft until saved
       const existing = editingCard?.translations.find((t) => t.locale === locale)
       if (existing?.status === 'published' &&
           content.title === existing.title &&
@@ -173,8 +184,8 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
     const file = e.target.files?.[0]
     if (!file) return
     const allowed = ['image/jpeg', 'image/png', 'image/webp']
-    if (!allowed.includes(file.type)) { setFileError('仅支持 JPG、PNG、WebP'); return }
-    if (file.size > 2 * 1024 * 1024) { setFileError('文件不超过 2 MB'); return }
+    if (!allowed.includes(file.type)) { setFileError(t('imageTypeError')); return }
+    if (file.size > 2 * 1024 * 1024) { setFileError(t('imageSizeError')); return }
     setFileError('')
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
@@ -187,7 +198,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
     fd.append('novelId', novelId)
     fd.append('cardId', cardId)
     const res = await fetch('/api/upload/card', { method: 'POST', body: fd })
-    if (!res.ok) throw new Error((await res.json()).error ?? '图片上传失败')
+    if (!res.ok) throw new Error(await extractError(res, t('uploadFailed')))
     return (await res.json()).url as string
   }
 
@@ -196,7 +207,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   async function callTranslate(targetLocales: string[]) {
     const src = contents[sourceLocale]
     if (!src?.title?.trim()) {
-      setFormError(`请先填写${LOCALE_LABELS[sourceLocale] ?? sourceLocale}的标题`)
+      setFormError(t('needSourceTitle', { locale: LOCALE_LABELS[sourceLocale] ?? sourceLocale }))
       return null
     }
     const res = await fetch('/api/cards/translate', {
@@ -209,10 +220,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
         targetLocales,
       }),
     })
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error ?? '翻译失败')
-    }
+    if (!res.ok) throw new Error(await extractError(res, t('translateFailed')))
     return (await res.json()) as Record<string, { title: string; description: string }>
   }
 
@@ -231,7 +239,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
         return next
       })
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : '翻译失败')
+      setFormError(err instanceof Error ? err.message : t('translateFailed'))
     } finally {
       setTranslating(false)
     }
@@ -251,7 +259,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
         }))
       }
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : '翻译失败')
+      setFormError(err instanceof Error ? err.message : t('translateFailed'))
     } finally {
       setTranslatingSingle(false)
     }
@@ -262,50 +270,47 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   async function handleSave() {
     const srcContent = contents[sourceLocale]
     if (!srcContent?.title?.trim()) {
-      setFormError(`请填写${LOCALE_LABELS[sourceLocale] ?? sourceLocale}的标题（必填）`)
+      setFormError(t('titleRequired', { locale: LOCALE_LABELS[sourceLocale] ?? sourceLocale }))
       return
     }
     setSaving(true)
     setFormError('')
     try {
-      // Collect non-empty translations
       const translations = Object.entries(contents)
         .filter(([, v]) => v.title.trim() || v.description.trim())
         .map(([locale, v]) => ({ locale, title: v.title, description: v.description }))
 
       if (editingCard) {
-        // Upload image first (need existing cardId)
         const newImageUrl = imageFile ? await uploadImage(editingCard.id) : imageUrl
         const res = await fetch(`/api/cards/${editingCard.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ imageUrl: newImageUrl, translations }),
         })
-        if (!res.ok) throw new Error((await res.json()).error ?? '保存失败')
+        if (!res.ok) throw new Error(await extractError(res, t('saveFailed')))
       } else {
-        // Create card first to get an id, then upload image
-        const tempImageId = crypto.randomUUID()
         const res = await fetch('/api/cards', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ novelId, imageUrl: null, translations }),
         })
-        if (!res.ok) throw new Error((await res.json()).error ?? '保存失败')
+        if (!res.ok) throw new Error(await extractError(res, t('saveFailed')))
         const created = (await res.json()) as NovelCard
         if (imageFile) {
           const uploadedUrl = await uploadImage(created.id)
-          await fetch(`/api/cards/${created.id}`, {
+          const patchRes = await fetch(`/api/cards/${created.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageUrl: uploadedUrl }),
           })
+          if (!patchRes.ok) throw new Error(await extractError(patchRes, t('imageSaveFailed')))
         }
       }
 
       await loadCards()
       closeForm()
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : '保存失败')
+      setFormError(err instanceof Error ? err.message : t('saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -338,22 +343,28 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
   function cardTitle(card: NovelCard) {
     return (
-      card.translations.find((t) => t.locale === sourceLocale)?.title ??
+      card.translations.find((tr) => tr.locale === sourceLocale)?.title ??
       card.translations[0]?.title ??
-      '(无标题)'
+      t('noTitle')
     )
   }
 
   function cardDesc(card: NovelCard) {
     const desc =
-      card.translations.find((t) => t.locale === sourceLocale)?.description ??
+      card.translations.find((tr) => tr.locale === sourceLocale)?.description ??
       card.translations[0]?.description ??
       ''
     return desc.length > 50 ? `${desc.slice(0, 50)}…` : desc
   }
 
+  function cardImgSrc(card: NovelCard) {
+    if (!card.imageUrl) return null
+    const ts = new Date(card.updatedAt).getTime()
+    return `${card.imageUrl}?v=${ts}`
+  }
+
   function dotColor(card: NovelCard, locale: string) {
-    const tr = card.translations.find((t) => t.locale === locale)
+    const tr = card.translations.find((tr) => tr.locale === locale)
     if (!tr) return styles.dotGray
     return tr.status === 'published' ? styles.dotGreen : styles.dotOrange
   }
@@ -364,37 +375,32 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
   return (
     <div className={styles.section}>
-      {/* Section header */}
       <div className={styles.secDivider}>
-        <span className={styles.secCh}>卡片设定</span>
-        <span className={styles.secNote}>正文关键词自动转为可点击卡片链接</span>
+        <span className={styles.secCh}>{t('secTitle')}</span>
+        <span className={styles.secNote}>{t('secNote')}</span>
       </div>
 
       {loading ? (
-        <p className={styles.empty}>加载中…</p>
+        <p className={styles.empty}>{t('loading')}</p>
       ) : (
         <>
-          {cards.length === 0 && <p className={styles.empty}>尚未添加任何卡片</p>}
+          {cards.length === 0 && <p className={styles.empty}>{t('empty')}</p>}
 
-          {/* Card grid */}
           {cards.length > 0 && (
             <div className={styles.grid}>
               {cards.map((card) => (
                 <div key={card.id} className={styles.card}>
-                  {/* Image */}
                   <div className={styles.cardImg}>
-                    {card.imageUrl ? (
-                      <img src={card.imageUrl} alt={cardTitle(card)} className={styles.cardImgEl} />
+                    {cardImgSrc(card) ? (
+                      <img src={cardImgSrc(card)!} alt={cardTitle(card)} className={styles.cardImgEl} />
                     ) : (
                       <div className={styles.cardImgPlaceholder}>❦</div>
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className={styles.cardBody}>
                     <p className={styles.cardTitle}>{cardTitle(card)}</p>
                     <p className={styles.cardDesc}>{cardDesc(card)}</p>
-                    {/* Locale dots */}
                     <div className={styles.dots}>
                       {availableLocales.map((loc) => (
                         <span
@@ -406,17 +412,17 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className={styles.cardActions}>
-                    {/* isActive toggle */}
                     <div className={styles.toggleRow} onClick={() => handleToggle(card)}>
                       <div className={`${styles.toggle}${card.isActive ? ` ${styles.toggleOn}` : ''}`} />
-                      <span className={styles.toggleLabel}>{card.isActive ? '已启用' : '已停用'}</span>
+                      <span className={styles.toggleLabel}>
+                        {card.isActive ? t('enabled') : t('disabled')}
+                      </span>
                     </div>
 
                     <div className={styles.cardBtns}>
                       <button type="button" className={styles.btnEdit} onClick={() => openEdit(card)}>
-                        编辑
+                        {t('edit')}
                       </button>
                       {confirmDeleteId === card.id ? (
                         <>
@@ -426,14 +432,14 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                             onClick={() => handleDelete(card.id)}
                             disabled={deletingId === card.id}
                           >
-                            {deletingId === card.id ? '删除中…' : '确认'}
+                            {deletingId === card.id ? t('deleting') : t('confirm')}
                           </button>
                           <button
                             type="button"
                             className={styles.btnCancel}
                             onClick={() => setConfirmDeleteId(null)}
                           >
-                            取消
+                            {t('cancel')}
                           </button>
                         </>
                       ) : (
@@ -442,7 +448,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                           className={styles.btnDanger}
                           onClick={() => setConfirmDeleteId(card.id)}
                         >
-                          删除
+                          {t('delete')}
                         </button>
                       )}
                     </div>
@@ -453,7 +459,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
           )}
 
           <button type="button" className={styles.btnAdd} onClick={openAdd}>
-            ＋ 添加卡片
+            {t('addCard')}
           </button>
         </>
       )}
@@ -465,10 +471,10 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
           onClick={(e) => { if (e.target === e.currentTarget) closeForm() }}
         >
           <div className={styles.modalBox}>
-            <button type="button" className={styles.modalClose} onClick={closeForm} aria-label="关闭">
+            <button type="button" className={styles.modalClose} onClick={closeForm} aria-label={t('close')}>
               ×
             </button>
-            <h3 className={styles.modalTitle}>{editingCard ? '编辑卡片' : '添加卡片'}</h3>
+            <h3 className={styles.modalTitle}>{editingCard ? t('editCard') : t('addCardTitle')}</h3>
 
             <div className={styles.modalLayout}>
               {/* Left: image upload */}
@@ -479,7 +485,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                   ) : (
                     <>
                       <span className={styles.imgGlyph}>❦</span>
-                      <span className={styles.imgHint}>点击上传</span>
+                      <span className={styles.imgHint}>{t('clickToUpload')}</span>
                       <span className={styles.imgSpec}>JPG · PNG · WebP · ≤2MB</span>
                     </>
                   )}
@@ -496,7 +502,6 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
               {/* Right: locale tabs + content */}
               <div className={styles.modalRight}>
-                {/* Language tabs */}
                 <div className={styles.localeTabs}>
                   {availableLocales.map((loc) => (
                     <button
@@ -511,37 +516,35 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                   ))}
                 </div>
 
-                {/* Content fields */}
                 <div className={styles.contentArea}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      标题 {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
-                      <span className={styles.formNote}>（正文关键词）</span>
+                      {t('titleLabel')} {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
+                      <span className={styles.formNote}>{t('titleHint')}</span>
                     </label>
                     <input
                       type="text"
                       className={styles.formInput}
                       value={contents[selectedLocale]?.title ?? ''}
                       maxLength={50}
-                      placeholder={selectedLocale === sourceLocale ? '例：风清扬' : '输入或使用 AI 翻译…'}
+                      placeholder={selectedLocale === sourceLocale ? t('titlePlaceholderSource') : t('inputOrTranslate')}
                       onChange={(e) => setContent(selectedLocale, 'title', e.target.value)}
                     />
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      简介 {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
+                      {t('descLabel')} {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
                     </label>
                     <textarea
                       className={styles.formTextarea}
                       value={contents[selectedLocale]?.description ?? ''}
                       rows={4}
-                      placeholder={selectedLocale === sourceLocale ? '角色或设定的介绍…' : '输入或使用 AI 翻译…'}
+                      placeholder={selectedLocale === sourceLocale ? t('descPlaceholderSource') : t('inputOrTranslate')}
                       onChange={(e) => setContent(selectedLocale, 'description', e.target.value)}
                     />
                   </div>
                 </div>
 
-                {/* AI translate buttons */}
                 <div className={styles.translateBtns}>
                   <button
                     type="button"
@@ -549,7 +552,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                     onClick={handleTranslateAll}
                     disabled={!hasSourceContent || translating}
                   >
-                    {translating ? '翻译中…' : '🤖 AI 翻译所有语言'}
+                    {translating ? t('translating') : t('translateAll')}
                   </button>
                   {selectedLocale !== sourceLocale && (
                     <button
@@ -558,7 +561,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                       onClick={handleTranslateSingle}
                       disabled={!hasSourceContent || translatingSingle}
                     >
-                      {translatingSingle ? '翻译中…' : '重新翻译此语言'}
+                      {translatingSingle ? t('translating') : t('retranslateLang')}
                     </button>
                   )}
                 </div>
@@ -567,7 +570,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
                 <div className={styles.modalFooter}>
                   <button type="button" className={styles.btnCancel} onClick={closeForm}>
-                    取消
+                    {t('cancel')}
                   </button>
                   <button
                     type="button"
@@ -575,7 +578,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                     onClick={handleSave}
                     disabled={saving}
                   >
-                    {saving ? '保存中…' : '保存卡片'}
+                    {saving ? t('saving') : t('saveCard')}
                   </button>
                 </div>
               </div>

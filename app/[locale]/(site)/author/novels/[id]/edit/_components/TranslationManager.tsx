@@ -154,7 +154,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
     <div ref={sectionRef} className={styles.section}>
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>{t('title')}</span>
-        <span className={styles.sectionSub}>{t('aiHint')}</span>
+        
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
@@ -291,9 +291,11 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                   </>
                 )}
               </div>
+              
             </div>
           )
         })}
+        <div className={styles.sectionSub}>{t('aiHint')}</div>
       </div>
     </div>
   )
