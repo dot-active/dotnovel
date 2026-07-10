@@ -18,10 +18,14 @@ export interface AvailableLocale {
   hasChapter: boolean
 }
 
+export interface CardEntryData {
+  content: string
+}
+
 export interface CardData {
   id: string
-  title: string
-  description: string
+  titles: string[]
+  entries: CardEntryData[]
   imageUrl: string | null
 }
 
@@ -91,12 +95,14 @@ export default function ReaderClient({
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [hoveredPara, setHoveredPara] = useState<number | null>(null)
   const [activeCardId, setActiveCardId] = useState<string | null>(null)
+  const [activeCardTitle, setActiveCardTitle] = useState<string | null>(null)
 
   const toggleSettings = useCallback(() => setSettingsOpen((v) => !v), [])
   const closeSettings  = useCallback(() => setSettingsOpen(false), [])
 
-  const handleCardClick = useCallback((id: string) => {
+  const handleCardClick = useCallback((id: string, title: string) => {
     setActiveCardId(id)
+    setActiveCardTitle(title)
     setSettingsOpen(false)
   }, [])
 
@@ -275,13 +281,23 @@ export default function ReaderClient({
             {activeCard.imageUrl && (
               <img
                 src={activeCard.imageUrl}
-                alt={activeCard.title}
+                alt={activeCardTitle ?? activeCard.titles[0]}
                 className={styles.cardModalImg}
               />
             )}
             <div className={styles.cardModalContent}>
-              <h2 className={styles.cardModalTitle}>{activeCard.title}</h2>
-              <p className={styles.cardModalDesc}>{activeCard.description}</p>
+              <h2 className={styles.cardModalTitle}>{activeCardTitle ?? activeCard.titles[0]}</h2>
+              {activeCard.titles.filter((title) => title !== activeCardTitle).length > 0 && (
+                <p className={styles.cardModalAliases}>
+                  {t('aliasesLabel')}
+                  {activeCard.titles.filter((title) => title !== activeCardTitle).join(' · ')}
+                </p>
+              )}
+              <div className={styles.cardModalEntries}>
+                {activeCard.entries.map((entry, i) => (
+                  <p key={i} className={styles.cardModalEntry}>▸ {entry.content}</p>
+                ))}
+              </div>
             </div>
           </div>
         </div>

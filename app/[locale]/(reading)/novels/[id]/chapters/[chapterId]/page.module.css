@@ -462,18 +462,38 @@
   font-size: 1.0625rem;
   font-weight: 600;
   color: var(--text);
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   line-height: 1.4;
   padding-right: 24px;
 }
 
-.cardModalDesc {
+.cardModalAliases {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+
+.cardModalEntries {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardModalEntry {
   font-size: 0.875rem;
   color: var(--text);
   line-height: 1.8;
   margin: 0;
+ 
   white-space: pre-wrap;
   opacity: 0.85;
+}
+
+.cardModalEntry:first-child {
+  border-top: none;
+  padding-top: 0;
 }
 
 /* ── Mobile ── */

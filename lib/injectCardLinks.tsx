@@ -2,55 +2,60 @@ import React from 'react'
 
 export interface CardRef {
   id: string
-  title: string
+  titles: string[]
 }
 
 /**
- * Replace every occurrence of each card's title with a clickable <span>.
- * Longest titles matched first so "风清扬" wins over "风清" when both appear.
- * Titles shorter than 2 characters are skipped.
+ * Replace every occurrence of each card's title aliases with a clickable <span>.
+ * All aliases across all cards are sorted longest-first so "风清扬" wins over "风清"
+ * when both appear. Titles shorter than 2 characters are skipped.
  */
 export function injectCardLinks(
   content: string,
   cards: CardRef[],
-  onCardClick: (id: string) => void,
+  onCardClick: (id: string, title: string) => void,
   linkClassName: string,
   _matchedIds: Set<string>
 ): React.ReactNode[] {
   if (!content || cards.length === 0) return [content]
 
+  const allTitles: { cardId: string; title: string }[] = []
+  for (const card of cards) {
+    for (const title of card.titles) {
+      if (title.length < 2) continue
+      allTitles.push({ cardId: card.id, title })
+    }
+  }
+
   // Sort longest first so "风清扬" beats "风清"
-  const sortedCards = [...cards].sort((a, b) => b.title.length - a.title.length)
+  allTitles.sort((a, b) => b.title.length - a.title.length)
 
   let processedContent = content
-  const replacements = new Map<string, string>() // placeholder -> cardId
+  const replacements = new Map<string, { cardId: string; title: string }>()
 
-  for (const card of sortedCards) {
-    if (card.title.length < 2) continue
-
-    const placeholder = `__CARD_${card.id}__`
+  allTitles.forEach(({ cardId, title }, idx) => {
+    const placeholder = `__CARD_${cardId}_${idx}__`
     // Replace all occurrences at once; placeholders can't match later titles
-    processedContent = processedContent.split(card.title).join(placeholder)
-    replacements.set(placeholder, card.id)
-  }
+    processedContent = processedContent.split(title).join(placeholder)
+    replacements.set(placeholder, { cardId, title })
+  })
 
   if (replacements.size === 0) return [content]
 
-  const parts = processedContent.split(/(__CARD_[^_]+__)/)
+  const parts = processedContent.split(/(__CARD_[^_]+_\d+__)/)
 
   return parts
     .map((part, i) => {
-      const cardId = replacements.get(part)
-      if (cardId) {
-        const card = cards.find((c) => c.id === cardId)!
+      const match = replacements.get(part)
+      if (match) {
         return (
           <span
             key={i}
             className={linkClassName}
-            data-card-id={cardId}
-            onClick={() => onCardClick(cardId)}
+            data-card-id={match.cardId}
+            onClick={() => onCardClick(match.cardId, match.title)}
           >
-            {card.title}
+            {match.title}
           </span>
         )
       }

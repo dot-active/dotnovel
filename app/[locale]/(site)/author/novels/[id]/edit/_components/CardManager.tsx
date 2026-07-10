@@ -6,12 +6,21 @@ import styles from './CardManager.module.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+const MAX_ENTRIES = 10
+
+interface CardEntry {
+  id: string
+  content: string
+  fromChapter: number
+  order: number
+}
+
 interface CardTranslation {
   id: string
   locale: string
-  title: string
-  description: string
+  titles: string[]
   status: string
+  entries: CardEntry[]
 }
 
 interface NovelCard {
@@ -24,9 +33,14 @@ interface NovelCard {
   translations: CardTranslation[]
 }
 
+interface EntryDraft {
+  content: string
+  fromChapter: number
+}
+
 interface LocaleContent {
-  title: string
-  description: string
+  titles: string[]
+  entries: EntryDraft[]
 }
 
 interface Props {
@@ -44,6 +58,10 @@ async function extractError(res: Response, fallback: string): Promise<string> {
   } catch {
     return fallback
   }
+}
+
+function emptyContent(): LocaleContent {
+  return { titles: [], entries: [] }
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -79,6 +97,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   // Multi-locale content
   const [selectedLocale, setSelectedLocale] = useState(sourceLocale)
   const [contents, setContents] = useState<Record<string, LocaleContent>>({})
+  const [tagInput, setTagInput] = useState('')
 
   // Operations
   const [translating, setTranslating] = useState(false)
@@ -104,11 +123,14 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   function buildInitialContents(card: NovelCard | null): Record<string, LocaleContent> {
     const base: Record<string, LocaleContent> = {}
     for (const loc of availableLocales) {
-      base[loc] = { title: '', description: '' }
+      base[loc] = emptyContent()
     }
     if (card) {
       for (const tr of card.translations) {
-        base[tr.locale] = { title: tr.title, description: tr.description }
+        base[tr.locale] = {
+          titles: [...tr.titles],
+          entries: tr.entries.map((e) => ({ content: e.content, fromChapter: e.fromChapter })),
+        }
       }
     }
     return base
@@ -122,6 +144,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
     setFileError('')
     setSelectedLocale(sourceLocale)
     setContents(buildInitialContents(null))
+    setTagInput('')
     setFormError('')
     setShowForm(true)
   }
@@ -134,6 +157,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
     setFileError('')
     setSelectedLocale(sourceLocale)
     setContents(buildInitialContents(card))
+    setTagInput('')
     setFormError('')
     setShowForm(true)
   }
@@ -147,25 +171,84 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
   // ── Content helpers ───────────────────────────────────────────────────────
 
-  function setContent(locale: string, field: 'title' | 'description', value: string) {
-    setContents((prev) => ({
-      ...prev,
-      [locale]: { ...(prev[locale] ?? { title: '', description: '' }), [field]: value },
-    }))
+  function getContent(locale: string): LocaleContent {
+    return contents[locale] ?? emptyContent()
+  }
+
+  function addTitle(locale: string, raw: string) {
+    const value = raw.trim()
+    if (!value) return
+    setContents((prev) => {
+      const cur = prev[locale] ?? emptyContent()
+      if (cur.titles.includes(value)) return prev
+      return { ...prev, [locale]: { ...cur, titles: [...cur.titles, value] } }
+    })
+  }
+
+  function removeTitle(locale: string, index: number) {
+    setContents((prev) => {
+      const cur = prev[locale] ?? emptyContent()
+      return { ...prev, [locale]: { ...cur, titles: cur.titles.filter((_, i) => i !== index) } }
+    })
+  }
+
+  function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      addTitle(selectedLocale, tagInput.replace(/,$/, ''))
+      setTagInput('')
+    } else if (e.key === 'Backspace' && !tagInput) {
+      const cur = getContent(selectedLocale)
+      if (cur.titles.length > 0) removeTitle(selectedLocale, cur.titles.length - 1)
+    }
+  }
+
+  function addEntry(locale: string) {
+    setContents((prev) => {
+      const cur = prev[locale] ?? emptyContent()
+      if (cur.entries.length >= MAX_ENTRIES) return prev
+      return { ...prev, [locale]: { ...cur, entries: [...cur.entries, { content: '', fromChapter: 1 }] } }
+    })
+  }
+
+  function removeEntry(locale: string, index: number) {
+    setContents((prev) => {
+      const cur = prev[locale] ?? emptyContent()
+      return { ...prev, [locale]: { ...cur, entries: cur.entries.filter((_, i) => i !== index) } }
+    })
+  }
+
+  function updateEntry(locale: string, index: number, field: 'content' | 'fromChapter', value: string) {
+    setContents((prev) => {
+      const cur = prev[locale] ?? emptyContent()
+      const entries = cur.entries.map((entry, i) => {
+        if (i !== index) return entry
+        if (field === 'fromChapter') {
+          const n = parseInt(value, 10)
+          return { ...entry, fromChapter: Number.isNaN(n) || n < 1 ? 1 : n }
+        }
+        return { ...entry, content: value }
+      })
+      return { ...prev, [locale]: { ...cur, entries } }
+    })
   }
 
   function getLocaleTabStatus(locale: string): 'published' | 'draft' | 'none' {
-    const content = contents[locale]
-    if (content?.title || content?.description) {
-      const existing = editingCard?.translations.find((t) => t.locale === locale)
-      if (existing?.status === 'published' &&
-          content.title === existing.title &&
-          content.description === existing.description) {
-        return 'published'
+    const content = getContent(locale)
+    const hasContent = content.titles.length > 0 || content.entries.some((e) => e.content.trim())
+    const existing = editingCard?.translations.find((tr) => tr.locale === locale)
+    if (hasContent) {
+      if (existing?.status === 'published') {
+        const sameTitles = JSON.stringify(existing.titles) === JSON.stringify(content.titles)
+        const sameEntries =
+          existing.entries.length === content.entries.length &&
+          existing.entries.every(
+            (e, i) => e.content === content.entries[i]?.content && e.fromChapter === content.entries[i]?.fromChapter
+          )
+        if (sameTitles && sameEntries) return 'published'
       }
       return 'draft'
     }
-    const existing = editingCard?.translations.find((t) => t.locale === locale)
     if (existing?.status === 'published') return 'published'
     if (existing?.status === 'draft') return 'draft'
     return 'none'
@@ -205,8 +288,8 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   // ── AI Translation ────────────────────────────────────────────────────────
 
   async function callTranslate(targetLocales: string[]) {
-    const src = contents[sourceLocale]
-    if (!src?.title?.trim()) {
+    const src = getContent(sourceLocale)
+    if (src.titles.length === 0) {
       setFormError(t('needSourceTitle', { locale: LOCALE_LABELS[sourceLocale] ?? sourceLocale }))
       return null
     }
@@ -215,13 +298,13 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sourceLocale,
-        title: src.title.trim(),
-        description: src.description.trim(),
+        titles: src.titles,
+        entries: src.entries.filter((e) => e.content.trim()),
         targetLocales,
       }),
     })
     if (!res.ok) throw new Error(await extractError(res, t('translateFailed')))
-    return (await res.json()) as Record<string, { title: string; description: string }>
+    return (await res.json()) as Record<string, { titles: string[]; entries: EntryDraft[] }>
   }
 
   async function handleTranslateAll() {
@@ -234,7 +317,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
       setContents((prev) => {
         const next = { ...prev }
         for (const [locale, val] of Object.entries(result)) {
-          next[locale] = { title: val.title, description: val.description }
+          next[locale] = { titles: val.titles, entries: val.entries }
         }
         return next
       })
@@ -255,7 +338,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
       if (val) {
         setContents((prev) => ({
           ...prev,
-          [selectedLocale]: { title: val.title, description: val.description },
+          [selectedLocale]: { titles: val.titles, entries: val.entries },
         }))
       }
     } catch (err) {
@@ -268,8 +351,8 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
   // ── Save ──────────────────────────────────────────────────────────────────
 
   async function handleSave() {
-    const srcContent = contents[sourceLocale]
-    if (!srcContent?.title?.trim()) {
+    const srcContent = getContent(sourceLocale)
+    if (srcContent.titles.length === 0) {
       setFormError(t('titleRequired', { locale: LOCALE_LABELS[sourceLocale] ?? sourceLocale }))
       return
     }
@@ -277,8 +360,12 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
     setFormError('')
     try {
       const translations = Object.entries(contents)
-        .filter(([, v]) => v.title.trim() || v.description.trim())
-        .map(([locale, v]) => ({ locale, title: v.title, description: v.description }))
+        .filter(([, v]) => v.titles.length > 0 || v.entries.some((e) => e.content.trim()))
+        .map(([locale, v]) => ({
+          locale,
+          titles: v.titles,
+          entries: v.entries.filter((e) => e.content.trim()),
+        }))
 
       if (editingCard) {
         const newImageUrl = imageFile ? await uploadImage(editingCard.id) : imageUrl
@@ -341,20 +428,20 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
   // ── Grid display helpers ──────────────────────────────────────────────────
 
-  function cardTitle(card: NovelCard) {
-    return (
-      card.translations.find((tr) => tr.locale === sourceLocale)?.title ??
-      card.translations[0]?.title ??
-      t('noTitle')
-    )
+  function displayTranslation(card: NovelCard): CardTranslation | undefined {
+    return card.translations.find((tr) => tr.locale === sourceLocale) ?? card.translations[0]
   }
 
-  function cardDesc(card: NovelCard) {
-    const desc =
-      card.translations.find((tr) => tr.locale === sourceLocale)?.description ??
-      card.translations[0]?.description ??
-      ''
-    return desc.length > 50 ? `${desc.slice(0, 50)}…` : desc
+  function cardTitle(card: NovelCard) {
+    return displayTranslation(card)?.titles[0] ?? t('noTitle')
+  }
+
+  function aliasCount(card: NovelCard) {
+    return Math.max(0, (displayTranslation(card)?.titles.length ?? 0) - 1)
+  }
+
+  function entryCount(card: NovelCard) {
+    return displayTranslation(card)?.entries.length ?? 0
   }
 
   function cardImgSrc(card: NovelCard) {
@@ -371,7 +458,9 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  const hasSourceContent = !!(contents[sourceLocale]?.title?.trim())
+  const hasSourceContent = getContent(sourceLocale).titles.length > 0
+  const currentEntries = getContent(selectedLocale).entries
+  const entriesFull = currentEntries.length >= MAX_ENTRIES
 
   return (
     <div className={styles.section}>
@@ -400,7 +489,10 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
 
                   <div className={styles.cardBody}>
                     <p className={styles.cardTitle}>{cardTitle(card)}</p>
-                    <p className={styles.cardDesc}>{cardDesc(card)}</p>
+                    {aliasCount(card) > 0 && (
+                      <p className={styles.cardAliasCount}>{t('aliasCountLabel', { count: aliasCount(card) })}</p>
+                    )}
+                    <p className={styles.cardEntryCount}>{t('entryCountLabel', { count: entryCount(card) })}</p>
                     <div className={styles.dots}>
                       {availableLocales.map((loc) => (
                         <span
@@ -508,7 +600,7 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                       key={loc}
                       type="button"
                       className={`${styles.localeTab}${selectedLocale === loc ? ` ${styles.localeTabActive}` : ''}`}
-                      onClick={() => setSelectedLocale(loc)}
+                      onClick={() => { setSelectedLocale(loc); setTagInput('') }}
                     >
                       <span className={styles.tabIcon}>{statusIcon(loc)}</span>
                       {LOCALE_LABELS[loc] ?? loc}
@@ -517,31 +609,83 @@ export default function CardManager({ novelId, sourceLocale, availableLocales }:
                 </div>
 
                 <div className={styles.contentArea}>
+                  {/* Titles / aliases tag input */}
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      {t('titleLabel')} {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
-                      <span className={styles.formNote}>{t('titleHint')}</span>
+                      {t('titlesLabel')} {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
                     </label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={contents[selectedLocale]?.title ?? ''}
-                      maxLength={50}
-                      placeholder={selectedLocale === sourceLocale ? t('titlePlaceholderSource') : t('inputOrTranslate')}
-                      onChange={(e) => setContent(selectedLocale, 'title', e.target.value)}
-                    />
+                    <div className={styles.tagInputBox}>
+                      {getContent(selectedLocale).titles.map((title, i) => (
+                        <span key={i} className={styles.tag}>
+                          {title}
+                          <button
+                            type="button"
+                            className={styles.tagRemove}
+                            onClick={() => removeTitle(selectedLocale, i)}
+                            aria-label={t('delete')}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        type="text"
+                        className={styles.tagInput}
+                        value={tagInput}
+                        placeholder={t('titlesPlaceholder')}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={handleTagKeyDown}
+                        onBlur={() => { if (tagInput.trim()) { addTitle(selectedLocale, tagInput); setTagInput('') } }}
+                      />
+                    </div>
+                    <p className={styles.formNote}>{t('titlesHint')}</p>
                   </div>
+
+                  {/* Entries list */}
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      {t('descLabel')} {selectedLocale === sourceLocale && <span className={styles.req}>*</span>}
-                    </label>
-                    <textarea
-                      className={styles.formTextarea}
-                      value={contents[selectedLocale]?.description ?? ''}
-                      rows={4}
-                      placeholder={selectedLocale === sourceLocale ? t('descPlaceholderSource') : t('inputOrTranslate')}
-                      onChange={(e) => setContent(selectedLocale, 'description', e.target.value)}
-                    />
+                    <label className={styles.formLabel}>{t('entriesLabel')}</label>
+                    <div className={styles.entryList}>
+                      {currentEntries.map((entry, i) => (
+                        <div key={i} className={styles.entryRow}>
+                          <div className={styles.entryHeader}>
+                            <span>{t('entryFromPrefix')}</span>
+                            <input
+                              type="number"
+                              min={1}
+                              className={styles.entryChapterInput}
+                              value={entry.fromChapter}
+                              onChange={(e) => updateEntry(selectedLocale, i, 'fromChapter', e.target.value)}
+                            />
+                            <span>{t('entryFromSuffix')}</span>
+                          </div>
+                          <div className={styles.entryInputBox}>
+                            <input
+                              type="text"
+                              className={styles.entryInput}
+                              value={entry.content}
+                              placeholder={selectedLocale === sourceLocale ? t('entryContentPlaceholder') : t('inputOrTranslate')}
+                              onChange={(e) => updateEntry(selectedLocale, i, 'content', e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              className={styles.entryRemove}
+                              onClick={() => removeEntry(selectedLocale, i)}
+                              aria-label={t('delete')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.btnAddEntry}
+                      onClick={() => addEntry(selectedLocale)}
+                      disabled={entriesFull}
+                    >
+                      {entriesFull ? t('maxEntriesReached') : t('addEntry')}
+                    </button>
                   </div>
                 </div>
 

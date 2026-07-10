@@ -13,31 +13,40 @@ export default async function ChapterPage({
   setRequestLocale(locale)
   const t = await getTranslations('reader')
 
-  const [chapter, { userId }, novelCards] = await Promise.all([
-    prisma.chapter.findFirst({
-      where: { id: chapterId, novelId: id },
-      include: {
-        novel: {
-          select: {
-            title: true,
-            isAdult: true,
-            translations: { select: { locale: true, title: true } },
-          },
+  const chapter = await prisma.chapter.findFirst({
+    where: { id: chapterId, novelId: id },
+    include: {
+      novel: {
+        select: {
+          title: true,
+          isAdult: true,
+          translations: { select: { locale: true, title: true } },
         },
-        translations: { where: { status: 'published' }, select: { locale: true, title: true, content: true } },
       },
-    }),
+      translations: { where: { status: 'published' }, select: { locale: true, title: true, content: true } },
+    },
+  })
+
+  if (!chapter) notFound()
+
+  const [{ userId }, novelCards] = await Promise.all([
     auth(),
     prisma.novelCard.findMany({
       where: { novelId: id, isActive: true },
       include: {
-        translations: { where: { locale, status: 'published' } },
+        translations: {
+          where: { locale, status: 'published' },
+          include: {
+            entries: {
+              where: { fromChapter: { lte: chapter.order } },
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'asc' },
     }),
   ])
-
-  if (!chapter) notFound()
 
   const chTr = chapter.translations.find((tr) => tr.locale === locale)
   if (!chTr) notFound()
@@ -97,11 +106,11 @@ export default async function ChapterPage({
   // Map raw cards to the flat CardData shape ReaderClient expects.
   // Only include cards that have a published translation in the reading locale.
   const cards = novelCards
-    .filter((c) => c.translations.length > 0)
+    .filter((c) => c.translations.length > 0 && c.translations[0].titles.length > 0)
     .map((c) => ({
       id: c.id,
-      title: c.translations[0].title,
-      description: c.translations[0].description,
+      titles: c.translations[0].titles,
+      entries: c.translations[0].entries.map((e) => ({ content: e.content })),
       imageUrl: c.imageUrl,
     }))
 

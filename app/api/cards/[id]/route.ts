@@ -18,7 +18,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const { isActive, imageUrl, translations } = body as {
       isActive?: boolean
       imageUrl?: string
-      translations?: { locale: string; title: string; description: string }[]
+      translations?: {
+        locale: string
+        titles: string[]
+        entries: { content: string; fromChapter: number }[]
+      }[]
     }
 
     // update without include — avoids implicit transaction in Neon HTTP mode
@@ -31,28 +35,50 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     })
 
     if (translations && translations.length > 0) {
-      for (const t of translations.filter((t) => t.title.trim() || t.description.trim())) {
-        await prisma.novelCardTranslation.upsert({
+      const trs = translations.filter(
+        (t) => t.titles.some((title) => title.trim()) || t.entries.some((e) => e.content.trim())
+      )
+      for (const t of trs) {
+        const titles = t.titles.map((title) => title.trim()).filter(Boolean)
+        const translation = await prisma.novelCardTranslation.upsert({
           where: { cardId_locale: { cardId: params.id, locale: t.locale } },
           create: {
             cardId: params.id,
             locale: t.locale,
-            title: t.title.trim(),
-            description: t.description.trim(),
+            titles,
             status: 'published',
           },
           update: {
-            title: t.title.trim(),
-            description: t.description.trim(),
+            titles,
             status: 'published',
           },
         })
+
+        // Entries are replaced wholesale — order is derived from array position,
+        // preserving whatever order the client kept after additions/deletions.
+        await prisma.novelCardEntry.deleteMany({ where: { translationId: translation.id } })
+        const entries = t.entries.filter((e) => e.content.trim())
+        for (let i = 0; i < entries.length; i++) {
+          await prisma.novelCardEntry.create({
+            data: {
+              translationId: translation.id,
+              content: entries[i].content.trim(),
+              fromChapter: entries[i].fromChapter,
+              order: i + 1,
+            },
+          })
+        }
       }
     }
 
     const refreshed = await prisma.novelCard.findUnique({
       where: { id: params.id },
-      include: { translations: { orderBy: { locale: 'asc' } } },
+      include: {
+        translations: {
+          orderBy: { locale: 'asc' },
+          include: { entries: { orderBy: { order: 'asc' } } },
+        },
+      },
     })
     return NextResponse.json(refreshed)
   } catch (err) {

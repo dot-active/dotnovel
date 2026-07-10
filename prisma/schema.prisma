@@ -50,18 +50,30 @@ model NovelCard {
 }
 
 model NovelCardTranslation {
-  id          String    @id @default(cuid())
-  cardId      String
-  card        NovelCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  locale      String
-  title       String
-  description String    @db.Text
-  status      String    @default("draft")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String           @id @default(cuid())
+  cardId    String
+  card      NovelCard        @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  locale    String
+  titles    String[]
+  status    String           @default("draft")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  entries   NovelCardEntry[]
 
   @@unique([cardId, locale])
   @@map("novel_card_translations")
+}
+
+model NovelCardEntry {
+  id            String               @id @default(cuid())
+  translationId String
+  translation   NovelCardTranslation @relation(fields: [translationId], references: [id], onDelete: Cascade)
+  content       String               @db.Text
+  fromChapter   Int
+  order         Int
+  createdAt     DateTime             @default(now())
+
+  @@map("novel_card_entries")
 }
 
 model Category {
