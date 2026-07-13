@@ -1,3 +1,33 @@
+.statsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.statLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
 .titleRow {
   display: flex;
   align-items: center;
@@ -58,6 +88,40 @@
   text-decoration: underline;
 }
 
+.searchInput {
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  width: 180px;
+}
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.bulkCount {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.bulkConfirmText {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .tableWrap {
   overflow-x: auto;
 }
@@ -74,7 +138,7 @@
 
 .table th {
   text-align: left;
-  padding: 10px 14px;
+  padding: 12px 14px;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -85,11 +149,16 @@
   white-space: nowrap;
 }
 
+.thCheckbox {
+  width: 32px;
+}
+
 .table td {
-  padding: 10px 14px;
+  padding: 14px;
   color: var(--color-text-secondary);
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
+  line-height: 1.6;
 }
 
 .table tr:last-child td {
@@ -98,21 +167,49 @@
 
 .row {}
 
+.rowDeleted {
+  background: var(--color-bg);
+}
+
 .rowDeleted td {
-  opacity: 0.45;
+  opacity: 0.55;
 }
 
 .tdContent {
-  max-width: 280px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 360px;
+  min-width: 240px;
   color: var(--color-text-primary) !important;
+}
+
+.replyTag {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
 }
 
 .deletedText {
   font-style: italic;
   color: var(--color-text-muted) !important;
+}
+
+.userName {
+  color: var(--color-text-primary);
+}
+
+.anonUser {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+}
+
+.anonTag {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  padding: 0 4px;
 }
 
 .tdMono {
@@ -147,14 +244,20 @@
   align-items: center;
 }
 
-.statusNormal {
-  color: #16a34a;
+.btnRestore {
   font-size: 0.8125rem;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
 
-.statusDeleted {
-  color: #9ca3af;
-  font-size: 0.8125rem;
+.btnRestore:hover:not(:disabled) {
+  border-color: var(--color-accent);
 }
 
 .btnDanger {

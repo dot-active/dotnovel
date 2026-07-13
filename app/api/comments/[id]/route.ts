@@ -17,7 +17,7 @@ export async function DELETE(
 
   const user = await currentUser()
   const isAdmin = user?.publicMetadata?.role === 'admin'
-  const isCommentAuthor = comment.authorId === userId
+  const isCommentAuthor = comment.userId !== null && comment.userId === userId
   const isNovelAuthor = comment.chapter.novel.authorId === userId
 
   if (!isCommentAuthor && !isAdmin && !isNovelAuthor) {

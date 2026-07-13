@@ -47,7 +47,8 @@ export default async function AuthorCommentsPage({
           select: {
             id: true,
             content: true,
-            authorId: true,
+            userId: true,
+            nickname: true,
             paragraphIndex: true,
             isReadByAuthor: true,
             createdAt: true,

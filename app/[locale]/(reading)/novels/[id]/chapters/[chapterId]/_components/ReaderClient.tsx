@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { Link } from '@/i18n/navigation'
 import ParagraphComments from './ParagraphComments'
 import ViewTracker from './ViewTracker'
@@ -151,7 +153,7 @@ export default function ReaderClient({
           onClick={toggleSettings}
           aria-label={t('settingsAria')}
         >
-          ⚙
+          <FontAwesomeIcon icon={faGear} />
         </button>
       </header>
 

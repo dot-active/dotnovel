@@ -7,7 +7,8 @@ import styles from '../page.module.css'
 interface CommentItem {
   id: string
   content: string
-  authorId: string
+  userId: string | null
+  nickname: string | null
   paragraphIndex: number
   isReadByAuthor: boolean
   createdAt: string
@@ -61,13 +62,13 @@ function CommentRow({
   chapterId: string
   onDelete: (id: string) => void
 }) {
-  const [name, setName] = useState<string>('…')
+  const [name, setName] = useState<string>(comment.userId ? '…' : (comment.nickname || '匿名用户'))
   const [deleting, setDeleting] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
   useEffect(() => {
-    fetchUser(comment.authorId).then((u) => setName(displayName(u)))
-  }, [comment.authorId])
+    if (comment.userId) fetchUser(comment.userId).then((u) => setName(displayName(u)))
+  }, [comment.userId])
 
   async function handleDelete() {
     setDeleting(true)

@@ -168,7 +168,6 @@ model TranslationRequest {
 model Comment {
   id               String    @id @default(cuid())
   content          String    @db.Text
-  authorId         String
   chapterId        String
   chapter          Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   paragraphIndex   Int
@@ -180,6 +179,12 @@ model Comment {
   updatedAt        DateTime  @updatedAt
   isDeleted        Boolean   @default(false)
 
+  // 用户身份（二选一）：登录用户存 userId，匿名用户存 nickname（可为空）
+  userId           String?
+  nickname         String?
+  ipAddress        String?
+
+  @@index([chapterId, paragraphIndex])
   @@map("comments")
 }
 

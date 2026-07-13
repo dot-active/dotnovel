@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import styles from './ParagraphComments.module.css'
 
 interface CommentData {
   id: string
   content: string
-  authorId: string
+  userId: string | null
+  nickname: string | null
   paragraphIndex: number
   parentId: string | null
   createdAt: string
@@ -66,8 +69,8 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    fetchUser(comment.authorId).then(setUserInfo)
-  }, [comment.authorId])
+    if (comment.userId) fetchUser(comment.userId).then(setUserInfo)
+  }, [comment.userId])
 
   const indentLevel = Math.min(depth, 3)
 
@@ -77,8 +80,8 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
     onDeleted(comment.id)
   }
 
-  const name = userInfo ? displayName(userInfo) : '…'
-  const avatar = userInfo?.imageUrl
+  const name = comment.userId ? (userInfo ? displayName(userInfo) : '…') : (comment.nickname || '匿名用户')
+  const avatar = comment.userId ? userInfo?.imageUrl : null
 
   return (
     <span className={styles.commentNode} style={{ '--indent': indentLevel } as React.CSSProperties}>
@@ -87,11 +90,11 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
           {avatar ? (
             <img src={avatar} alt={name} className={styles.avatar} />
           ) : (
-            <span className={styles.avatarFallback}>{name[0]}</span>
+            <span className={styles.avatarDefault} aria-hidden="true" />
           )}
           <span className={styles.authorName}>{name}</span>
           <span className={styles.commentTime}>{formatTime(comment.createdAt)}</span>
-          {currentUserId === comment.authorId && !comment.isDeleted && (
+          {currentUserId && currentUserId === comment.userId && !comment.isDeleted && (
             <button
               className={styles.deleteBtn}
               onClick={handleDelete}
@@ -150,18 +153,22 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   const [loading, setLoading] = useState(false)
   const [replyTo, setReplyTo] = useState<{ parentId: string; authorName: string } | null>(null)
   const [inputValue, setInputValue] = useState('')
+  const [nicknameValue, setNicknameValue] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const rootRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     if (!open) return
-    function handleClickOutside(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = prevOverflow
+    }
   }, [open])
 
   async function loadComments() {
@@ -188,13 +195,9 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   }
 
   const handleReply = useCallback((parentId: string, authorName: string) => {
-    if (!currentUserId) {
-      alert('请登录后评论')
-      return
-    }
     setReplyTo({ parentId, authorName })
     setInputValue('')
-  }, [currentUserId])
+  }, [])
 
   function handleDeleted(id: string) {
     function markDeleted(list: CommentData[]): CommentData[] {
@@ -207,12 +210,8 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   }
 
   async function handleSubmit() {
-    if (!currentUserId) {
-      alert('请登录后评论')
-      return
-    }
     const text = inputValue.trim()
-    if (!text) return
+    if (!text || text.length > 500) return
 
     setSubmitting(true)
     const res = await fetch('/api/comments', {
@@ -223,6 +222,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
         chapterId,
         paragraphIndex,
         parentId: replyTo?.parentId ?? null,
+        nickname: currentUserId ? undefined : nicknameValue.trim() || undefined,
       }),
     })
 
@@ -256,56 +256,84 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
         {count > 0 && <span className={styles.triggerCount}>{count}</span>}
       </button>
 
-      {open && (
-        <span className={styles.panel}>
-          {loading && <span className={styles.loading}>加载中…</span>}
+      {open && createPortal(
+        <div
+          className={styles.overlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false)
+          }}
+        >
+          <div className={styles.dialog} role="dialog" aria-modal="true" aria-label="评论">
+            <div className={styles.dialogHeader}>
+              <span className={styles.dialogTitle}>评论{count > 0 ? ` (${count})` : ''}</span>
+              <button className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="关闭">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </div>
 
-          {!loading && comments.length === 0 && (
-            <span className={styles.empty}>暂无评论，来发表第一条吧</span>
-          )}
+            <div className={styles.dialogBody}>
+              {loading && <span className={styles.loading}>加载中…</span>}
 
-          {comments.map((c) => (
-            <CommentNode
-              key={c.id}
-              comment={c}
-              depth={0}
-              currentUserId={currentUserId}
-              chapterId={chapterId}
-              paragraphIndex={paragraphIndex}
-              onReply={handleReply}
-              onDeleted={handleDeleted}
-            />
-          ))}
+              {!loading && comments.length === 0 && (
+                <span className={styles.empty}>暂无评论，来发表第一条吧</span>
+              )}
 
-          <span className={styles.inputArea}>
-            {replyTo && (
-              <span className={styles.replyHint}>
-                回复 @{replyTo.authorName}
-                <button className={styles.cancelReply} onClick={() => setReplyTo(null)}>✕</button>
-              </span>
-            )}
-            {currentUserId ? (
-              <>
-                <textarea
-                  className={styles.textarea}
-                  placeholder={replyTo ? `回复 @${replyTo.authorName}…` : '写下你的评论…'}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  rows={2}
+              {comments.map((c) => (
+                <CommentNode
+                  key={c.id}
+                  comment={c}
+                  depth={0}
+                  currentUserId={currentUserId}
+                  chapterId={chapterId}
+                  paragraphIndex={paragraphIndex}
+                  onReply={handleReply}
+                  onDeleted={handleDeleted}
                 />
+              ))}
+            </div>
+
+            <div className={styles.inputArea}>
+              {replyTo && (
+                <span className={styles.replyHint}>
+                  回复 @{replyTo.authorName}
+                  <button className={styles.cancelReply} onClick={() => setReplyTo(null)}>✕</button>
+                </span>
+              )}
+              {!currentUserId && (
+                <span className={styles.nicknameField}>
+                  <label className={styles.fieldLabel}>昵称（选填）</label>
+                  <input
+                    type="text"
+                    className={styles.nicknameInput}
+                    placeholder="不填将显示为「匿名用户」"
+                    value={nicknameValue}
+                    onChange={(e) => setNicknameValue(e.target.value)}
+                    maxLength={30}
+                  />
+                </span>
+              )}
+              <textarea
+                className={styles.textarea}
+                placeholder={replyTo ? `回复 @${replyTo.authorName}…` : '写下你的评论…'}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value.slice(0, 500))}
+                rows={2}
+                maxLength={500}
+              />
+              <span className={styles.inputFooter}>
+                <span className={styles.charCount}>{inputValue.length}/500</span>
                 <button
                   className={styles.submitBtn}
                   onClick={handleSubmit}
                   disabled={submitting || !inputValue.trim()}
                 >
-                  {submitting ? '提交中…' : '发表'}
+                  {submitting ? '提交中…' : '发送留言'}
                 </button>
-              </>
-            ) : (
-              <span className={styles.loginHint}>请登录后评论</span>
-            )}
-          </span>
-        </span>
+              </span>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </span>
   )

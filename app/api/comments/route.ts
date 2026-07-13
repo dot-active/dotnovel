@@ -37,13 +37,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const { userId } = await auth()
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { content, chapterId, paragraphIndex, parentId } = body
+  const { content, chapterId, paragraphIndex, parentId, nickname } = body
 
   if (!content?.trim() || !chapterId || paragraphIndex === undefined) {
-    return NextResponse.json({ error: 'content, chapterId, paragraphIndex required' }, { status: 400 })
+    return NextResponse.json({ error: '内容不能为空' }, { status: 400 })
+  }
+
+  if (content.trim().length > 500) {
+    return NextResponse.json({ error: '留言不能超过500字' }, { status: 400 })
   }
 
   const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } })
@@ -54,13 +57,19 @@ export async function POST(req: Request) {
     if (!parent) return NextResponse.json({ error: 'Parent comment not found' }, { status: 404 })
   }
 
+  const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    ?? req.headers.get('x-real-ip')
+    ?? 'unknown'
+
   const comment = await prisma.comment.create({
     data: {
       content: content.trim(),
-      authorId: userId,
       chapterId,
       paragraphIndex: parseInt(paragraphIndex, 10),
       parentId: parentId ?? null,
+      userId: userId ?? null,
+      nickname: !userId ? (typeof nickname === 'string' ? nickname.trim() || null : null) : null,
+      ipAddress: userId ? null : ipAddress,
     },
   })
 
