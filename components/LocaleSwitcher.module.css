@@ -74,9 +74,7 @@
 .optionActive {
   color: var(--color-accent);
   font-weight: 500;
-  background: #fff5f5;
+
 }
 
-.optionActive:hover {
-  background: #ffe8e8;
-}
+

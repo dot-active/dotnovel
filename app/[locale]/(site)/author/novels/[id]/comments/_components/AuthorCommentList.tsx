@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import styles from '../page.module.css'
 
@@ -34,18 +35,18 @@ const userCache = new Map<string, UserInfo>()
 async function fetchUser(userId: string): Promise<UserInfo> {
   if (userCache.has(userId)) return userCache.get(userId)!
   const res = await fetch(`/api/users/${userId}`)
-  if (!res.ok) return { id: userId, username: null, firstName: '用户', lastName: null }
+  if (!res.ok) return { id: userId, username: null, firstName: null, lastName: null }
   const data = await res.json()
   userCache.set(userId, data)
   return data
 }
 
-function displayName(u: UserInfo) {
-  return u.username ?? ([u.firstName, u.lastName].filter(Boolean).join(' ') || '匿名')
+function displayName(u: UserInfo, anonymousLabel: string) {
+  return u.username ?? ([u.firstName, u.lastName].filter(Boolean).join(' ') || anonymousLabel)
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleDateString('zh-CN', {
+function formatTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit',
   })
@@ -62,13 +63,15 @@ function CommentRow({
   chapterId: string
   onDelete: (id: string) => void
 }) {
-  const [name, setName] = useState<string>(comment.userId ? '…' : (comment.nickname || '匿名用户'))
+  const t = useTranslations('author')
+  const locale = useLocale()
+  const [name, setName] = useState<string>(comment.userId ? '…' : (comment.nickname || t('anonymousUser')))
   const [deleting, setDeleting] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
   useEffect(() => {
-    if (comment.userId) fetchUser(comment.userId).then((u) => setName(displayName(u)))
-  }, [comment.userId])
+    if (comment.userId) fetchUser(comment.userId).then((u) => setName(displayName(u, t('anonymous'))))
+  }, [comment.userId, t])
 
   async function handleDelete() {
     setDeleting(true)
@@ -80,40 +83,37 @@ function CommentRow({
     <div className={styles.commentRow}>
       <div className={styles.commentMeta}>
         <span className={styles.commentAuthor}>{name}</span>
-        {comment.parentId && <span className={styles.replyTag}>回复</span>}
-        <span className={styles.commentPara}>第{comment.paragraphIndex + 1}段</span>
-        <span className={styles.commentTime}>{formatTime(comment.createdAt)}</span>
+        {comment.parentId && <span className={styles.replyTag}>{t('reply')}</span>}
+        <Link href={`/novels/${novelId}/chapters/${chapterId}#para-${comment.paragraphIndex}`}
+          className={styles.commentPara}>{t('paragraphLabel', { n: comment.paragraphIndex + 1 })}</Link>
+        <span className={styles.commentTime}>{formatTime(comment.createdAt, locale)}</span>
       </div>
-      <p className={styles.commentContent}>{comment.content}</p>
-      <div className={styles.commentActions}>
-        <Link
-          href={`/novels/${novelId}/chapters/${chapterId}#para-${comment.paragraphIndex}`}
-          className={styles.btnGoto}
-        >
-          → 前往段落
-        </Link>
-        {confirming ? (
-          <>
+      <div className={styles.contentRow}>
+        <p className={styles.commentContent}>{comment.content}</p>
+        <div className={styles.commentActions}>
+          {confirming ? (
+            <>
+              <button
+                className={styles.btnConfirm}
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {t('confirmDeleteComment')}
+              </button>
+              <button className={styles.btnCancel} onClick={() => setConfirming(false)}>
+                {t('cancelDelete')}
+              </button>
+            </>
+          ) : (
             <button
-              className={styles.btnConfirm}
-              onClick={handleDelete}
+              className={styles.btnDelete}
+              onClick={() => setConfirming(true)}
               disabled={deleting}
             >
-              确认删除
+              {t('deleteComment')}
             </button>
-            <button className={styles.btnCancel} onClick={() => setConfirming(false)}>
-              取消
-            </button>
-          </>
-        ) : (
-          <button
-            className={styles.btnDelete}
-            onClick={() => setConfirming(true)}
-            disabled={deleting}
-          >
-            删除
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
@@ -126,6 +126,7 @@ export default function AuthorCommentList({
   chapters: ChapterWithComments[]
   novelId: string
 }) {
+  const t = useTranslations('author')
   const [commentMap, setCommentMap] = useState<Record<string, CommentItem[]>>(
     Object.fromEntries(chapters.map((c) => [c.id, c.comments]))
   )
@@ -145,8 +146,8 @@ export default function AuthorCommentList({
         return (
           <div key={chapter.id} className={styles.chapterGroup}>
             <h2 className={styles.chapterTitle}>
-              第{chapter.order}章 {chapter.title}
-              <span className={styles.chapterCount}>({comments.length} 条留言)</span>
+              {t('chapterHeading', { order: chapter.order, title: chapter.title })}
+              <span className={styles.chapterCount}>{t('commentsCount', { count: comments.length })}</span>
             </h2>
             <div className={styles.commentList}>
               {comments.map((c) => (

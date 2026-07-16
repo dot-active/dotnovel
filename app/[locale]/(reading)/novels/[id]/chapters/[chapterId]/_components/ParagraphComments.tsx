@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslations, useLocale } from 'next-intl'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -27,13 +28,13 @@ interface UserInfo {
   imageUrl: string
 }
 
-function formatTime(iso: string) {
+function formatTime(iso: string, locale: string) {
   const d = new Date(iso)
-  return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-function displayName(u: UserInfo) {
-  return u.username ?? ([u.firstName, u.lastName].filter(Boolean).join(' ') || '匿名')
+function displayName(u: UserInfo, anonymousLabel: string) {
+  return u.username ?? ([u.firstName, u.lastName].filter(Boolean).join(' ') || anonymousLabel)
 }
 
 // Fetches Clerk user info from public API
@@ -44,7 +45,7 @@ async function fetchUser(userId: string): Promise<UserInfo> {
   // Use internal API route to get user info
   const res = await fetch(`/api/users/${userId}`)
   if (!res.ok) {
-    const fallback: UserInfo = { id: userId, username: null, firstName: '用户', lastName: null, imageUrl: '' }
+    const fallback: UserInfo = { id: userId, username: null, firstName: null, lastName: null, imageUrl: '' }
     userCache.set(userId, fallback)
     return fallback
   }
@@ -64,6 +65,8 @@ interface CommentNodeProps {
 }
 
 function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex, onReply, onDeleted }: CommentNodeProps) {
+  const t = useTranslations('reader.comments')
+  const locale = useLocale()
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [expanded, setExpanded] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -80,7 +83,7 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
     onDeleted(comment.id)
   }
 
-  const name = comment.userId ? (userInfo ? displayName(userInfo) : '…') : (comment.nickname || '匿名用户')
+  const name = comment.userId ? (userInfo ? displayName(userInfo, t('anonymous')) : '…') : (comment.nickname || t('anonymousUser'))
   const avatar = comment.userId ? userInfo?.imageUrl : null
 
   return (
@@ -93,19 +96,19 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
             <span className={styles.avatarDefault} aria-hidden="true" />
           )}
           <span className={styles.authorName}>{name}</span>
-          <span className={styles.commentTime}>{formatTime(comment.createdAt)}</span>
+          <span className={styles.commentTime}>{formatTime(comment.createdAt, locale)}</span>
           {currentUserId && currentUserId === comment.userId && !comment.isDeleted && (
             <button
               className={styles.deleteBtn}
               onClick={handleDelete}
               disabled={deleting}
             >
-              删除
+              {t('delete')}
             </button>
           )}
         </span>
         {comment.isDeleted ? (
-          <span className={styles.deletedPlaceholder}>该评论已删除</span>
+          <span className={styles.deletedPlaceholder}>{t('deletedPlaceholder')}</span>
         ) : (
           <span className={styles.commentContent}>{comment.content}</span>
         )}
@@ -114,7 +117,7 @@ function CommentNode({ comment, depth, currentUserId, chapterId, paragraphIndex,
             className={styles.replyBtn}
             onClick={() => onReply(comment.id, name)}
           >
-            回复
+            {t('reply')}
           </button>
         )}
       </span>
@@ -147,6 +150,7 @@ interface Props {
 }
 
 export default function ParagraphComments({ chapterId, paragraphIndex, currentUserId, initialCount, show }: Props) {
+  const t = useTranslations('reader.comments')
   const [open, setOpen] = useState(false)
   const [comments, setComments] = useState<CommentData[]>([])
   const [count, setCount] = useState<number>(initialCount)
@@ -251,7 +255,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
 
   return (
     <span className={styles.root} ref={rootRef}>
-      <button className={`${styles.trigger} ${show || open || count > 0 ? styles.triggerVisible : ''}`} onClick={handleToggle} title="查看评论">
+      <button className={`${styles.trigger} ${show || open || count > 0 ? styles.triggerVisible : ''}`} onClick={handleToggle} title={t('viewComments')}>
         <FontAwesomeIcon icon={faComment} className={styles.triggerIcon} />
         {count > 0 && <span className={styles.triggerCount}>{count}</span>}
       </button>
@@ -263,19 +267,19 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
             if (e.target === e.currentTarget) setOpen(false)
           }}
         >
-          <div className={styles.dialog} role="dialog" aria-modal="true" aria-label="评论">
+          <div className={styles.dialog} role="dialog" aria-modal="true" aria-label={t('title')}>
             <div className={styles.dialogHeader}>
-              <span className={styles.dialogTitle}>评论{count > 0 ? ` (${count})` : ''}</span>
-              <button className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="关闭">
+              <span className={styles.dialogTitle}>{t('title')}{count > 0 ? ` (${count})` : ''}</span>
+              <button className={styles.closeBtn} onClick={() => setOpen(false)} aria-label={t('close')}>
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </div>
 
             <div className={styles.dialogBody}>
-              {loading && <span className={styles.loading}>加载中…</span>}
+              {loading && <span className={styles.loading}>{t('loading')}</span>}
 
               {!loading && comments.length === 0 && (
-                <span className={styles.empty}>暂无评论，来发表第一条吧</span>
+                <span className={styles.empty}>{t('empty')}</span>
               )}
 
               {comments.map((c) => (
@@ -295,17 +299,17 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
             <div className={styles.inputArea}>
               {replyTo && (
                 <span className={styles.replyHint}>
-                  回复 @{replyTo.authorName}
+                  {t('replyingTo', { name: replyTo.authorName })}
                   <button className={styles.cancelReply} onClick={() => setReplyTo(null)}>✕</button>
                 </span>
               )}
               {!currentUserId && (
                 <span className={styles.nicknameField}>
-                  <label className={styles.fieldLabel}>昵称（选填）</label>
+                  <label className={styles.fieldLabel}>{t('nicknameLabel')}</label>
                   <input
                     type="text"
                     className={styles.nicknameInput}
-                    placeholder="不填将显示为「匿名用户」"
+                    placeholder={t('nicknamePlaceholder')}
                     value={nicknameValue}
                     onChange={(e) => setNicknameValue(e.target.value)}
                     maxLength={30}
@@ -314,7 +318,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
               )}
               <textarea
                 className={styles.textarea}
-                placeholder={replyTo ? `回复 @${replyTo.authorName}…` : '写下你的评论…'}
+                placeholder={replyTo ? t('inputPlaceholderReply', { name: replyTo.authorName }) : t('inputPlaceholder')}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value.slice(0, 500))}
                 rows={2}
@@ -327,7 +331,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
                   onClick={handleSubmit}
                   disabled={submitting || !inputValue.trim()}
                 >
-                  {submitting ? '提交中…' : '发送留言'}
+                  {submitting ? t('submitting') : t('submit')}
                 </button>
               </span>
             </div>

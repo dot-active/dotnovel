@@ -25,8 +25,8 @@ export default async function AuthorCommentsPage({
     return (
       <div className={styles.forbidden}>
         <h1 className={styles.forbiddenCode}>403</h1>
-        <p>您没有权限管理此小说的留言</p>
-        <Link href="/author/dashboard" className={styles.back}>← 返回仪表盘</Link>
+        <p>{t('noPermissionComments')}</p>
+        <Link href="/author/dashboard" className={styles.back}>{t('back')}</Link>
       </div>
     )
   }
@@ -75,10 +75,10 @@ export default async function AuthorCommentsPage({
     }))
 
   return (
-    <div className={styles.page}>
+    <div>
       <div className={styles.pageHeader}>
-        <Link href="/author/dashboard" className={styles.back}>{t('backToDashboard')}</Link>
         <h1 className={styles.title}>{t('commentsPageTitle', { title: novelTitle })}</h1>
+        <Link href="/author/dashboard" className={styles.back}>{t('back')}</Link>
       </div>
 
       {chaptersWithComments.length === 0 ? (
