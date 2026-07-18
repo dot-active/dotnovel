@@ -237,13 +237,20 @@
 }
 
 @media (max-width: 640px) {
-  .tableHeader,
   .tableRow {
-    grid-template-columns: 1fr 80px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .date,
+  .novelInfo {
+    flex-wrap: wrap;
+  }
+
   .actions {
+    width: 100%;
+  }
+
+  .date {
     display: none;
   }
 }

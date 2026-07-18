@@ -4,6 +4,38 @@ import { neon, types } from '@neondatabase/serverless'
 import * as fs from 'fs'
 import * as path from 'path'
 
+interface ClerkUser {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  username: string | null
+}
+
+async function getAuthorNameFromClerk(userId: string): Promise<string> {
+  const secretKey = process.env.CLERK_SECRET_KEY
+  if (!secretKey) return userId
+
+  try {
+    const response = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      console.warn(`  ⚠️  未能从 Clerk 获取用户 ${userId}，使用默认值`)
+      return userId
+    }
+
+    const user: ClerkUser = await response.json()
+    return user.first_name || user.username || userId
+  } catch (error) {
+    console.warn(`  ⚠️  Clerk API 错误：${error instanceof Error ? error.message : '未知错误'}`)
+    return userId
+  }
+}
+
 // Load .env.local and .env (Next.js convention) before anything else
 function loadEnvFiles() {
   for (const file of ['.env.local', '.env']) {
@@ -80,6 +112,12 @@ async function main() {
       const primaryLocale: string = locales['zh-CN'] ? 'zh-CN' : Object.keys(locales)[0] ?? 'zh-CN'
       const primaryLocaleData: any = locales[primaryLocale] ?? {}
 
+      // Get author name from Clerk if authorId is available
+      let authorName = novelData.author ?? novelFolder
+      if (novelData.authorId) {
+        authorName = await getAuthorNameFromClerk(novelData.authorId)
+      }
+
       // Collect all titles for deduplication lookup
       const allTitles = (Object.values(locales) as any[])
         .map(l => l.title)
@@ -107,7 +145,7 @@ async function main() {
         const novel = await prisma.novel.create({
           data: {
             title: primaryLocaleData.title ?? novelFolder,
-            author: novelData.author ?? novelFolder,
+            author: authorName,
             description: primaryLocaleData.description,
             authorId: novelData.authorId,
             coverUrl: novelData.coverUrl,
@@ -117,6 +155,7 @@ async function main() {
             status: novelData.novelStatus ?? 'ONGOING',
             publishStatus: novelData.publishStatus ?? 'published',
             sourceLocale: novelData.sourceLocale ?? primaryLocale,
+            writingLanguage: novelData.writingLanguage ?? primaryLocale,
           },
         })
 
@@ -149,7 +188,7 @@ async function main() {
 
         targetNovelId = novel.id
         createdNovels++
-        console.log(`  ✅ 创建小说 (id: ${novel.id})`)
+        console.log(`  ✅ 创建小说 (id: ${novel.id}, writingLanguage: ${novel.writingLanguage})`)
       } else {
         // ========================
         // UPDATE novel
@@ -162,8 +201,12 @@ async function main() {
         if (novelData.isFeatured !== undefined) updateData.isFeatured = novelData.isFeatured
         if (novelData.publishStatus !== undefined) updateData.publishStatus = novelData.publishStatus
         if (novelData.novelStatus !== undefined) updateData.status = novelData.novelStatus
-        if (novelData.author !== undefined) updateData.author = novelData.author
-        if (novelData.coverUrl !== undefined) updateData.coverUrl = novelData.coverUrl
+        if (novelData.authorId !== undefined) updateData.author = authorName
+        // Always update writingLanguage if present in JSON
+        if (novelData.writingLanguage !== undefined) {
+          updateData.writingLanguage = novelData.writingLanguage
+          console.log(`  📝 更新 writingLanguage: ${updateData.writingLanguage}`)
+        }
 
         if (Object.keys(updateData).length > 0) {
           await prisma.novel.update({ where: { id: targetNovelId }, data: updateData })
@@ -205,7 +248,8 @@ async function main() {
         }
 
         updatedNovels++
-        console.log(`  🔄 更新小说 (id: ${targetNovelId})`)
+        const updatedNovel = await prisma.novel.findUnique({ where: { id: targetNovelId } })
+        console.log(`  🔄 更新小说 (id: ${targetNovelId}, writingLanguage: ${updatedNovel?.writingLanguage})`)
       }
 
       // ========================

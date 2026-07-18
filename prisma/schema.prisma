@@ -22,6 +22,7 @@ model Novel {
   isFeatured          Boolean              @default(false)
   authorId            String?
   sourceLocale        String               @default("zh-CN")
+  writingLanguage     String               @default("zh-CN")
   viewCount           Int                  @default(0)
   favoriteCount       Int                  @default(0)
   createdAt           DateTime             @default(now())
