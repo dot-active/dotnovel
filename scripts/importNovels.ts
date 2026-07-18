@@ -154,8 +154,7 @@ async function main() {
             // novelStatus field: ONGOING | COMPLETED | HIATUS (enum)
             status: novelData.novelStatus ?? 'ONGOING',
             publishStatus: novelData.publishStatus ?? 'published',
-            sourceLocale: novelData.sourceLocale ?? primaryLocale,
-            writingLanguage: novelData.writingLanguage ?? primaryLocale,
+            sourceLocale: novelData.sourceLocale ?? novelData.writingLanguage ?? primaryLocale,
           },
         })
 
@@ -188,7 +187,7 @@ async function main() {
 
         targetNovelId = novel.id
         createdNovels++
-        console.log(`  ✅ 创建小说 (id: ${novel.id}, writingLanguage: ${novel.writingLanguage})`)
+        console.log(`  ✅ 创建小说 (id: ${novel.id}, sourceLocale: ${novel.sourceLocale})`)
       } else {
         // ========================
         // UPDATE novel
@@ -202,10 +201,13 @@ async function main() {
         if (novelData.publishStatus !== undefined) updateData.publishStatus = novelData.publishStatus
         if (novelData.novelStatus !== undefined) updateData.status = novelData.novelStatus
         if (novelData.authorId !== undefined) updateData.author = authorName
-        // Always update writingLanguage if present in JSON
-        if (novelData.writingLanguage !== undefined) {
-          updateData.writingLanguage = novelData.writingLanguage
-          console.log(`  📝 更新 writingLanguage: ${updateData.writingLanguage}`)
+        // Always update sourceLocale if writingLanguage or sourceLocale is present in JSON
+        if (novelData.sourceLocale !== undefined) {
+          updateData.sourceLocale = novelData.sourceLocale
+          console.log(`  📝 更新 sourceLocale: ${updateData.sourceLocale}`)
+        } else if (novelData.writingLanguage !== undefined) {
+          updateData.sourceLocale = novelData.writingLanguage
+          console.log(`  📝 更新 sourceLocale (from writingLanguage): ${updateData.sourceLocale}`)
         }
 
         if (Object.keys(updateData).length > 0) {
@@ -249,7 +251,7 @@ async function main() {
 
         updatedNovels++
         const updatedNovel = await prisma.novel.findUnique({ where: { id: targetNovelId } })
-        console.log(`  🔄 更新小说 (id: ${targetNovelId}, writingLanguage: ${updatedNovel?.writingLanguage})`)
+        console.log(`  🔄 更新小说 (id: ${targetNovelId}, sourceLocale: ${updatedNovel?.sourceLocale})`)
       }
 
       // ========================
