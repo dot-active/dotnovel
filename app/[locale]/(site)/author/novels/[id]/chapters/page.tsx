@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { auth } from '@clerk/nextjs/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
+import VolumeManager from './_components/VolumeManager'
 import styles from './page.module.css'
 
 const ALL_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] as const
@@ -33,11 +34,27 @@ export default async function AuthorChapterListPage({
           select: { locale: true, title: true },
         },
         chapters: {
+          where: { volumeId: null },
           orderBy: { order: 'asc' },
           include: {
             translations: {
               where: { locale: { in: [...ALL_LOCALES] } },
               select: { locale: true, title: true, status: true },
+            },
+          },
+        },
+        volumes: {
+          orderBy: { order: 'asc' },
+          include: {
+            translations: true,
+            chapters: {
+              orderBy: { order: 'asc' },
+              include: {
+                translations: {
+                  where: { locale: { in: [...ALL_LOCALES] } },
+                  select: { locale: true, title: true },
+                },
+              },
             },
           },
         },
@@ -65,6 +82,10 @@ export default async function AuthorChapterListPage({
       .map((r) => r.targetLocale)
   )
 
+  const hasVolumes = novel.volumes.length > 0
+  // Locales available for volume title editing (always include the source locale)
+  const volumeLocales = Array.from(new Set([novel.sourceLocale, ...novelLocales]))
+
   return (
     <div>
       <div className={styles.pageHeader}>
@@ -83,7 +104,7 @@ export default async function AuthorChapterListPage({
         </div>
       </div>
 
-      {novel.chapters.length === 0 ? (
+      {novel.chapters.length === 0 && !hasVolumes ? (
         <div className={styles.empty}>
           <p className={styles.emptyText}>{t('noChaptersYet')}</p>
           <Link href={`/author/novels/${id}/chapters/new`} className={styles.emptyBtn}>
@@ -91,67 +112,79 @@ export default async function AuthorChapterListPage({
           </Link>
         </div>
       ) : (
-        <div className={styles.list}>
-          <div className={styles.listHeader}>
-            <span className={styles.colOrder}>#</span>
-            <span className={styles.colTitle}>{t('chapterTitle')}</span>
-            <span className={styles.colLocales}>{t('languageVersions')}</span>
-            <span className={styles.colActions}>{t('actions')}</span>
-          </div>
-          {novel.chapters.map((chapter) => {
-            const displayTr =
-              chapter.translations.find((tr) => tr.locale === locale) ??
-              chapter.translations.find((tr) => tr.locale === novel.sourceLocale) ??
-              chapter.translations[0]
-
-            return (
-              <div key={chapter.id} className={styles.listRow}>
-                <span className={styles.colOrder}>{chapter.order}</span>
-                <Link
-                  href={`/author/novels/${id}/chapters/${chapter.id}/edit`}
-                  className={styles.chapterTitleLink}
-                >
-                  {displayTr?.title ?? chapter.title}
-                </Link>
-                <div className={styles.colLocales}>
-                  {novelLocales.map((loc) => {
-                    const chTr = chapter.translations.find((tr) => tr.locale === loc)
-                    const isProcessing = processingLocales.has(loc)
-                    const label = LOCALE_SHORT[loc] ?? loc
-
-                    if (isProcessing && !chTr) {
-                      return (
-                        <span key={loc} className={styles.badgeProcessing}>{label}</span>
-                      )
-                    }
-                    if (chTr?.status === 'published') {
-                      return (
-                        <span key={loc} className={styles.badgePublished}>{label}</span>
-                      )
-                    }
-                    if (chTr?.status === 'draft') {
-                      return (
-                        <span key={loc} className={styles.badgeDraft}>{label}</span>
-                      )
-                    }
-                    return (
-                      <span key={loc} className={styles.badgeNone}>{label}</span>
-                    )
-                  })}
-                </div>
-                <div className={styles.colActions}>
-                  <Link
-                    href={`/novels/${id}/chapters/${chapter.id}`}
-                    className={styles.editBtn}
-                    target="_blank"
-                  >
-                    {t('preview')}
-                  </Link>
-                </div>
+        <>
+          {novel.chapters.length > 0 && (
+            <div className={styles.list}>
+              <div className={styles.listHeader}>
+                <span className={styles.colOrder}>#</span>
+                <span className={styles.colTitle}>{t('chapterTitle')}</span>
+                <span className={styles.colLocales}>{t('languageVersions')}</span>
+                <span className={styles.colActions}>{t('actions')}</span>
               </div>
-            )
-          })}
-        </div>
+              {novel.chapters.map((chapter) => {
+                const displayTr =
+                  chapter.translations.find((tr) => tr.locale === locale) ??
+                  chapter.translations.find((tr) => tr.locale === novel.sourceLocale) ??
+                  chapter.translations[0]
+
+                return (
+                  <div key={chapter.id} className={styles.listRow}>
+                    <span className={styles.colOrder}>{chapter.order}</span>
+                    <Link
+                      href={`/author/novels/${id}/chapters/${chapter.id}/edit`}
+                      className={styles.chapterTitleLink}
+                    >
+                      {displayTr?.title ?? chapter.title}
+                    </Link>
+                    <div className={styles.colLocales}>
+                      {novelLocales.map((loc) => {
+                        const chTr = chapter.translations.find((tr) => tr.locale === loc)
+                        const isProcessing = processingLocales.has(loc)
+                        const label = LOCALE_SHORT[loc] ?? loc
+
+                        if (isProcessing && !chTr) {
+                          return (
+                            <span key={loc} className={styles.badgeProcessing}>{label}</span>
+                          )
+                        }
+                        if (chTr?.status === 'published') {
+                          return (
+                            <span key={loc} className={styles.badgePublished}>{label}</span>
+                          )
+                        }
+                        if (chTr?.status === 'draft') {
+                          return (
+                            <span key={loc} className={styles.badgeDraft}>{label}</span>
+                          )
+                        }
+                        return (
+                          <span key={loc} className={styles.badgeNone}>{label}</span>
+                        )
+                      })}
+                    </div>
+                    <div className={styles.colActions}>
+                      <Link
+                        href={`/novels/${id}/chapters/${chapter.id}`}
+                        className={styles.editBtn}
+                        target="_blank"
+                      >
+                        {t('preview')}
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          <VolumeManager
+            novelId={id}
+            volumes={novel.volumes}
+            sourceLocale={novel.sourceLocale}
+            currentLocale={locale}
+            availableLocales={volumeLocales}
+          />
+        </>
       )}
     </div>
   )

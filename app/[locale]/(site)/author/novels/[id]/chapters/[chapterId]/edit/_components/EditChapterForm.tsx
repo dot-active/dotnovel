@@ -25,6 +25,7 @@ interface ChapterTranslation {
 interface ChapterData {
   id: string
   novelId: string
+  volumeId: string | null
   title: string
   content: string
   order: number
@@ -38,15 +39,17 @@ interface Props {
   locale: string
   novelLocales: string[]
   autoTranslateLocales: string[]
+  volumes?: { id: string; title: string }[]
 }
 
-export default function EditChapterForm({ chapter, locale, novelLocales, autoTranslateLocales }: Props) {
+export default function EditChapterForm({ chapter, locale, novelLocales, autoTranslateLocales, volumes = [] }: Props) {
   const t = useTranslations('author.form')
   const tAuthor = useTranslations('author')
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [volumeId, setVolumeId] = useState(chapter.volumeId ?? '')
 
   const sourceTr = chapter.translations.find((tr) => tr.locale === chapter.sourceLocale)
   const [selectedLocale, setSelectedLocale] = useState(chapter.sourceLocale)
@@ -83,6 +86,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
       formData.set('browsingLocale', locale)
       formData.set('editLocale', selectedLocale)
       formData.set('publishStatus', publishStatus)
+      if (volumeId) formData.set('volumeId', volumeId)
       retranslate.forEach((loc) => formData.append('retranslateLocales', loc))
 
       const result = await updateChapter(formData)
@@ -204,6 +208,23 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
           <p className={styles.localeNote}>此语言版本尚未创建，保存后将新建翻译记录。</p>
         )}
       </div>
+
+      {volumes.length > 0 && (
+        <div className={styles.field}>
+          <label className={styles.label}>{t('volume_label')}</label>
+          <select
+            className={styles.statusSelect}
+            value={volumeId}
+            disabled={busy}
+            onChange={(e) => setVolumeId(e.target.value)}
+          >
+            <option value="">{t('volume_none')}</option>
+            {volumes.map((v) => (
+              <option key={v.id} value={v.id}>{v.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className={styles.field}>
         <label className={styles.label}>

@@ -11,14 +11,16 @@ interface Props {
   locale: string        // browsing locale (for redirect path)
   sourceLocale: string  // chapter writing locale
   defaultOrder: number
+  volumes?: { id: string; title: string }[]
 }
 
-export default function AddChapterForm({ novelId, locale, sourceLocale, defaultOrder }: Props) {
+export default function AddChapterForm({ novelId, locale, sourceLocale, defaultOrder, volumes = [] }: Props) {
   const t = useTranslations('author.form')
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [volumeId, setVolumeId] = useState('')
 
   async function handleSubmit(publishStatus: 'published' | 'draft', continueAdding: boolean) {
     const key = publishStatus + (continueAdding ? '-continue' : '')
@@ -32,6 +34,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
       formData.set('browsingLocale', locale)
       formData.set('publishStatus', publishStatus)
       formData.set('continueAdding', String(continueAdding))
+      if (volumeId) formData.set('volumeId', volumeId)
 
       const result = await createChapter(formData)
       if ('error' in result && result.error) {
@@ -91,9 +94,27 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
         </div>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label}>{t('language_label')}</label>
-        <div className={styles.localeBadge}>{sourceLocale}</div>
+      <div className={styles.row}>
+        <div className={styles.field} style={{ flex: '0 0 auto' }}>
+          <label className={styles.label}>{t('language_label')}</label>
+          <div className={styles.localeBadge}>{sourceLocale}</div>
+        </div>
+
+        {volumes.length > 0 && (
+          <div className={styles.field} style={{ flex: '1 1 auto' }}>
+            <label className={styles.label}>{t('volume_label')}</label>
+            <select
+              value={volumeId}
+              onChange={(e) => setVolumeId(e.target.value)}
+              className={styles.input}
+            >
+              <option value="">{t('volume_none')}</option>
+              {volumes.map((v) => (
+                <option key={v.id} value={v.id}>{v.title}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <div className={styles.field}>

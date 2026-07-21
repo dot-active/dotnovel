@@ -92,6 +92,7 @@ export async function createChapter(
   const order = parseInt(formData.get('order') as string, 10)
   const publishStatus = (formData.get('publishStatus') as string) || 'published'
   const continueAdding = formData.get('continueAdding') === 'true'
+  const volumeId = (formData.get('volumeId') as string) || null
 
   if (!title || !content) return { error: 'Title and content are required' }
   if (isNaN(order)) return { error: 'Invalid chapter order' }
@@ -100,7 +101,7 @@ export async function createChapter(
   if (!novel) return { error: 'Novel not found or not authorized' }
 
   const chapter = await prisma.chapter.create({
-    data: { novelId, title, content, order, publishStatus },
+    data: { novelId, volumeId, title, content, order, publishStatus },
   })
 
   await prisma.chapterTranslation.create({
@@ -213,6 +214,7 @@ export async function updateChapter(
   const publishStatus = (formData.get('publishStatus') as string) || 'published'
   const browsingLocale = formData.get('browsingLocale') as string
   const editLocale = formData.get('editLocale') as string | null
+  const volumeId = (formData.get('volumeId') as string) || null
   const retranslateLocales = (formData.getAll('retranslateLocales') as string[]).filter(Boolean)
 
   if (!title || !content) return { error: 'Title and content are required' }
@@ -230,13 +232,13 @@ export async function updateChapter(
   if (targetLocale === sourceLocale) {
     await prisma.chapter.update({
       where: { id: chapterId },
-      data: { title, content, order, publishStatus },
+      data: { title, content, order, publishStatus, volumeId },
     })
   } else {
     // Only update structural fields; publishStatus belongs to each locale's ChapterTranslation
     await prisma.chapter.update({
       where: { id: chapterId },
-      data: { order },
+      data: { order, volumeId },
     })
   }
 

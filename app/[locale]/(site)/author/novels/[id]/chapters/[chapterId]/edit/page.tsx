@@ -23,6 +23,10 @@ export default async function EditChapterPage({
           authorId: true,
           sourceLocale: true,
           translations: { select: { locale: true, title: true } },
+          volumes: {
+            orderBy: { order: 'asc' },
+            include: { translations: true },
+          },
         },
       },
       translations: { select: { locale: true, title: true, content: true, status: true } },
@@ -30,6 +34,14 @@ export default async function EditChapterPage({
   })
 
   if (!chapter || chapter.novel.authorId !== userId) notFound()
+
+  const volumeOptions = chapter.novel.volumes.map((v) => ({
+    id: v.id,
+    title:
+      v.translations.find((tr) => tr.locale === locale)?.title ??
+      v.translations[0]?.title ??
+      '未命名',
+  }))
 
   // Prefer source locale translation for pre-fill
   const tr =
@@ -66,6 +78,7 @@ export default async function EditChapterPage({
         chapter={{
           id: chapter.id,
           novelId: id,
+          volumeId: chapter.volumeId,
           title: tr?.title ?? chapter.title,
           content: tr?.content ?? chapter.content,
           order: chapter.order,
@@ -76,6 +89,7 @@ export default async function EditChapterPage({
         locale={locale}
         novelLocales={novelLocales}
         autoTranslateLocales={autoTranslateLocales}
+        volumes={volumeOptions}
       />
     </div>
   )

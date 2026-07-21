@@ -32,6 +32,7 @@ model Novel {
   categories          NovelCategory[]
   translationRequests TranslationRequest[]
   cards               NovelCard[]
+  volumes             Volume[]
 
   @@map("novels")
 }
@@ -110,6 +111,7 @@ model NovelTranslation {
 model Chapter {
   id            String               @id @default(cuid())
   novelId       String
+  volumeId      String?
   title         String
   content       String               @db.Text
   order         Int
@@ -117,11 +119,39 @@ model Chapter {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   novel         Novel                @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  volume        Volume?              @relation(fields: [volumeId], references: [id], onDelete: SetNull)
   translations  ChapterTranslation[]
   comments      Comment[]
 
   @@unique([novelId, order])
+  @@index([volumeId])
   @@map("chapters")
+}
+
+model Volume {
+  id           String              @id @default(cuid())
+  novelId      String
+  order        Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  novel        Novel               @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  translations VolumeTranslation[]
+  chapters     Chapter[]
+
+  @@index([novelId])
+  @@map("volumes")
+}
+
+model VolumeTranslation {
+  id       String @id @default(cuid())
+  volumeId String
+  locale   String
+  title    String
+  status   String @default("draft")
+  volume   Volume @relation(fields: [volumeId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeId, locale])
+  @@map("volume_translations")
 }
 
 model ChapterTranslation {

@@ -21,11 +21,23 @@ export default async function NewChapterPage({
     where: { id, authorId: userId! },
     include: {
       translations: { where: { locale }, select: { title: true } },
+      volumes: {
+        orderBy: { order: 'asc' },
+        include: { translations: true },
+      },
       _count: { select: { chapters: true } },
     },
   })
 
   if (!novel) notFound()
+
+  const volumeOptions = novel.volumes.map((v) => ({
+    id: v.id,
+    title:
+      v.translations.find((tr) => tr.locale === locale)?.title ??
+      v.translations[0]?.title ??
+      '未命名',
+  }))
 
   const nextOrder =
     searchParams.order != null
@@ -57,6 +69,7 @@ export default async function NewChapterPage({
         locale={locale}
         sourceLocale={novel.sourceLocale}
         defaultOrder={nextOrder}
+        volumes={volumeOptions}
       />
     </div>
   )
