@@ -147,9 +147,10 @@ interface Props {
   currentUserId: string | null
   initialCount: number
   show?: boolean
+  autoOpen?: boolean
 }
 
-export default function ParagraphComments({ chapterId, paragraphIndex, currentUserId, initialCount, show }: Props) {
+export default function ParagraphComments({ chapterId, paragraphIndex, currentUserId, initialCount, show, autoOpen }: Props) {
   const t = useTranslations('reader.comments')
   const [open, setOpen] = useState(false)
   const [comments, setComments] = useState<CommentData[]>([])
@@ -185,7 +186,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
   }
 
   useEffect(() => {
-    if (window.location.hash === `#para-${paragraphIndex}`) {
+    if (autoOpen || window.location.hash === `#para-${paragraphIndex}`) {
       loadComments()
       setOpen(true)
     }

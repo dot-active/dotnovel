@@ -352,6 +352,68 @@ async function main() {
 
       console.log() // newline after progress line
 
+      // ========================
+      // VOLUMES (分集) — optional
+      // Only runs when novel.json declares a `volumes` array; novels without
+      // it import exactly as before. Wipe & rebuild for idempotent re-import.
+      //
+      // NOTE: the Neon HTTP adapter has NO transaction support, and Prisma
+      // wraps `updateMany` / `deleteMany` (and nested writes) in a transaction.
+      // So we use raw single-statement SQL for the bulk delete + chapter
+      // assignment, and plain single creates for volume + translations.
+      // Deleting a volume auto-detaches its chapters via the DB-level
+      // `onDelete: SetNull` foreign key action (no client transaction needed).
+      // ========================
+      if (Array.isArray(novelData.volumes) && novelData.volumes.length > 0) {
+        await prisma.$executeRawUnsafe(
+          `DELETE FROM volumes WHERE "novelId" = $1`,
+          targetNovelId
+        )
+
+        for (let vi = 0; vi < novelData.volumes.length; vi++) {
+          const vol = novelData.volumes[vi]
+          const volLocales = vol.locales ?? {}
+
+          const createdVolume = await prisma.volume.create({
+            data: {
+              novelId: targetNovelId,
+              order: vol.order ?? vi + 1,
+            },
+          })
+
+          for (const [locale, t] of Object.entries(volLocales)) {
+            const title = (t as any)?.title?.trim()
+            if (!title) continue
+            await prisma.volumeTranslation.create({
+              data: { volumeId: createdVolume.id, locale, title, status: 'published' },
+            })
+          }
+
+          // Resolve chapter numbers: explicit list, or a [start, end] range
+          let nums: number[] = []
+          if (Array.isArray(vol.chapters)) {
+            nums = vol.chapters
+          } else if (Array.isArray(vol.chapterRange) && vol.chapterRange.length === 2) {
+            const [start, end] = vol.chapterRange
+            for (let n = start; n <= end; n++) nums.push(n)
+          }
+          // Only allow integers (defends the inlined IN-list against injection)
+          nums = nums.filter((n) => Number.isInteger(n))
+
+          if (nums.length > 0) {
+            await prisma.$executeRawUnsafe(
+              `UPDATE chapters SET "volumeId" = $1 WHERE "novelId" = $2 AND "order" IN (${nums.join(',')})`,
+              createdVolume.id,
+              targetNovelId
+            )
+          } else {
+            console.warn(`  ⚠️  分集「第${vi + 1}卷」未指定章节（chapters / chapterRange），已创建但无章节`)
+          }
+        }
+
+        console.log(`  📦 分集：${novelData.volumes.length} 卷`)
+      }
+
     } catch (error) {
       console.error(`\n❌ 导入失败：${novelFolder}`, error)
       failedNovels++

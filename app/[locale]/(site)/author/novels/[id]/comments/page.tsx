@@ -50,7 +50,7 @@ export default async function AuthorCommentsPage({
             userId: true,
             nickname: true,
             paragraphIndex: true,
-            isReadByAuthor: true,
+            isReadByReceiver: true,
             createdAt: true,
             parentId: true,
           },
@@ -59,8 +59,8 @@ export default async function AuthorCommentsPage({
       orderBy: { order: 'asc' },
     }),
     prisma.comment.updateMany({
-      where: { chapter: { novelId: id }, isReadByAuthor: false },
-      data: { isReadByAuthor: true },
+      where: { chapter: { novelId: id }, isReadByReceiver: false },
+      data: { isReadByReceiver: true },
     }),
   ])
 

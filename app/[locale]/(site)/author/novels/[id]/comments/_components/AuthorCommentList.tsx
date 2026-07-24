@@ -11,7 +11,7 @@ interface CommentItem {
   userId: string | null
   nickname: string | null
   paragraphIndex: number
-  isReadByAuthor: boolean
+  isReadByReceiver: boolean
   createdAt: string
   parentId: string | null
 }

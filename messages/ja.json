@@ -8,7 +8,8 @@
     "signIn": "ログイン",
     "signUp": "登録",
     "signOut": "ログアウト",
-    "novels": "すべての小説"
+    "novels": "すべての小説",
+    "myComments": "マイコメント"
   },
   "footer": {
     "about": "サイト概要",
@@ -386,5 +387,26 @@
     "localeZhCN": "ZH-CN",
     "localeZhTW": "ZH-TW",
     "backToEdit": "編集に戻る"
+  },
+  "myComments": {
+    "title": "マイコメント",
+    "tabAuthor": "自分の小説へのコメント",
+    "tabMine": "自分のコメント",
+    "loading": "読み込み中…",
+    "noAuthorComments": "まだあなたの小説にコメントはありません",
+    "noMineComments": "まだ他の小説にコメントしていません",
+    "chapterLabel": "第{order}章",
+    "paragraphLabel": "第{n}段落",
+    "paragraphLabelSimple": "第{n}段落",
+    "lastCommentBy": "最後のコメント：{name}",
+    "commentsCount": "{count}件のコメント",
+    "iSaid": "自分：",
+    "repliesCount": "{count}件の返信",
+    "lastReplyBy": "最後の返信：{name}",
+    "minutesAgo": "{n}分前",
+    "hoursAgo": "{n}時間前",
+    "daysAgo": "{n}日前",
+    "anonymous": "匿名",
+    "anonymousUser": "匿名ユーザー"
   }
 }

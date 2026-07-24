@@ -157,6 +157,31 @@ a {
   height: 17px;
 }
 
+/* Icon button with an unread-count badge */
+.icon-btn-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* Desktop auth cluster wrapper */
 .topnav-desktop-auth {
   display: flex;

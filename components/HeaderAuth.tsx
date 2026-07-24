@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { SignedIn, SignedOut, SignInButton, SignUpButton, SignOutButton, UserButton } from '@clerk/nextjs'
+import { useState, useEffect } from 'react'
+import { SignedIn, SignedOut, SignInButton, SignUpButton, SignOutButton, UserButton, useAuth } from '@clerk/nextjs'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
@@ -11,6 +11,16 @@ import logoSrc from '@/src/images/logo.png'
 export default function HeaderAuth() {
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
+  const { isSignedIn } = useAuth()
+  const [unreadComments, setUnreadComments] = useState(0)
+
+  useEffect(() => {
+    if (!isSignedIn) return
+    fetch('/api/comments/unread-count')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setUnreadComments(data.total))
+      .catch(() => {})
+  }, [isSignedIn])
 
   return (
     <>
@@ -44,6 +54,16 @@ export default function HeaderAuth() {
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
                 </Link>
+                <span className="icon-btn-wrap">
+                  <Link href="/comments" className="icon-btn" title={t('myComments')}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    </svg>
+                  </Link>
+                  {unreadComments > 0 && (
+                    <span className="icon-badge">{unreadComments > 99 ? '99+' : unreadComments}</span>
+                  )}
+                </span>
                 <UserButton />
               </SignedIn>
               <SignedOut>
@@ -102,6 +122,14 @@ export default function HeaderAuth() {
                 </Link>
                 <Link href="/author/dashboard" className="mobile-nav-link" onClick={() => setOpen(false)}>
                   {t('myWorks')}
+                </Link>
+                <Link href="/comments" className="mobile-nav-link" onClick={() => setOpen(false)}>
+                  {t('myComments')}
+                  {unreadComments > 0 && (
+                    <span className="icon-badge" style={{ position: 'static', marginLeft: 6 }}>
+                      {unreadComments > 99 ? '99+' : unreadComments}
+                    </span>
+                  )}
                 </Link>
               </SignedIn>
             </nav>

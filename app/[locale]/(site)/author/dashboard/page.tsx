@@ -37,7 +37,7 @@ export default async function AuthorDashboardPage({
     by: ['chapterId'],
     where: {
       chapter: { novelId: { in: novelIds } },
-      isReadByAuthor: false,
+      isReadByReceiver: false,
       isDeleted: false,
     },
     _count: { id: true },

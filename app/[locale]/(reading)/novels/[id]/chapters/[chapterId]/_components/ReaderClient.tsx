@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
@@ -92,6 +93,8 @@ export default function ReaderClient({
   tCatalog,
 }: ReaderClientProps) {
   const t = useTranslations('reader')
+  const searchParams = useSearchParams()
+  const highlightParagraph = searchParams.get('paragraph')
   const [fontSize, setFontSize] = useState<FontSize>(18)
   const [theme, setTheme] = useState<Theme>('sepia')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -118,6 +121,17 @@ export default function ReaderClient({
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [activeCardId, closeCard])
+
+  // Scroll to and highlight the paragraph referenced by ?paragraph=N (e.g. from /comments links)
+  useEffect(() => {
+    if (highlightParagraph === null) return
+    const el = document.getElementById(`para-${highlightParagraph}`)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add(styles.paraHighlight)
+    const timer = setTimeout(() => el.classList.remove(styles.paraHighlight), 2000)
+    return () => clearTimeout(timer)
+  }, [highlightParagraph])
 
   const activeCard = activeCardId ? cards.find((c) => c.id === activeCardId) ?? null : null
 
@@ -243,6 +257,7 @@ export default function ReaderClient({
                   currentUserId={userId}
                   initialCount={commentCount}
                   show={hoveredPara === i}
+                  autoOpen={highlightParagraph !== null && Number(highlightParagraph) === i}
                 />
               </p>
             </div>

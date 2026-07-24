@@ -8,7 +8,8 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "signOut": "Sign Out",
-    "novels": "All Novels"
+    "novels": "All Novels",
+    "myComments": "My Comments"
   },
   "footer": {
     "about": "About",
@@ -386,5 +387,26 @@
     "localeZhCN": "ZH-CN",
     "localeZhTW": "ZH-TW",
     "backToEdit": "Back to Edit"
+  },
+  "myComments": {
+    "title": "My Comments",
+    "tabAuthor": "On My Novels",
+    "tabMine": "My Comments",
+    "loading": "Loading…",
+    "noAuthorComments": "No one has commented on your novels yet",
+    "noMineComments": "You haven't commented on other novels yet",
+    "chapterLabel": "Ch. {order}",
+    "paragraphLabel": "Paragraph {n}",
+    "paragraphLabelSimple": "Paragraph {n}",
+    "lastCommentBy": "Last comment by {name}",
+    "commentsCount": "{count} comments",
+    "iSaid": "I said: ",
+    "repliesCount": "{count} replies",
+    "lastReplyBy": "Last reply by {name}",
+    "minutesAgo": "{n}m ago",
+    "hoursAgo": "{n}h ago",
+    "daysAgo": "{n}d ago",
+    "anonymous": "Anonymous",
+    "anonymousUser": "Anonymous user"
   }
 }

@@ -8,7 +8,8 @@
     "signIn": "登录",
     "signUp": "注册",
     "signOut": "退出登录",
-    "novels": "全部小说"
+    "novels": "全部小说",
+    "myComments": "我的留言"
   },
   "footer": {
     "about": "关于我们",
@@ -386,5 +387,26 @@
     "localeZhCN": "简中",
     "localeZhTW": "繁中",
     "backToEdit": "返回编辑"
+  },
+  "myComments": {
+    "title": "我的留言",
+    "tabAuthor": "我的小说留言",
+    "tabMine": "我的留言",
+    "loading": "加载中…",
+    "noAuthorComments": "暂时没有读者在你的小说里留言",
+    "noMineComments": "你还没有在其他小说里留言",
+    "chapterLabel": "第{order}章",
+    "paragraphLabel": "第{n}段",
+    "paragraphLabelSimple": "第{n}段",
+    "lastCommentBy": "最后留言：{name}",
+    "commentsCount": "{count}条留言",
+    "iSaid": "我说：",
+    "repliesCount": "{count}条回复",
+    "lastReplyBy": "最后回复：{name}",
+    "minutesAgo": "{n}分钟前",
+    "hoursAgo": "{n}小时前",
+    "daysAgo": "{n}天前",
+    "anonymous": "匿名",
+    "anonymousUser": "匿名用户"
   }
 }

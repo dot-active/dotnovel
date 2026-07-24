@@ -8,7 +8,8 @@
     "signIn": "로그인",
     "signUp": "회원가입",
     "signOut": "로그아웃",
-    "novels": "전체 소설"
+    "novels": "전체 소설",
+    "myComments": "내 댓글"
   },
   "footer": {
     "about": "소개",
@@ -386,5 +387,26 @@
     "localeZhCN": "ZH-CN",
     "localeZhTW": "ZH-TW",
     "backToEdit": "편집으로 돌아가기"
+  },
+  "myComments": {
+    "title": "내 댓글",
+    "tabAuthor": "내 소설 댓글",
+    "tabMine": "내가 남긴 댓글",
+    "loading": "불러오는 중…",
+    "noAuthorComments": "아직 당신의 소설에 댓글이 없습니다",
+    "noMineComments": "아직 다른 소설에 댓글을 남기지 않았습니다",
+    "chapterLabel": "제{order}장",
+    "paragraphLabel": "{n}번째 단락",
+    "paragraphLabelSimple": "{n}번째 단락",
+    "lastCommentBy": "최근 댓글: {name}",
+    "commentsCount": "댓글 {count}개",
+    "iSaid": "내 댓글: ",
+    "repliesCount": "답글 {count}개",
+    "lastReplyBy": "최근 답글: {name}",
+    "minutesAgo": "{n}분 전",
+    "hoursAgo": "{n}시간 전",
+    "daysAgo": "{n}일 전",
+    "anonymous": "익명",
+    "anonymousUser": "익명 사용자"
   }
 }

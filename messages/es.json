@@ -8,7 +8,8 @@
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "signOut": "Cerrar sesión",
-    "novels": "Todas las novelas"
+    "novels": "Todas las novelas",
+    "myComments": "Mis comentarios"
   },
   "footer": {
     "about": "Acerca de",
@@ -386,5 +387,26 @@
     "localeZhCN": "ZH-CN",
     "localeZhTW": "ZH-TW",
     "backToEdit": "Volver a editar"
+  },
+  "myComments": {
+    "title": "Mis comentarios",
+    "tabAuthor": "En mis novelas",
+    "tabMine": "Mis comentarios",
+    "loading": "Cargando…",
+    "noAuthorComments": "Nadie ha comentado tus novelas todavía",
+    "noMineComments": "Todavía no has comentado en otras novelas",
+    "chapterLabel": "Cap. {order}",
+    "paragraphLabel": "Párrafo {n}",
+    "paragraphLabelSimple": "Párrafo {n}",
+    "lastCommentBy": "Último comentario de {name}",
+    "commentsCount": "{count} comentarios",
+    "iSaid": "Yo dije: ",
+    "repliesCount": "{count} respuestas",
+    "lastReplyBy": "Última respuesta de {name}",
+    "minutesAgo": "hace {n}m",
+    "hoursAgo": "hace {n}h",
+    "daysAgo": "hace {n}d",
+    "anonymous": "Anónimo",
+    "anonymousUser": "Usuario anónimo"
   }
 }
