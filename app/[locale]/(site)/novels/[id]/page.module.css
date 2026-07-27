@@ -367,7 +367,7 @@
 
   .statGrid {
     grid-template-columns: repeat(4, auto);
-    gap: 0 40px;
+    gap: 0 10px;
   }
 }
 

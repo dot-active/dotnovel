@@ -26,6 +26,9 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
   const [editingStats, setEditingStats] = useState(false)
   const [viewInput, setViewInput] = useState(String(novel.viewCount))
   const [favInput, setFavInput] = useState(String(novel.favoriteCount))
+  const [viewCount, setViewCount] = useState(novel.viewCount)
+  const [boosting, setBoosting] = useState(false)
+  const [boostMessage, setBoostMessage] = useState<string | null>(null)
 
   const isPublished = novel.publishStatus === 'published'
   const [isFeatured, setIsFeatured] = useState(novel.isFeatured)
@@ -72,6 +75,24 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
     setEditingStats(false)
   }
 
+  async function handleBoostViews() {
+    setBoosting(true)
+    try {
+      const res = await fetch(`/api/admin/novels/${novel.id}/boost-views`, {
+        method: 'POST',
+      })
+      if (!res.ok) throw new Error('boost failed')
+      const data = await res.json()
+      setViewCount(data.newViewCount)
+      setBoostMessage(`已增加 ${data.increment} 次点击`)
+      setTimeout(() => setBoostMessage(null), 2000)
+    } catch {
+      // ignore
+    } finally {
+      setBoosting(false)
+    }
+  }
+
   return (
     <>
       <tr className={`${styles.row} ${!isPublished ? styles.rowUnpublished : ''}`}>
@@ -96,7 +117,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
             {isPublished ? '上架' : '下架'}
           </span>
         </td>
-        <td className={styles.tdStat}>{formatCount(novel.viewCount)}</td>
+        <td className={styles.tdStat}>{formatCount(viewCount)}</td>
         <td className={styles.tdStat}>{formatCount(novel.favoriteCount)}</td>
         <td className={styles.tdActions}>
           <button
@@ -111,7 +132,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
           </button>
           <button
             onClick={() => {
-              setViewInput(String(novel.viewCount))
+              setViewInput(String(viewCount))
               setFavInput(String(novel.favoriteCount))
               setEditingStats((v) => !v)
             }}
@@ -120,6 +141,14 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
           >
             编辑数据
           </button>
+          <button
+            onClick={handleBoostViews}
+            disabled={boosting}
+            className={styles.btnBoost}
+          >
+            {boosting ? <span className={styles.spinner} /> : '增加点击'}
+          </button>
+          {boostMessage && <span className={styles.boostTip}>{boostMessage}</span>}
           {confirming ? (
             <>
               <button onClick={handleDelete} disabled={isPending} className={styles.btnDangerConfirm}>

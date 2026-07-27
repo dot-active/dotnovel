@@ -14,7 +14,7 @@ export default function VolumeAccordion({ title, count, defaultOpen = false, chi
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className={styles.vol}>
+    <div className={`${styles.vol} ${open ? styles.open : ''}`}>
       <button
         className={styles.head}
         onClick={() => setOpen((v) => !v)}

@@ -272,3 +272,54 @@
   margin-right: 4px;
   font-size: 0.875rem;
 }
+
+/* ── Boost views button ── */
+.btnBoost {
+  font-size: 0.75rem;
+  font-family: inherit;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #64748b;
+  background: var(--color-surface);
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btnBoost:hover:not(:disabled) {
+  background: #64748b;
+  color: #fff;
+}
+
+.btnBoost:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.boostTip {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}

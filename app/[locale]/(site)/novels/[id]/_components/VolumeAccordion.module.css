@@ -2,10 +2,14 @@
   border-bottom: 1px solid var(--cream-line);
 }
 
+.vol.open {
+  border-bottom: none;
+}
+
 .head {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   padding: 20px 4px;
   background: none;
@@ -33,9 +37,8 @@
   font-size: 21px;
   font-weight: 500;
   color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .count {
@@ -47,7 +50,6 @@
 }
 
 .body {
-  padding-bottom: 12px;
   animation: reveal 0.2s ease-out;
 }
 
