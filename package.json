@@ -13,7 +13,8 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "trigger:dev": "npx trigger.dev@latest dev",
-    "import:novels": "npx --yes tsx scripts/importNovels.ts"
+    "import:novels": "npx --yes tsx scripts/importNovels.ts",
+    "export:novel": "npx --yes tsx scripts/exportNovel.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

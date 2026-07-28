@@ -172,7 +172,7 @@ export default async function HomePage({
               <span className={`${styles.tcDot} ${styles.tcDotAccent}`} />
               <span className={styles.tcDot} />
               <span className={styles.tcDot} />
-              <span className={styles.tcTitle}>Claude Opus 4.6</span>
+              <span className={styles.tcTitle}>Claude Opus 5</span>
             </div>
             <div className={styles.transSource}>
               <div className={styles.tsLabel}>{card.sourceFlag} {card.sourceLabel}</div>
