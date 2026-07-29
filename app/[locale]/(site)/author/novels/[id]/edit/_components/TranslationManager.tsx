@@ -244,7 +244,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
-                          onClick={() => handleAdd(value)}
+                          onClick={() => handleAdd(value, true)}
                         >
                           {isBusy ? t('triggering') : t('retranslate')}
                         </button>
@@ -276,7 +276,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
-                          onClick={() => handleAdd(value)}
+                          onClick={() => handleAdd(value, true)}
                         >
                           {isBusy ? t('triggering') : t('retranslate')}
                         </button>
