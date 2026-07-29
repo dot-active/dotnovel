@@ -1,9 +1,9 @@
 import { task } from '@trigger.dev/sdk/v3'
-import Anthropic from '@anthropic-ai/sdk'
 import { PrismaClient } from '@prisma/client'
 import { PrismaNeonHTTP } from '@prisma/adapter-neon'
 import { neon, types } from '@neondatabase/serverless'
 import { simplifiedToTraditional, traditionalToSimplified } from '../lib/opencc'
+import { translateWithClaude } from '../lib/translate'
 
 types.setTypeParser(types.builtins.TIMESTAMP, (v: string) => v)
 types.setTypeParser(types.builtins.TIMESTAMPTZ, (v: string) => v)
@@ -15,34 +15,12 @@ function createPrisma() {
   return new PrismaClient({ adapter })
 }
 
-const LOCALE_NAMES: Record<string, string> = {
-  'zh-CN': '简体中文',
-  'zh-TW': '繁体中文',
-  'en': 'English',
-  'ja': '日本語',
-  'ko': '한국어',
-  'es': 'Español',
-}
-
 export const translateNovel = task({
   id: 'translate-novel',
   maxDuration: 3600,
   run: async (payload: { translationRequestId: string; novelId: string; targetLocale: string }) => {
     const { translationRequestId, novelId, targetLocale } = payload
     const prisma = createPrisma()
-    const targetLang = LOCALE_NAMES[targetLocale] ?? targetLocale
-
-    async function translateWithClaude(text: string): Promise<string> {
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120_000 })
-      const msg = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
-        system: `你是专业小说翻译，将内容翻译成${targetLang}，保持文学风格，只输出翻译结果。`,
-        messages: [{ role: 'user', content: text }],
-      })
-      const block = msg.content[0]
-      return block.type === 'text' ? block.text : ''
-    }
 
     try {
       // 1. Mark as processing
@@ -133,8 +111,8 @@ export const translateNovel = task({
       } else {
         // 3b. Claude API path
         const [translatedTitle, translatedDesc] = await Promise.all([
-          translateWithClaude(srcNovelTr.title),
-          translateWithClaude(srcNovelTr.description),
+          translateWithClaude(srcNovelTr.title, targetLocale),
+          translateWithClaude(srcNovelTr.description, targetLocale),
         ])
 
         await prisma.novelTranslation.upsert({
@@ -153,8 +131,8 @@ export const translateNovel = task({
           const srcContent = srcTr?.content ?? chapter.content
 
           const [tTitle, tContent] = await Promise.all([
-            translateWithClaude(srcTitle),
-            translateWithClaude(srcContent),
+            translateWithClaude(srcTitle, targetLocale),
+            translateWithClaude(srcContent, targetLocale),
           ])
 
           await prisma.chapterTranslation.upsert({
