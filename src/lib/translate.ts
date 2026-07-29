@@ -14,12 +14,21 @@ export const LOCALE_NAMES: Record<string, string> = {
 function sanitizeTranslation(text: string): string {
   let result = text.trim()
   // Drop everything from a "---" divider onward (notes/explanations are appended after it)
-  result = result.split(/\n?\s*-{3,}\s*\n?/)[0]
-  // Strip markdown heading / emphasis markers
-  result = result.replace(/^#{1,6}\s*/, '').replace(/^\*{1,2}|\*{1,2}$/g, '')
-  // Strip wrapping quotes
-  result = result.replace(/^["'“”](.+)["'“”]$/, '$1')
-  return result.trim()
+  result = result.split(/\n?\s*-{3,}\s*\n?/)[0].trim()
+
+  // Repeatedly strip markdown wrappers — heading marks, bold/italic, wrapping quotes — since
+  // Claude sometimes nests them (e.g. "**# Title**") and a single pass can miss the inner one.
+  for (let i = 0; i < 4; i++) {
+    const before = result
+    result = result
+      .replace(/^#{1,6}\s*/, '')
+      .replace(/^\*{1,3}([^*]+)\*{1,3}$/, '$1')
+      .replace(/^_{1,3}([^_]+)_{1,3}$/, '$1')
+      .replace(/^["'“”](.+)["'“”]$/, '$1')
+      .trim()
+    if (result === before) break
+  }
+  return result
 }
 
 export async function translateWithClaude(text: string, targetLocale: string): Promise<string> {
