@@ -111,8 +111,8 @@ export const translateNovel = task({
       } else {
         // 3b. Claude API path
         const [translatedTitle, translatedDesc] = await Promise.all([
-          translateWithClaude(srcNovelTr.title, targetLocale),
-          translateWithClaude(srcNovelTr.description, targetLocale),
+          translateWithClaude(srcNovelTr.title, targetLocale, 'title'),
+          translateWithClaude(srcNovelTr.description, targetLocale, 'content'),
         ])
 
         await prisma.novelTranslation.upsert({
@@ -131,8 +131,8 @@ export const translateNovel = task({
           const srcContent = srcTr?.content ?? chapter.content
 
           const [tTitle, tContent] = await Promise.all([
-            translateWithClaude(srcTitle, targetLocale),
-            translateWithClaude(srcContent, targetLocale),
+            translateWithClaude(srcTitle, targetLocale, 'title'),
+            translateWithClaude(srcContent, targetLocale, 'content'),
           ])
 
           await prisma.chapterTranslation.upsert({

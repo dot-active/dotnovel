@@ -53,8 +53,8 @@ export const translateChapter = task({
       translatedContent = convertZh(srcContent, sourceLocale)
     } else {
       ;[translatedTitle, translatedContent] = await Promise.all([
-        translateWithClaude(srcTitle, targetLocale),
-        translateWithClaude(srcContent, targetLocale),
+        translateWithClaude(srcTitle, targetLocale, 'title'),
+        translateWithClaude(srcContent, targetLocale, 'content'),
       ])
     }
 
