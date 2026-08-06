@@ -9,7 +9,24 @@
     "signUp": "注册",
     "signOut": "退出登录",
     "novels": "全部小说",
-    "myComments": "我的留言"
+    "myComments": "我的留言",
+    "myPoints": "我的积分"
+  },
+  "profile": {
+    "title": "个人中心",
+    "myPoints": "我的积分",
+    "currentPoints": "当前积分",
+    "noPoints": "暂无积分，发布小说开始获得积分！",
+    "logTitle": "积分记录",
+    "noLogs": "暂无积分记录",
+    "loading": "加载中…",
+    "loadFailed": "加载失败，请稍后重试",
+    "prevPage": "上一页",
+    "nextPage": "下一页",
+    "pageInfo": "第 {page} / {totalPages} 页",
+    "minutesAgo": "{n}分钟前",
+    "hoursAgo": "{n}小时前",
+    "daysAgo": "{n}天前"
   },
   "footer": {
     "about": "关于我们",

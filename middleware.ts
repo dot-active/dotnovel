@@ -14,6 +14,7 @@ const isProtectedRoute = createRouteMatcher([
   `/(${localePattern})/onboarding(.*)`,
   `/(${localePattern})/admin(.*)`,
   `/(${localePattern})/comments(.*)`,
+  `/(${localePattern})/profile(.*)`,
 ])
 
 // Only author/* and favorites/* trigger the onboarding redirect

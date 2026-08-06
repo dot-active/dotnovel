@@ -9,7 +9,24 @@
     "signUp": "회원가입",
     "signOut": "로그아웃",
     "novels": "전체 소설",
-    "myComments": "내 댓글"
+    "myComments": "내 댓글",
+    "myPoints": "내 포인트"
+  },
+  "profile": {
+    "title": "내 정보",
+    "myPoints": "내 포인트",
+    "currentPoints": "현재 포인트",
+    "noPoints": "아직 포인트가 없습니다. 소설을 등록하고 포인트를 받아보세요!",
+    "logTitle": "포인트 내역",
+    "noLogs": "포인트 내역이 없습니다",
+    "loading": "불러오는 중…",
+    "loadFailed": "불러오지 못했습니다. 잠시 후 다시 시도해 주세요",
+    "prevPage": "이전",
+    "nextPage": "다음",
+    "pageInfo": "{page} / {totalPages} 페이지",
+    "minutesAgo": "{n}분 전",
+    "hoursAgo": "{n}시간 전",
+    "daysAgo": "{n}일 전"
   },
   "footer": {
     "about": "소개",

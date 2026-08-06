@@ -38,9 +38,32 @@ export async function POST(
 
   increment = Math.max(1, increment)
 
-  const updated = await prisma.novel.update({
-    where: { id: params.id },
-    data: { viewCount: { increment } },
+  const authorId = novel.authorId
+
+  // 增加点击数的同时给作者加对应积分
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.novel.update({
+      where: { id: params.id },
+      data: { viewCount: { increment } },
+    })
+
+    if (authorId) {
+      await tx.authorPoints.upsert({
+        where: { userId: authorId },
+        update: { points: { increment } },
+        create: { userId: authorId, points: increment },
+      })
+      await tx.authorPointsLog.create({
+        data: {
+          userId: authorId,
+          points: increment,
+          reason: `Admin 增加点击（+${increment}次）`,
+          novelId: params.id,
+        },
+      })
+    }
+
+    return result
   })
 
   return NextResponse.json({

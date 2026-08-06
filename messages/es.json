@@ -9,7 +9,24 @@
     "signUp": "Registrarse",
     "signOut": "Cerrar sesión",
     "novels": "Todas las novelas",
-    "myComments": "Mis comentarios"
+    "myComments": "Mis comentarios",
+    "myPoints": "Mis puntos"
+  },
+  "profile": {
+    "title": "Mi perfil",
+    "myPoints": "Mis puntos",
+    "currentPoints": "Puntos actuales",
+    "noPoints": "Aún no tienes puntos. ¡Publica una novela para empezar a ganarlos!",
+    "logTitle": "Historial de puntos",
+    "noLogs": "Aún no hay registros de puntos",
+    "loading": "Cargando…",
+    "loadFailed": "No se pudo cargar, inténtalo de nuevo más tarde",
+    "prevPage": "Anterior",
+    "nextPage": "Siguiente",
+    "pageInfo": "Página {page} de {totalPages}",
+    "minutesAgo": "hace {n}m",
+    "hoursAgo": "hace {n}h",
+    "daysAgo": "hace {n}d"
   },
   "footer": {
     "about": "Acerca de",

@@ -465,3 +465,32 @@ a {
     padding: 28px 20px 36px;
   }
 }
+
+/* Hide the Clerk branding footer in the user button popover */
+.cl-userButtonPopoverFooter {
+  display: none;
+}
+
+/* Right-align the points value in the Clerk menu item.
+   Clerk types `label` as a plain string, so the value has to ride along in
+   `labelIcon` (its only ReactNode slot) and is then taken out of flow rather
+   than restructuring Clerk's own flex layout. */
+.cl-userButtonPopoverCustomItemButton {
+  position: relative;
+}
+
+.cl-userButtonPopoverCustomItemButtonIconBox {
+  position: static;
+  overflow: visible;
+}
+
+.clerk-points-value {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 600;
+  color: #d97706;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}

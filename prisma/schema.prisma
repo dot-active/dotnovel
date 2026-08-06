@@ -218,6 +218,30 @@ model Comment {
   @@map("comments")
 }
 
+model AuthorPoints {
+  id        String            @id @default(cuid())
+  userId    String            @unique
+  points    Int               @default(0)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  logs      AuthorPointsLog[]
+
+  @@map("author_points")
+}
+
+model AuthorPointsLog {
+  id           String       @id @default(cuid())
+  userId       String
+  authorPoints AuthorPoints @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  points       Int
+  reason       String
+  novelId      String?
+  createdAt    DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@map("author_points_logs")
+}
+
 enum NovelStatus {
   ONGOING
   COMPLETED

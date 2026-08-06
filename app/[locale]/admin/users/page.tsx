@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server'
 import { clerkClient } from '@clerk/nextjs/server'
+import { prisma } from '@/lib/prisma'
 import UserAdminRow from './_components/UserAdminRow'
 import styles from './page.module.css'
 
@@ -16,11 +17,18 @@ export default async function AdminUsersPage({
     orderBy: '-created_at',
   })
 
+  const pointsRecords = await prisma.authorPoints.findMany({
+    where: { userId: { in: result.data.map((u) => u.id) } },
+    select: { userId: true, points: true },
+  })
+  const pointsByUser = new Map(pointsRecords.map((p) => [p.userId, p.points]))
+
   const users = result.data.map((u) => ({
     id: u.id,
     email: u.emailAddresses[0]?.emailAddress ?? '(no email)',
     createdAt: u.createdAt,
     banned: u.banned ?? false,
+    points: pointsByUser.get(u.id) ?? 0,
   }))
 
   return (
@@ -34,6 +42,7 @@ export default async function AdminUsersPage({
             <tr>
               <th>邮箱</th>
               <th>注册时间</th>
+              <th>积分</th>
               <th>状态</th>
               <th>操作</th>
             </tr>

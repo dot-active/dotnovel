@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, SignOutButton, UserButton, useAuth } from '@clerk/nextjs'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
@@ -10,9 +11,11 @@ import logoSrc from '@/src/images/logo.png'
 
 export default function HeaderAuth() {
   const t = useTranslations('nav')
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const { isSignedIn } = useAuth()
   const [unreadComments, setUnreadComments] = useState(0)
+  const [points, setPoints] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) return
@@ -21,6 +24,26 @@ export default function HeaderAuth() {
       .then((data) => data && setUnreadComments(data.total))
       .catch(() => {})
   }, [isSignedIn])
+
+  const loadPoints = useCallback(() => {
+    if (!isSignedIn) return
+    fetch('/api/profile/points?limit=1')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setPoints(data.points))
+      .catch(() => {})
+  }, [isSignedIn])
+
+  // The header lives in the layout, so it never remounts while navigating
+  // between pages — refetch on every navigation and when the tab regains
+  // focus, otherwise the total stays frozen at whatever it was on first load.
+  useEffect(() => {
+    loadPoints()
+  }, [loadPoints, pathname])
+
+  useEffect(() => {
+    window.addEventListener('focus', loadPoints)
+    return () => window.removeEventListener('focus', loadPoints)
+  }, [loadPoints])
 
   return (
     <>
@@ -64,7 +87,26 @@ export default function HeaderAuth() {
                     <span className="icon-badge">{unreadComments > 99 ? '99+' : unreadComments}</span>
                   )}
                 </span>
-                <UserButton />
+                <UserButton>
+                  <UserButton.MenuItems>
+                    <UserButton.Action
+                      label={t('myPoints')}
+                      onClick={() => {}}
+                      labelIcon={
+                        <>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M8 21h8" />
+                            <path d="M12 17v4" />
+                            <path d="M7 4h10v5a5 5 0 0 1-10 0V4z" />
+                            <path d="M17 5h3v2a3 3 0 0 1-3 3" />
+                            <path d="M7 5H4v2a3 3 0 0 0 3 3" />
+                          </svg>
+                          <span className="clerk-points-value">{points.toLocaleString()}</span>
+                        </>
+                      }
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
               </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
@@ -131,6 +173,9 @@ export default function HeaderAuth() {
                     </span>
                   )}
                 </Link>
+                <span className="mobile-nav-link">
+                  {t('myPoints')} {points.toLocaleString()}
+                </span>
               </SignedIn>
             </nav>
 

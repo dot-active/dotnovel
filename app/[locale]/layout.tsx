@@ -37,7 +37,11 @@ export default async function LocaleLayout({
   const localization = clerkLocalizations[locale] ?? enUS
 
   return (
-    <ClerkProvider localization={localization} afterSignUpUrl="/onboarding">
+    <ClerkProvider
+      localization={localization}
+      afterSignUpUrl="/onboarding"
+      appearance={{ layout: { unsafe_disableDevelopmentModeWarnings: true } }}
+    >
       <NextIntlClientProvider messages={messages}>
         {children}
       </NextIntlClientProvider>

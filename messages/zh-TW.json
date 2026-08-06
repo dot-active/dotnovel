@@ -9,7 +9,24 @@
     "signUp": "註冊",
     "signOut": "登出",
     "novels": "全部小說",
-    "myComments": "我的留言"
+    "myComments": "我的留言",
+    "myPoints": "我的積分"
+  },
+  "profile": {
+    "title": "個人中心",
+    "myPoints": "我的積分",
+    "currentPoints": "目前積分",
+    "noPoints": "暫無積分，發布小說開始獲得積分！",
+    "logTitle": "積分記錄",
+    "noLogs": "暫無積分記錄",
+    "loading": "載入中…",
+    "loadFailed": "載入失敗，請稍後再試",
+    "prevPage": "上一頁",
+    "nextPage": "下一頁",
+    "pageInfo": "第 {page} / {totalPages} 頁",
+    "minutesAgo": "{n}分鐘前",
+    "hoursAgo": "{n}小時前",
+    "daysAgo": "{n}天前"
   },
   "footer": {
     "about": "關於我們",

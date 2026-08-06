@@ -10,6 +10,7 @@ interface User {
   email: string
   createdAt: number
   banned: boolean
+  points: number
 }
 
 export default function UserAdminRow({ user }: { user: User }) {
@@ -38,6 +39,7 @@ export default function UserAdminRow({ user }: { user: User }) {
     <tr className={user.banned ? styles.rowBanned : ''}>
       <td className={styles.tdEmail}>{user.email}</td>
       <td>{new Date(user.createdAt).toLocaleDateString('zh-CN')}</td>
+      <td className={styles.tdPoints}>{user.points.toLocaleString('zh-CN')}</td>
       <td>
         {user.banned ? (
           <span className={styles.statusBanned}>已封号</span>

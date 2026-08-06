@@ -9,7 +9,24 @@
     "signUp": "Sign Up",
     "signOut": "Sign Out",
     "novels": "All Novels",
-    "myComments": "My Comments"
+    "myComments": "My Comments",
+    "myPoints": "My Points"
+  },
+  "profile": {
+    "title": "Profile",
+    "myPoints": "My Points",
+    "currentPoints": "Current points",
+    "noPoints": "No points yet — publish a novel to start earning!",
+    "logTitle": "Points History",
+    "noLogs": "No points records yet",
+    "loading": "Loading…",
+    "loadFailed": "Failed to load, please try again later",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageInfo": "Page {page} of {totalPages}",
+    "minutesAgo": "{n}m ago",
+    "hoursAgo": "{n}h ago",
+    "daysAgo": "{n}d ago"
   },
   "footer": {
     "about": "About",

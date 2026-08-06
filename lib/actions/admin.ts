@@ -80,9 +80,37 @@ export async function updateNovelStats(formData: FormData) {
 
   if (isNaN(viewCount) || isNaN(favoriteCount)) throw new Error('Invalid numbers')
 
-  await prisma.novel.update({
+  const novel = await prisma.novel.findUnique({
     where: { id: novelId },
-    data: { viewCount, favoriteCount },
+    select: { authorId: true, viewCount: true },
+  })
+  if (!novel) throw new Error('Novel not found')
+
+  // 手动改高阅读数时，按增加的差值同步给作者加积分
+  const delta = viewCount - novel.viewCount
+  const authorId = novel.authorId
+
+  await prisma.$transaction(async (tx) => {
+    await tx.novel.update({
+      where: { id: novelId },
+      data: { viewCount, favoriteCount },
+    })
+
+    if (authorId && delta > 0) {
+      await tx.authorPoints.upsert({
+        where: { userId: authorId },
+        update: { points: { increment: delta } },
+        create: { userId: authorId, points: delta },
+      })
+      await tx.authorPointsLog.create({
+        data: {
+          userId: authorId,
+          points: delta,
+          reason: `Admin 修改阅读数（+${delta}次）`,
+          novelId,
+        },
+      })
+    }
   })
 
   revalidatePath('/[locale]/admin/novels')
