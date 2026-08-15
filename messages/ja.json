@@ -232,7 +232,19 @@
       "languageLocked": "変更不可",
       "saveNote": "変更はすぐに読者に反映されます",
       "translating": "翻訳中",
-      "translatingPlaceholder": "翻訳中のため、まだ内容がありません"
+      "translatingPlaceholder": "翻訳中のため、まだ内容がありません",
+      "sectionSeo": "SEO 設定（任意）",
+      "metaTitle": "Meta タイトル",
+      "metaTitleHint": "60 文字以内推奨。未入力の場合は作品タイトルを使用",
+      "metaTitlePlaceholder": "空欄の場合は作品タイトルを使用",
+      "metaDescription": "Meta ディスクリプション",
+      "metaDescriptionHint": "150 文字以内推奨。未入力の場合はあらすじを使用",
+      "metaDescriptionPlaceholder": "空欄の場合はあらすじを使用",
+      "metaKeywords": "Meta キーワード",
+      "metaKeywordsHint": "キーワードを入力し Enter で 1 つずつ追加",
+      "metaKeywordsPlaceholder": "キーワードを入力して Enter",
+      "metaKeywordAdd": "追加",
+      "metaKeywordRemove": "キーワードを削除"
     },
     "translationManager": {
       "loading": "読み込み中…",

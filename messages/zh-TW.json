@@ -232,7 +232,19 @@
       "languageLocked": "不可修改",
       "saveNote": "所有改動會立即對讀者生效",
       "translating": "翻譯中",
-      "translatingPlaceholder": "翻譯進行中，暫無內容"
+      "translatingPlaceholder": "翻譯進行中，暫無內容",
+      "sectionSeo": "SEO 設定（選填）",
+      "metaTitle": "Meta 標題",
+      "metaTitleHint": "建議 60 字以內，不填則使用小說標題",
+      "metaTitlePlaceholder": "留空則使用小說標題",
+      "metaDescription": "Meta 描述",
+      "metaDescriptionHint": "建議 150 字以內，不填則使用簡介",
+      "metaDescriptionPlaceholder": "留空則使用小說簡介",
+      "metaKeywords": "Meta 關鍵詞",
+      "metaKeywordsHint": "輸入關鍵詞後按 Enter 逐個新增",
+      "metaKeywordsPlaceholder": "輸入關鍵詞後按 Enter",
+      "metaKeywordAdd": "新增",
+      "metaKeywordRemove": "刪除關鍵詞"
     },
     "translationManager": {
       "loading": "載入中…",

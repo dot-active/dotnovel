@@ -143,6 +143,13 @@ export async function updateNovel(formData: FormData) {
   const locale = formData.get('locale') as string
   const editLocale = (formData.get('editLocale') as string) || ''
 
+  // SEO meta — all optional; empty input is stored as null
+  const metaField = (name: string) =>
+    ((formData.get(name) as string) ?? '').trim() || null
+  const metaTitle = metaField('metaTitle')
+  const metaDescription = metaField('metaDescription')
+  const metaKeywords = metaField('metaKeywords')
+
   if (!title || !description) throw new Error('Title and description are required')
 
   const novel = await prisma.novel.findFirst({ where: { id: novelId, authorId: userId } })
@@ -157,8 +164,16 @@ export async function updateNovel(formData: FormData) {
   if (targetLocale !== novel.sourceLocale) {
     await prisma.novelTranslation.upsert({
       where: { novelId_locale: { novelId, locale: targetLocale } },
-      update: { title, description },
-      create: { novelId, locale: targetLocale, title, description },
+      update: { title, description, metaTitle, metaDescription, metaKeywords },
+      create: {
+        novelId,
+        locale: targetLocale,
+        title,
+        description,
+        metaTitle,
+        metaDescription,
+        metaKeywords,
+      },
     })
 
     revalidatePath(`/${locale}/author/novels/${novelId}/edit`)
@@ -193,8 +208,16 @@ export async function updateNovel(formData: FormData) {
 
   await prisma.novelTranslation.upsert({
     where: { novelId_locale: { novelId, locale: novel.sourceLocale } },
-    update: { title, description },
-    create: { novelId, locale: novel.sourceLocale, title, description },
+    update: { title, description, metaTitle, metaDescription, metaKeywords },
+    create: {
+      novelId,
+      locale: novel.sourceLocale,
+      title,
+      description,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+    },
   })
 
   redirect(`/${locale}/author/dashboard`)

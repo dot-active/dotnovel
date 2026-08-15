@@ -102,7 +102,13 @@ model NovelTranslation {
   title       String
   description String @db.Text
   status      String @default("published")
-  novel       Novel  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  // SEO meta (all optional; fall back to title/description when empty)
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String? // comma-separated
+
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@unique([novelId, locale])
   @@map("novel_translations")

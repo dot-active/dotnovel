@@ -68,6 +68,20 @@ function createPrismaClient() {
 
 const prisma = createPrismaClient()
 
+/**
+ * Optional SEO meta from a locale entry in novel.json. Absent keys are skipped
+ * entirely (never overwrite existing values); an explicit "" clears the field.
+ */
+function metaFields(trans: any): Record<string, string | null> {
+  const out: Record<string, string | null> = {}
+  for (const key of ['metaTitle', 'metaDescription', 'metaKeywords'] as const) {
+    if (trans?.[key] === undefined) continue
+    const value = String(trans[key]).trim()
+    out[key] = value || null
+  }
+  return out
+}
+
 /** Extract leading number from filename, e.g. "01-潘多拉魔盒.txt" → 1 */
 function extractChapterNumber(filename: string): number | null {
   const match = filename.match(/^(\d+)/)
@@ -181,6 +195,7 @@ async function main() {
               title: (trans as any).title,
               description: (trans as any).description ?? '',
               status: 'published',
+              ...metaFields(trans),
             },
           })
         }
@@ -238,6 +253,7 @@ async function main() {
               ...((trans as any).description !== undefined && {
                 description: (trans as any).description,
               }),
+              ...metaFields(trans),
             },
             create: {
               novelId: targetNovelId,
@@ -245,6 +261,7 @@ async function main() {
               title: (trans as any).title,
               description: (trans as any).description ?? '',
               status: 'published',
+              ...metaFields(trans),
             },
           })
         }

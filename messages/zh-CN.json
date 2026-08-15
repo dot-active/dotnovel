@@ -232,7 +232,19 @@
       "languageLocked": "不可修改",
       "saveNote": "所有改动会立即对读者生效",
       "translating": "翻译中",
-      "translatingPlaceholder": "翻译进行中，暂无内容"
+      "translatingPlaceholder": "翻译进行中，暂无内容",
+      "sectionSeo": "SEO 设置（选填）",
+      "metaTitle": "Meta 标题",
+      "metaTitleHint": "建议 60 字以内，不填则使用小说标题",
+      "metaTitlePlaceholder": "留空则使用小说标题",
+      "metaDescription": "Meta 描述",
+      "metaDescriptionHint": "建议 150 字以内，不填则使用简介",
+      "metaDescriptionPlaceholder": "留空则使用小说简介",
+      "metaKeywords": "Meta 关键词",
+      "metaKeywordsHint": "输入关键词后按回车逐个添加",
+      "metaKeywordsPlaceholder": "输入关键词后按回车",
+      "metaKeywordAdd": "添加",
+      "metaKeywordRemove": "删除关键词"
     },
     "translationManager": {
       "loading": "加载中…",

@@ -232,7 +232,19 @@
       "languageLocked": "No se puede cambiar",
       "saveNote": "Los cambios surten efecto de inmediato para los lectores",
       "translating": "Traduciendo",
-      "translatingPlaceholder": "Traducción en curso, aún sin contenido"
+      "translatingPlaceholder": "Traducción en curso, aún sin contenido",
+      "sectionSeo": "Configuración SEO (opcional)",
+      "metaTitle": "Meta título",
+      "metaTitleHint": "Menos de 60 caracteres; si se deja vacío se usa el título de la novela",
+      "metaTitlePlaceholder": "Vacío para usar el título de la novela",
+      "metaDescription": "Meta descripción",
+      "metaDescriptionHint": "Menos de 150 caracteres; si se deja vacío se usa la sinopsis",
+      "metaDescriptionPlaceholder": "Vacío para usar la sinopsis",
+      "metaKeywords": "Meta palabras clave",
+      "metaKeywordsHint": "Escribe una palabra clave y pulsa Enter para añadirla",
+      "metaKeywordsPlaceholder": "Escribe una palabra clave y pulsa Enter",
+      "metaKeywordAdd": "Añadir",
+      "metaKeywordRemove": "Eliminar palabra clave"
     },
     "translationManager": {
       "loading": "Cargando…",

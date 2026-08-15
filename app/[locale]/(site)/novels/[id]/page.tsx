@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { auth } from '@clerk/nextjs/server'
@@ -43,6 +44,34 @@ function formatCharStat(chars: number, locale: string): string {
     return `${(chars / 1000).toFixed(0)}천`
   }
   return `${(chars / 1000).toFixed(0)}K`
+}
+
+export async function generateMetadata({
+  params: { locale, id },
+}: {
+  params: { locale: string; id: string }
+}): Promise<Metadata> {
+  const translation = await prisma.novelTranslation.findFirst({
+    where: { novelId: id, locale, status: 'published' },
+    select: {
+      title: true,
+      description: true,
+      metaTitle: true,
+      metaDescription: true,
+      metaKeywords: true,
+    },
+  })
+
+  const title = translation?.metaTitle || translation?.title || '小说详情'
+  const description = translation?.metaDescription || translation?.description || ''
+
+  return {
+    title,
+    description,
+    // undefined rather than '' so no empty <meta name="keywords"> is emitted
+    keywords: translation?.metaKeywords || undefined,
+    openGraph: { title, description },
+  }
 }
 
 export default async function NovelDetailPage({

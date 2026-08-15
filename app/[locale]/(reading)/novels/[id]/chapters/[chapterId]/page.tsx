@@ -1,9 +1,47 @@
+import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import ReaderClient from './_components/ReaderClient'
+
+export async function generateMetadata({
+  params: { locale, id, chapterId },
+}: {
+  params: { locale: string; id: string; chapterId: string }
+}): Promise<Metadata> {
+  // Chapter pages inherit the novel's meta settings; only the title is chapter-specific.
+  const [translation, chapterTr] = await Promise.all([
+    prisma.novelTranslation.findFirst({
+      where: { novelId: id, locale, status: 'published' },
+      select: {
+        title: true,
+        description: true,
+        metaTitle: true,
+        metaDescription: true,
+        metaKeywords: true,
+      },
+    }),
+    prisma.chapterTranslation.findFirst({
+      where: { chapterId, locale, status: 'published' },
+      select: { title: true },
+    }),
+  ])
+
+  const novelTitle = translation?.metaTitle || translation?.title || ''
+  const chapterTitle = chapterTr?.title ?? ''
+  const title = [chapterTitle, novelTitle].filter(Boolean).join(' - ')
+  const description = translation?.metaDescription || translation?.description || ''
+
+  return {
+    title: title || chapterTitle || novelTitle,
+    description,
+    // undefined rather than '' so no empty <meta name="keywords"> is emitted
+    keywords: translation?.metaKeywords || undefined,
+    openGraph: { title: title || chapterTitle || novelTitle, description },
+  }
+}
 
 export default async function ChapterPage({
   params: { locale, id, chapterId },

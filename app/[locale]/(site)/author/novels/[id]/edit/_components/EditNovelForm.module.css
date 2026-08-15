@@ -353,6 +353,181 @@
   line-height: 1.6;
 }
 
+/* ── Section 4: SEO accordion ── */
+.seoBlock {
+  margin-top: 56px;
+  border: 1px solid var(--cream-line);
+}
+
+.seoHead {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--cream-deep);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.seoHead:hover {
+  background: var(--cream-line);
+}
+
+.seoHeadTitle {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.seoCaret {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--bark);
+  border-bottom: 1.5px solid var(--bark);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.seoHead.open .seoCaret {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.seoPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.seoPanel.open {
+  grid-template-rows: 1fr;
+}
+
+.seoPanel > .seoPanelInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.seoPanelInner > .field {
+  padding: 0 20px;
+  margin-bottom: 24px;
+}
+
+.seoPanelInner > .field:first-child {
+  padding-top: 24px;
+}
+
+.seoPanelInner > .field:last-child {
+  margin-bottom: 0;
+  padding-bottom: 24px;
+}
+
+/* ── Keyword chips input ── */
+.kwBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--cream-line);
+  transition: border-color 0.15s;
+}
+
+.kwBox:focus-within {
+  border-bottom-color: var(--bark);
+}
+
+.kwChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--cream);
+  background: var(--bark);
+  border: 1px solid var(--bark);
+  border-radius: 999px;
+  padding: 5px 8px 5px 14px;
+  white-space: nowrap;
+}
+
+.kwChipX {
+  border: 0;
+  background: transparent;
+  color: var(--cream);
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s;
+}
+
+.kwChipX:hover {
+  opacity: 1;
+}
+
+.kwInput {
+  flex: 1;
+  min-width: 140px;
+  border: 0;
+  background: transparent;
+  padding: 4px 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--ink);
+  outline: none;
+}
+
+.kwAdd {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--bark);
+  background: transparent;
+  border: 1px solid var(--cream-line);
+  border-radius: 999px;
+  padding: 5px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.kwAdd:hover {
+  border-color: var(--bark);
+  background: var(--cream-deep);
+}
+
+.hintRow {
+  margin-top: 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.hint {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--bark-soft);
+  line-height: 1.6;
+}
+
+.countOver {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 500;
+}
+
 /* ── Footer bar ── */
 .footerBar {
   margin-top: 64px;

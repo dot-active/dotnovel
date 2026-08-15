@@ -232,7 +232,19 @@
       "languageLocked": "Cannot be changed",
       "saveNote": "Changes take effect immediately for readers",
       "translating": "Translating",
-      "translatingPlaceholder": "Translation in progress, no content yet"
+      "translatingPlaceholder": "Translation in progress, no content yet",
+      "sectionSeo": "SEO settings (optional)",
+      "metaTitle": "Meta title",
+      "metaTitleHint": "Keep under 60 characters; falls back to the novel title",
+      "metaTitlePlaceholder": "Leave empty to use the novel title",
+      "metaDescription": "Meta description",
+      "metaDescriptionHint": "Keep under 150 characters; falls back to the synopsis",
+      "metaDescriptionPlaceholder": "Leave empty to use the synopsis",
+      "metaKeywords": "Meta keywords",
+      "metaKeywordsHint": "Type a keyword and press Enter to add it",
+      "metaKeywordsPlaceholder": "Type a keyword, then press Enter",
+      "metaKeywordAdd": "Add",
+      "metaKeywordRemove": "Remove keyword"
     },
     "translationManager": {
       "loading": "Loading…",

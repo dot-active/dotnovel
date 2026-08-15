@@ -71,6 +71,9 @@ export default async function EditNovelPage({
             coverUrl: novel.coverUrl ?? '',
             sourceLocale: novel.sourceLocale,
             isAdult: novel.isAdult,
+            metaTitle: sourceTr?.metaTitle ?? '',
+            metaDescription: sourceTr?.metaDescription ?? '',
+            metaKeywords: sourceTr?.metaKeywords ?? '',
           }}
           categories={categories}
           locale={locale}
@@ -79,6 +82,9 @@ export default async function EditNovelPage({
             title: tr.title,
             description: tr.description,
             status: tr.status,
+            metaTitle: tr.metaTitle ?? '',
+            metaDescription: tr.metaDescription ?? '',
+            metaKeywords: tr.metaKeywords ?? '',
           }))}
           translationRequests={translationRequests}
           initialLang={initialLang}

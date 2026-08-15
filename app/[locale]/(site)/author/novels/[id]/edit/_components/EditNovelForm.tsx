@@ -21,6 +21,14 @@ const STATUS_OPTIONS = [
   { value: 'HIATUS', labelKey: 'HIATUS' },
 ]
 
+/** "a, b , ,c" → ["a", "b", "c"] */
+function splitKeywords(raw: string): string[] {
+  return raw
+    .split(',')
+    .map(k => k.trim())
+    .filter(Boolean)
+}
+
 interface NovelData {
   id: string
   title: string
@@ -30,6 +38,9 @@ interface NovelData {
   coverUrl: string
   sourceLocale: string
   isAdult: boolean
+  metaTitle: string
+  metaDescription: string
+  metaKeywords: string
 }
 
 interface Category {
@@ -42,6 +53,9 @@ interface Translation {
   title: string
   description: string
   status: string
+  metaTitle: string
+  metaDescription: string
+  metaKeywords: string
 }
 
 interface TranslationRequest {
@@ -91,6 +105,14 @@ export default function EditNovelForm({
   const [titleLen, setTitleLen] = useState(novel.title.length)
   const [descLen, setDescLen] = useState(novel.description.length)
 
+  // SEO meta (per locale, all optional)
+  const [seoOpen, setSeoOpen] = useState(false)
+  const [metaTitle, setMetaTitle] = useState(novel.metaTitle)
+  const [metaDescription, setMetaDescription] = useState(novel.metaDescription)
+  // Keywords are edited one at a time as chips, stored comma-separated
+  const [keywords, setKeywords] = useState<string[]>(splitKeywords(novel.metaKeywords))
+  const [keywordDraft, setKeywordDraft] = useState('')
+
   const isSourceSelected = selectedLang === novel.sourceLocale
 
   // Build available locales for dropdown: source + existing translations + active requests
@@ -116,12 +138,20 @@ export default function EditNovelForm({
       setDescValue(novel.description)
       setTitleLen(novel.title.length)
       setDescLen(novel.description.length)
+      setMetaTitle(novel.metaTitle)
+      setMetaDescription(novel.metaDescription)
+      setKeywords(splitKeywords(novel.metaKeywords))
+      setKeywordDraft('')
     } else {
       const tr = translations.find(t => t.locale === selectedLang)
       setTitleValue(tr?.title ?? '')
       setDescValue(tr?.description ?? '')
       setTitleLen((tr?.title ?? '').length)
       setDescLen((tr?.description ?? '').length)
+      setMetaTitle(tr?.metaTitle ?? '')
+      setMetaDescription(tr?.metaDescription ?? '')
+      setKeywords(splitKeywords(tr?.metaKeywords ?? ''))
+      setKeywordDraft('')
     }
   }, [selectedLang])
 
@@ -140,6 +170,32 @@ export default function EditNovelForm({
     setFileError(null)
     setCoverFile(file)
     setCoverPreview(URL.createObjectURL(file))
+  }
+
+  /** Commit the draft as one or more keywords (pasted text may contain commas). */
+  function commitKeywordDraft() {
+    const parts = splitKeywords(keywordDraft)
+    if (parts.length === 0) { setKeywordDraft(''); return }
+    setKeywords(prev => {
+      const next = [...prev]
+      for (const p of parts) if (!next.includes(p)) next.push(p)
+      return next
+    })
+    setKeywordDraft('')
+  }
+
+  function handleKeywordKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' || e.key === ',') {
+      // Enter would otherwise submit the whole form
+      e.preventDefault()
+      commitKeywordDraft()
+    } else if (e.key === 'Backspace' && keywordDraft === '' && keywords.length > 0) {
+      setKeywords(prev => prev.slice(0, -1))
+    }
+  }
+
+  function removeKeyword(index: number) {
+    setKeywords(prev => prev.filter((_, i) => i !== index))
   }
 
   function toggleCat(catId: string) {
@@ -172,6 +228,13 @@ export default function EditNovelForm({
       formData.set('editLocale', selectedLang)
       formData.set('isAdult', isAdult ? 'true' : 'false')
       if (coverUrl) formData.set('coverUrl', coverUrl)
+
+      // Keywords live in state, not a form field — include any uncommitted draft
+      const allKeywords = [...keywords]
+      for (const p of splitKeywords(keywordDraft)) {
+        if (!allKeywords.includes(p)) allKeywords.push(p)
+      }
+      formData.set('metaKeywords', allKeywords.join(', '))
 
       await updateNovel(formData)
       // Translation-locale saves resolve normally (no redirect) — reset the button
@@ -368,6 +431,96 @@ export default function EditNovelForm({
             />
             <span className={styles.toggleSub}>{t('isAdultHint')}</span>
           </label>
+        </div>
+      </div>
+
+      {/* ── Section 4: SEO (collapsible, optional) ── */}
+      <div className={styles.seoBlock}>
+        <button
+          type="button"
+          className={`${styles.seoHead}${seoOpen ? ` ${styles.open}` : ''}`}
+          onClick={() => setSeoOpen(o => !o)}
+          aria-expanded={seoOpen}
+        >
+          <span className={styles.seoHeadTitle}>{t('sectionSeo')}</span>
+          <span className={styles.seoCaret} aria-hidden="true" />
+        </button>
+
+        <div className={`${styles.seoPanel}${seoOpen ? ` ${styles.open}` : ''}`}>
+          <div className={styles.seoPanelInner}>
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}><span>{t('metaTitle')}</span></div>
+              <input
+                name="metaTitle"
+                type="text"
+                value={metaTitle}
+                placeholder={t('metaTitlePlaceholder')}
+                className={styles.input}
+                onChange={e => setMetaTitle(e.target.value)}
+              />
+              <div className={styles.hintRow}>
+                <span className={styles.hint}>{t('metaTitleHint')}</span>
+                <span className={`${styles.count}${metaTitle.length > 60 ? ` ${styles.countOver}` : ''}`}>
+                  {metaTitle.length} / 60
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}><span>{t('metaDescription')}</span></div>
+              <textarea
+                name="metaDescription"
+                rows={3}
+                value={metaDescription}
+                placeholder={t('metaDescriptionPlaceholder')}
+                className={styles.textarea}
+                onChange={e => setMetaDescription(e.target.value)}
+              />
+              <div className={styles.hintRow}>
+                <span className={styles.hint}>{t('metaDescriptionHint')}</span>
+                <span className={`${styles.count}${metaDescription.length > 150 ? ` ${styles.countOver}` : ''}`}>
+                  {metaDescription.length} / 150
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}><span>{t('metaKeywords')}</span></div>
+              <div className={styles.kwBox}>
+                {keywords.map((kw, i) => (
+                  <span key={`${kw}-${i}`} className={styles.kwChip}>
+                    {kw}
+                    <button
+                      type="button"
+                      className={styles.kwChipX}
+                      onClick={() => removeKeyword(i)}
+                      aria-label={`${t('metaKeywordRemove')}：${kw}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={keywordDraft}
+                  placeholder={keywords.length === 0 ? t('metaKeywordsPlaceholder') : ''}
+                  className={styles.kwInput}
+                  onChange={e => setKeywordDraft(e.target.value)}
+                  onKeyDown={handleKeywordKeyDown}
+                  onBlur={commitKeywordDraft}
+                />
+                {keywordDraft.trim() && (
+                  <button type="button" className={styles.kwAdd} onClick={commitKeywordDraft}>
+                    {t('metaKeywordAdd')}
+                  </button>
+                )}
+              </div>
+              <div className={styles.hintRow}>
+                <span className={styles.hint}>{t('metaKeywordsHint')}</span>
+                <span className={styles.count}>{keywords.length}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
