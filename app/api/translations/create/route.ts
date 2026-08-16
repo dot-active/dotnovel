@@ -44,16 +44,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ conflict: 'paused' }, { status: 409 })
   }
 
-  // Count source chapters
-  const chapterCount = await prisma.chapter.count({
-    where: { novelId, publishStatus: 'published' },
-  })
-
-  // Upsert translation request (triggerRunId cleared so stuck-run sync ignores it)
+  // Upsert translation request (triggerRunId cleared so stuck-run sync ignores it).
+  // This request only tracks the novel title/description job — chapter
+  // translation is triggered separately from the chapters page.
   const trReq = await prisma.translationRequest.upsert({
     where: { novelId_targetLocale: { novelId, targetLocale } },
-    create: { novelId, targetLocale, status: 'pending', totalChapters: chapterCount },
-    update: { status: 'pending', doneChapters: 0, totalChapters: chapterCount, triggerRunId: null, errorMessage: null },
+    create: { novelId, targetLocale, status: 'pending' },
+    update: { status: 'pending', triggerRunId: null, errorMessage: null },
   })
 
   // Trigger the task — revert to failed if this fails so the DB never stays in

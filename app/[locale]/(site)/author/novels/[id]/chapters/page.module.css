@@ -42,6 +42,9 @@
   display: inline-block;
   padding: 10px 20px;
   border: 1px solid var(--color-border);
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
   color: var(--color-text-secondary);
   font-size: 0.9375rem;
   font-weight: 500;
@@ -215,6 +218,7 @@
 .colActions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   padding-top: 2px;
 }
 
@@ -222,6 +226,9 @@
   font-size: 0.8125rem;
   padding: 4px 12px;
   border: 1px solid var(--color-border);
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
   border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
   white-space: nowrap;

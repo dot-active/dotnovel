@@ -4,6 +4,8 @@ import { auth } from '@clerk/nextjs/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import VolumeManager from './_components/VolumeManager'
+import TranslateAllChaptersButton from './_components/TranslateAllChaptersButton'
+import ChapterTranslateButton from './_components/ChapterTranslateButton'
 import styles from './page.module.css'
 
 const ALL_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] as const
@@ -98,6 +100,7 @@ export default async function AuthorChapterListPage({
           <Link href={`/author/novels/${id}/edit`} className={styles.settingsBtn}>
             {t('novelSettings')}
           </Link>
+          <TranslateAllChaptersButton novelId={id} sourceLocale={novel.sourceLocale} />
           <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
             + {t('addChapter')}
           </Link>
@@ -170,6 +173,7 @@ export default async function AuthorChapterListPage({
                       >
                         {t('preview')}
                       </Link>
+                      <ChapterTranslateButton chapterId={chapter.id} sourceLocale={novel.sourceLocale} />
                     </div>
                   </div>
                 )

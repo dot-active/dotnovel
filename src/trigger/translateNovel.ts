@@ -29,19 +29,13 @@ export const translateNovel = task({
         data: { status: 'processing' },
       })
 
-      // 2. Fetch source novel — include all non-target translations (any status) as source candidates
+      // 2. Fetch source novel translation — this task only translates the
+      // novel's own title/description. Chapter translation is a separate,
+      // author-triggered flow (see translate-chapter / translate-chapters).
       const novel = await prisma.novel.findUniqueOrThrow({
         where: { id: novelId },
         include: {
           translations: { where: { locale: { not: targetLocale } } },
-          chapters: {
-            orderBy: { order: 'asc' },
-            include: {
-              // Include all non-target translations regardless of status so we always
-              // have source text even when the author saved chapters as draft
-              translations: { where: { locale: { not: targetLocale } } },
-            },
-          },
         },
       })
 
@@ -50,15 +44,6 @@ export const translateNovel = task({
         novel.translations.find(t => t.locale === novel.sourceLocale) ??
         novel.translations[0]
       if (!srcNovelTr) throw new Error('No novel translation found as source')
-
-      // All published chapters — fall back to chapter.title/content if no ChapterTranslation exists
-      const chapters = novel.chapters
-      const totalChapters = chapters.length
-
-      await prisma.translationRequest.update({
-        where: { id: translationRequestId },
-        data: { totalChapters },
-      })
 
       const convertZh = (text: string, src: string) =>
         src === 'zh-CN' ? simplifiedToTraditional(text) : traditionalToSimplified(text)
@@ -83,31 +68,6 @@ export const translateNovel = task({
             status: 'published',
           },
         })
-
-        for (const chapter of chapters) {
-          // Prefer sourceLocale translation; fall back to any other translation, then native fields
-          const srcTr =
-            chapter.translations.find(t => t.locale === sourceLocale) ??
-            chapter.translations[0]
-          const srcTitle = srcTr?.title ?? chapter.title
-          const srcContent = srcTr?.content ?? chapter.content
-
-          await prisma.chapterTranslation.upsert({
-            where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
-            create: {
-              chapterId: chapter.id,
-              locale: targetLocale,
-              title: convertZh(srcTitle, sourceLocale),
-              content: convertZh(srcContent, sourceLocale),
-              status: 'draft',
-            },
-            update: {
-              title: convertZh(srcTitle, sourceLocale),
-              content: convertZh(srcContent, sourceLocale),
-              status: 'draft',
-            },
-          })
-        }
       } else {
         // 3b. Claude API path
         const [translatedTitle, translatedDesc] = await Promise.all([
@@ -120,32 +80,6 @@ export const translateNovel = task({
           create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'published' },
           update: { title: translatedTitle, description: translatedDesc, status: 'published' },
         })
-
-        for (let i = 0; i < chapters.length; i++) {
-          const chapter = chapters[i]
-          // Prefer sourceLocale translation; fall back to any other translation, then native fields
-          const srcTr =
-            chapter.translations.find(t => t.locale === sourceLocale) ??
-            chapter.translations[0]
-          const srcTitle = srcTr?.title ?? chapter.title
-          const srcContent = srcTr?.content ?? chapter.content
-
-          const [tTitle, tContent] = await Promise.all([
-            translateWithClaude(srcTitle, targetLocale, 'title'),
-            translateWithClaude(srcContent, targetLocale, 'content'),
-          ])
-
-          await prisma.chapterTranslation.upsert({
-            where: { chapterId_locale: { chapterId: chapter.id, locale: targetLocale } },
-            create: { chapterId: chapter.id, locale: targetLocale, title: tTitle, content: tContent, status: 'draft' },
-            update: { title: tTitle, content: tContent, status: 'draft' },
-          })
-
-          await prisma.translationRequest.update({
-            where: { id: translationRequestId },
-            data: { doneChapters: i + 1 },
-          })
-        }
       }
 
       // 4. Mark complete

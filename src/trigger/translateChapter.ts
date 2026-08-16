@@ -64,12 +64,11 @@ export const translateChapter = task({
       update: { title: translatedTitle, content: translatedContent },
     })
 
+    // totalChapters is set upfront by the caller (translateChapters wrapper,
+    // or the single-chapter API route) — this only reports progress.
     await prisma.translationRequest.update({
       where: { novelId_targetLocale: { novelId, targetLocale } },
-      data: {
-        totalChapters: { increment: 1 },
-        doneChapters: { increment: 1 },
-      },
+      data: { doneChapters: { increment: 1 } },
     })
   },
 })

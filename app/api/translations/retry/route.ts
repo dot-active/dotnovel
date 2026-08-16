@@ -21,13 +21,9 @@ export async function POST(req: NextRequest) {
   })
   if (!trReq) return NextResponse.json({ error: 'Translation request not found' }, { status: 404 })
 
-  const chapterCount = await prisma.chapter.count({
-    where: { novelId, publishStatus: 'published' },
-  })
-
   await prisma.translationRequest.update({
     where: { id: trReq.id },
-    data: { status: 'pending', doneChapters: 0, totalChapters: chapterCount, errorMessage: null },
+    data: { status: 'pending', errorMessage: null },
   })
 
   const handle = await tasks.trigger<typeof translateNovel>('translate-novel', {
