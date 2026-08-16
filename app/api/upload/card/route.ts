@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextResponse } from 'next/server'
 import { r2, R2_BUCKET, r2PublicUrl } from '@/lib/r2'
+import { prisma } from '@/lib/prisma'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_SIZE = 2 * 1024 * 1024
@@ -18,6 +19,14 @@ export async function POST(req: Request) {
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
   if (!novelId || !cardId)
     return NextResponse.json({ error: 'Missing novelId or cardId' }, { status: 400 })
+
+  const card = await prisma.novelCard.findFirst({
+    where: { id: cardId, novelId },
+    include: { novel: { select: { authorId: true } } },
+  })
+  if (!card || card.novel.authorId !== userId)
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
   if (!ALLOWED_TYPES.includes(file.type))
     return NextResponse.json({ error: 'Only JPG, PNG, WebP are allowed' }, { status: 400 })
   if (file.size > MAX_SIZE)

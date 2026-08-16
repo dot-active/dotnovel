@@ -306,8 +306,9 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
               )}
               {!currentUserId && (
                 <span className={styles.nicknameField}>
-                  <label className={styles.fieldLabel}>{t('nicknameLabel')}</label>
+                  <label className={styles.fieldLabel} htmlFor="comment-nickname">{t('nicknameLabel')}</label>
                   <input
+                    id="comment-nickname"
                     type="text"
                     className={styles.nicknameInput}
                     placeholder={t('nicknamePlaceholder')}
@@ -320,6 +321,7 @@ export default function ParagraphComments({ chapterId, paragraphIndex, currentUs
               <textarea
                 className={styles.textarea}
                 placeholder={replyTo ? t('inputPlaceholderReply', { name: replyTo.authorName }) : t('inputPlaceholder')}
+                aria-label={replyTo ? t('inputPlaceholderReply', { name: replyTo.authorName }) : t('inputPlaceholder')}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value.slice(0, 500))}
                 rows={2}

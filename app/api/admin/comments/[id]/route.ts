@@ -1,21 +1,14 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-
-async function requireAdmin() {
-  const { userId } = await auth()
-  if (!userId) return false
-  const user = await currentUser()
-  return user?.publicMetadata?.role === 'admin'
-}
+import { getAuthRole } from '@/lib/auth'
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const { userId, isAdmin } = await getAuthRole()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json().catch(() => ({}))
   const soft = body.soft !== false
@@ -36,9 +29,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const { userId, isAdmin } = await getAuthRole()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
   if (typeof body.isDeleted !== 'boolean') {

@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
+import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
@@ -95,7 +96,13 @@ export default async function AuthorDashboardPage({
               <div key={novel.id} className={styles.tableRow}>
                 <div className={styles.novelInfo}>
                   {novel.coverUrl ? (
-                    <img src={novel.coverUrl} alt="" className={styles.coverThumb} />
+                    <Image
+                      src={novel.coverUrl}
+                      alt={tr?.title ?? novel.title}
+                      width={36}
+                      height={48}
+                      className={styles.coverThumb}
+                    />
                   ) : (
                     <div className={styles.coverPlaceholder}>
                       {(tr?.title ?? novel.title)[0]}

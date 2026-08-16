@@ -12,7 +12,9 @@ export async function POST(req: Request) {
 
   const formData = await req.formData()
   const file = formData.get('file') as File | null
-  const uploadId = (formData.get('uploadId') as string) || crypto.randomUUID()
+  // Always generate server-side — a client-supplied id would let a caller
+  // overwrite another user's cover object at a guessable/known key.
+  const uploadId = crypto.randomUUID()
 
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
   if (!ALLOWED_TYPES.includes(file.type))

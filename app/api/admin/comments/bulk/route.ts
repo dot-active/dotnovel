@@ -1,14 +1,11 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthRole } from '@/lib/auth'
 
 export async function DELETE(req: NextRequest) {
-  const { userId } = await auth()
+  const { userId, isAdmin } = await getAuthRole()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const user = await currentUser()
-  if (user?.publicMetadata?.role !== 'admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
   const { ids, soft } = body

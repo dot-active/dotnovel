@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
+import Image from 'next/image'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import { formatCount } from '@/lib/formatCount'
+import { buildAlternates } from '@/lib/site'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenNib, faGlobe, faBookOpen, faEye } from '@fortawesome/free-solid-svg-icons'
 import styles from './page.module.css'
@@ -86,6 +89,25 @@ const TRANS_CARD_DATA: Record<string, {
   },
 }
 
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: 'home' })
+  const title = `${t('heroTitle')} · NovelPhere`
+  const description = t('heroSubtitle')
+  const { canonical, languages } = buildAlternates(locale, '')
+
+  return {
+    title,
+    description,
+    alternates: { canonical, languages },
+    openGraph: { title, description, url: canonical, type: 'website' },
+    twitter: { card: 'summary', title, description },
+  }
+}
+
 export default async function HomePage({
   params: { locale },
 }: {
@@ -118,6 +140,7 @@ export default async function HomePage({
         },
       },
       orderBy: { updatedAt: 'desc' },
+      take: 8,
     }),
     prisma.novel.findMany({
       where: {
@@ -219,7 +242,15 @@ export default async function HomePage({
                 <Link key={novel.id} href={`/novels/${novel.id}`} className={styles.fcard}>
                   <div className={`${styles.fcardCover} ${styles[coverClass]}`}>
                     {novel.coverUrl
-                      ? <img src={novel.coverUrl} alt="" className={styles.fcardCoverImg} />
+                      ? (
+                        <Image
+                          src={novel.coverUrl}
+                          alt={tr?.title ?? novel.title}
+                          fill
+                          sizes="(max-width: 768px) 45vw, 220px"
+                          className={styles.fcardCoverImg}
+                        />
+                      )
                       : (tr?.title ?? novel.title).slice(0, 6)
                     }
                   </div>

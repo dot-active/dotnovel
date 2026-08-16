@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { auth } from '@clerk/nextjs/server'
 import { cookies } from 'next/headers'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { formatCount } from '@/lib/formatCount'
+import { SITE_URL } from '@/lib/site'
+import { routing } from '@/i18n/routing'
 import FavoriteButton from './_components/FavoriteButton'
 import VolumeAccordion from './_components/VolumeAccordion'
 import styles from './page.module.css'
@@ -51,26 +55,56 @@ export async function generateMetadata({
 }: {
   params: { locale: string; id: string }
 }): Promise<Metadata> {
-  const translation = await prisma.novelTranslation.findFirst({
-    where: { novelId: id, locale, status: 'published' },
-    select: {
-      title: true,
-      description: true,
-      metaTitle: true,
-      metaDescription: true,
-      metaKeywords: true,
-    },
-  })
+  const [translation, publishedLocales, novel] = await Promise.all([
+    prisma.novelTranslation.findFirst({
+      where: { novelId: id, locale, status: 'published' },
+      select: {
+        title: true,
+        description: true,
+        metaTitle: true,
+        metaDescription: true,
+        metaKeywords: true,
+      },
+    }),
+    prisma.novelTranslation.findMany({
+      where: { novelId: id, status: 'published' },
+      select: { locale: true },
+    }),
+    prisma.novel.findUnique({ where: { id }, select: { coverUrl: true } }),
+  ])
 
   const title = translation?.metaTitle || translation?.title || '小说详情'
   const description = translation?.metaDescription || translation?.description || ''
+
+  const pathSuffix = `novels/${id}`
+  const canonical = `${SITE_URL}/${locale}/${pathSuffix}`
+  const languages: Record<string, string> = {}
+  for (const row of publishedLocales) {
+    if (routing.locales.includes(row.locale as (typeof routing.locales)[number])) {
+      languages[row.locale] = `${SITE_URL}/${row.locale}/${pathSuffix}`
+    }
+  }
+  const coverUrl = novel?.coverUrl
 
   return {
     title,
     description,
     // undefined rather than '' so no empty <meta name="keywords"> is emitted
     keywords: translation?.metaKeywords || undefined,
-    openGraph: { title, description },
+    alternates: { canonical, languages },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'book',
+      ...(coverUrl ? { images: [{ url: coverUrl }] } : {}),
+    },
+    twitter: {
+      card: coverUrl ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      ...(coverUrl ? { images: [coverUrl] } : {}),
+    },
   }
 }
 
@@ -96,7 +130,7 @@ export default async function NovelDetailPage({
             id: true,
             order: true,
             createdAt: true,
-            translations: { where: { locale, status: 'published' }, select: { title: true, content: true } },
+            translations: { where: { locale, status: 'published' }, select: { title: true } },
           },
         },
         volumes: {
@@ -110,7 +144,7 @@ export default async function NovelDetailPage({
                 id: true,
                 order: true,
                 createdAt: true,
-                translations: { where: { locale, status: 'published' }, select: { title: true, content: true } },
+                translations: { where: { locale, status: 'published' }, select: { title: true } },
               },
             },
           },
@@ -141,16 +175,44 @@ export default async function NovelDetailPage({
     (a, b) => a.order - b.order
   )
 
+  // Fetch only content lengths (not the text itself) to avoid pulling the
+  // entire novel's translated text over the wire just to show word counts.
+  const chapterIds = allChapters.map((ch) => ch.id)
+  const lengthRows =
+    chapterIds.length > 0
+      ? await prisma.$queryRaw<{ chapterId: string; len: number }[]>(
+          Prisma.sql`SELECT "chapterId", LENGTH(content) AS len FROM chapter_translations WHERE locale = ${locale} AND status = 'published' AND "chapterId" IN (${Prisma.join(chapterIds)})`
+        )
+      : []
+  const lengthByChapterId = new Map(lengthRows.map((r) => [r.chapterId, Number(r.len)]))
+
   const totalChars = allChapters.reduce(
-    (sum, ch) => sum + (ch.translations[0]?.content.length ?? 0),
+    (sum, ch) => sum + (lengthByChapterId.get(ch.id) ?? 0),
     0
   )
   const firstChapter = allChapters[0]
   const isFavorited = favoriteRecord !== null
   const isLive = novel.status === 'ONGOING'
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    name: tr.title,
+    author: { '@type': 'Person', name: novel.author },
+    ...(tr.description ? { description: tr.description } : {}),
+    ...(novel.coverUrl ? { image: novel.coverUrl } : {}),
+    url: `${SITE_URL}/${locale}/novels/${novel.id}`,
+    inLanguage: locale,
+    numberOfPages: allChapters.length,
+  }
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       {/* Breadcrumb */}
       <div className={styles.crumbs}>
         <Link href="/novels">{tNav('novels')}</Link>
@@ -164,7 +226,14 @@ export default async function NovelDetailPage({
         <div className={styles.coverStack}>
           <div className={styles.cover}>
             {novel.coverUrl ? (
-              <img src={novel.coverUrl} alt={tr.title} className={styles.coverImg} />
+              <Image
+                src={novel.coverUrl}
+                alt={tr.title}
+                fill
+                sizes="280px"
+                priority
+                className={styles.coverImg}
+              />
             ) : (
               <>
                 <div className={styles.coverTop}>{novel.sourceLocale}</div>
@@ -278,11 +347,11 @@ export default async function NovelDetailPage({
   )
 
   function renderChapterRow(
-    chapter: { id: string; createdAt: Date; translations: { title: string; content: string }[] },
+    chapter: { id: string; createdAt: Date; translations: { title: string }[] },
     i: number
   ) {
     const chTr = chapter.translations[0]
-    const wordCount = chTr?.content.length ?? 0
+    const wordCount = lengthByChapterId.get(chapter.id) ?? 0
     const dateStr = new Date(chapter.createdAt).toLocaleDateString(locale, {
       month: 'long',
       day: 'numeric',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, SignOutButton, UserButton, useAuth } from '@clerk/nextjs'
 import { useTranslations } from 'next-intl'
@@ -25,8 +25,14 @@ export default function HeaderAuth() {
       .catch(() => {})
   }, [isSignedIn])
 
-  const loadPoints = useCallback(() => {
+  const lastPointsFetchRef = useRef(0)
+  const MIN_POINTS_INTERVAL_MS = 30_000
+
+  const loadPoints = useCallback((force = false) => {
     if (!isSignedIn) return
+    const now = Date.now()
+    if (!force && now - lastPointsFetchRef.current < MIN_POINTS_INTERVAL_MS) return
+    lastPointsFetchRef.current = now
     fetch('/api/profile/points?limit=1')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => data && setPoints(data.points))
@@ -34,15 +40,21 @@ export default function HeaderAuth() {
   }, [isSignedIn])
 
   // The header lives in the layout, so it never remounts while navigating
-  // between pages — refetch on every navigation and when the tab regains
-  // focus, otherwise the total stays frozen at whatever it was on first load.
+  // between pages. Fetch once on sign-in, then only every MIN_POINTS_INTERVAL_MS
+  // on subsequent navigations/focus — points change rarely, so polling on
+  // every single click would multiply DB load with page views for no benefit.
+  useEffect(() => {
+    loadPoints(true)
+  }, [isSignedIn]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     loadPoints()
   }, [loadPoints, pathname])
 
   useEffect(() => {
-    window.addEventListener('focus', loadPoints)
-    return () => window.removeEventListener('focus', loadPoints)
+    const onFocus = () => loadPoints()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [loadPoints])
 
   return (

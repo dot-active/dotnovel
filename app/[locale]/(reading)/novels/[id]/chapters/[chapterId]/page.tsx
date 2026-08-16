@@ -4,6 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { SITE_URL } from '@/lib/site'
+import { routing } from '@/i18n/routing'
 import ReaderClient from './_components/ReaderClient'
 
 export async function generateMetadata({
@@ -12,7 +14,7 @@ export async function generateMetadata({
   params: { locale: string; id: string; chapterId: string }
 }): Promise<Metadata> {
   // Chapter pages inherit the novel's meta settings; only the title is chapter-specific.
-  const [translation, chapterTr] = await Promise.all([
+  const [translation, chapterTr, chapterLocales] = await Promise.all([
     prisma.novelTranslation.findFirst({
       where: { novelId: id, locale, status: 'published' },
       select: {
@@ -21,11 +23,16 @@ export async function generateMetadata({
         metaTitle: true,
         metaDescription: true,
         metaKeywords: true,
+        novel: { select: { coverUrl: true } },
       },
     }),
     prisma.chapterTranslation.findFirst({
       where: { chapterId, locale, status: 'published' },
       select: { title: true },
+    }),
+    prisma.chapterTranslation.findMany({
+      where: { chapterId, status: 'published' },
+      select: { locale: true },
     }),
   ])
 
@@ -33,13 +40,37 @@ export async function generateMetadata({
   const chapterTitle = chapterTr?.title ?? ''
   const title = [chapterTitle, novelTitle].filter(Boolean).join(' - ')
   const description = translation?.metaDescription || translation?.description || ''
+  const finalTitle = title || chapterTitle || novelTitle
+
+  const pathSuffix = `novels/${id}/chapters/${chapterId}`
+  const canonical = `${SITE_URL}/${locale}/${pathSuffix}`
+  const languages: Record<string, string> = {}
+  for (const row of chapterLocales) {
+    if (routing.locales.includes(row.locale as (typeof routing.locales)[number])) {
+      languages[row.locale] = `${SITE_URL}/${row.locale}/${pathSuffix}`
+    }
+  }
+  const coverUrl = translation?.novel.coverUrl
 
   return {
-    title: title || chapterTitle || novelTitle,
+    title: finalTitle,
     description,
     // undefined rather than '' so no empty <meta name="keywords"> is emitted
     keywords: translation?.metaKeywords || undefined,
-    openGraph: { title: title || chapterTitle || novelTitle, description },
+    alternates: { canonical, languages },
+    openGraph: {
+      title: finalTitle,
+      description,
+      url: canonical,
+      type: 'article',
+      ...(coverUrl ? { images: [{ url: coverUrl }] } : {}),
+    },
+    twitter: {
+      card: coverUrl ? 'summary_large_image' : 'summary',
+      title: finalTitle,
+      description,
+      ...(coverUrl ? { images: [coverUrl] } : {}),
+    },
   }
 }
 
@@ -152,8 +183,24 @@ export default async function ChapterPage({
       imageUrl: c.imageUrl,
     }))
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Chapter',
+    name: chTr.title,
+    isPartOf: { '@type': 'Book', name: novelTitle },
+    url: `${SITE_URL}/${locale}/novels/${id}/chapters/${chapterId}`,
+    inLanguage: locale,
+    position: chapter.order,
+  }
+
   return (
-    <ReaderClient
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <ReaderClient
       locale={locale}
       novelId={id}
       chapterId={chapterId}
@@ -176,6 +223,7 @@ export default async function ChapterPage({
       tFirstChapter={t('firstChapter')}
       tLastChapter={t('lastChapter')}
       tCatalog={t('catalog')}
-    />
+      />
+    </>
   )
 }

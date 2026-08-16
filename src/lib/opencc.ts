@@ -1,11 +1,14 @@
 import * as OpenCC from 'opencc-js'
 
+let cnToTw: ReturnType<typeof OpenCC.Converter> | null = null
+let twToCn: ReturnType<typeof OpenCC.Converter> | null = null
+
 export function simplifiedToTraditional(text: string): string {
-  const converter = OpenCC.Converter({ from: 'cn', to: 'twp' })
-  return converter(text)
+  cnToTw ??= OpenCC.Converter({ from: 'cn', to: 'twp' })
+  return cnToTw(text)
 }
 
 export function traditionalToSimplified(text: string): string {
-  const converter = OpenCC.Converter({ from: 'twp', to: 'cn' })
-  return converter(text)
+  twToCn ??= OpenCC.Converter({ from: 'twp', to: 'cn' })
+  return twToCn(text)
 }

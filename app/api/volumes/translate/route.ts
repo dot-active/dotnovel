@@ -2,6 +2,9 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { simplifiedToTraditional, traditionalToSimplified } from '@/lib/opencc'
+import { prisma } from '@/lib/prisma'
+
+const MAX_TITLE_LENGTH = 500
 
 const LOCALE_NAMES: Record<string, string> = {
   'zh-CN': '简体中文',
@@ -20,14 +23,23 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { sourceLocale, title, targetLocales } = body as {
+  const { novelId, sourceLocale, title, targetLocales } = body as {
+    novelId: string
     sourceLocale: string
     title: string
     targetLocales: string[]
   }
 
+  if (!novelId) return NextResponse.json({ error: 'novelId is required' }, { status: 400 })
+  const novel = await prisma.novel.findUnique({ where: { id: novelId }, select: { authorId: true } })
+  if (!novel || novel.authorId !== userId)
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
   if (!title?.trim()) {
     return NextResponse.json({ error: 'Title is required' }, { status: 400 })
+  }
+  if (title.length > MAX_TITLE_LENGTH) {
+    return NextResponse.json({ error: 'Title too long' }, { status: 400 })
   }
   if (!targetLocales?.length) {
     return NextResponse.json({ error: 'No target locales specified' }, { status: 400 })

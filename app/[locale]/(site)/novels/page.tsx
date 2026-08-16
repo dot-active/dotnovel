@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
+import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
 import { formatCount } from '@/lib/formatCount'
+import { buildAlternates } from '@/lib/site'
 import FilterBar from '../_components/FilterBar'
 import styles from './page.module.css'
 
@@ -39,6 +42,23 @@ function buildPageUrl(q: string, category: string, sort: string, page: number) {
   if (page > 1) sp.set('page', String(page))
   const qs = sp.toString()
   return qs ? `?${qs}` : '?'
+}
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const tNav = await getTranslations({ locale, namespace: 'nav' })
+  const title = tNav('novels')
+  const { canonical, languages } = buildAlternates(locale, 'novels')
+
+  return {
+    title,
+    alternates: { canonical, languages },
+    openGraph: { title, url: canonical, type: 'website' },
+    twitter: { card: 'summary', title },
+  }
 }
 
 export default async function NovelsPage({
@@ -159,7 +179,13 @@ export default async function NovelsPage({
                 <span className={styles.bookNum}>{toRoman(i + 1)}.</span>
                 <div className={`${styles.bookCover} ${styles[coverVariant]}`}>
                   {novel.coverUrl ? (
-                    <img src={novel.coverUrl} alt="" className={styles.bookCoverImg} />
+                    <Image
+                      src={novel.coverUrl}
+                      alt={tr?.title ?? novel.title}
+                      fill
+                      sizes="(max-width: 768px) 30vw, 140px"
+                      className={styles.bookCoverImg}
+                    />
                   ) : (
                     (tr?.title ?? novel.title).slice(0, 6)
                   )}

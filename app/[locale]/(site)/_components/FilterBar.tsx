@@ -99,6 +99,7 @@ export default function FilterBar({ categories, currentCategories, currentSort, 
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
             className={styles.searchInput}
           />
         </form>

@@ -1,14 +1,14 @@
 'use server'
 
-import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
+import { clerkClient } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
+import { getAuthRole } from '@/lib/auth'
 
 async function assertAdmin() {
-  const { userId } = await auth()
+  const { userId, isAdmin } = await getAuthRole()
   if (!userId) throw new Error('Unauthorized')
-  const user = await currentUser()
-  if (user?.publicMetadata?.role !== 'admin') throw new Error('Forbidden')
+  if (!isAdmin) throw new Error('Forbidden')
 }
 
 // ── Novels ──────────────────────────────────────────────────────────────────

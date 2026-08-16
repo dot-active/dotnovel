@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond } from 'next/font/google'
 import Script from 'next/script'
+import { getLocale } from 'next-intl/server'
+import { SITE_URL } from '@/lib/site'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -12,6 +14,7 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'NovelPhere · Read & Publish Novels in Any Language',
   description: 'Write once, be read everywhere. dotnovel uses AI to instantly translate novels into 6+ languages, connecting writers with readers worldwide.',
   icons: {
@@ -28,9 +31,10 @@ export const metadata: Metadata = {
   manifest: '/favicons/site.webmanifest',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
-    <html lang="zh-CN" className={cormorant.variable}>
+    <html lang={locale} className={cormorant.variable}>
       <body>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-7ZJJ3YS3JL"

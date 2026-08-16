@@ -1,6 +1,6 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { getAuthRole } from '@/lib/auth'
 import styles from './layout.module.css'
 
 export default async function AdminLayout({
@@ -12,10 +12,9 @@ export default async function AdminLayout({
 }) {
   setRequestLocale(locale)
 
-  const { userId } = await auth()
-  const user = userId ? await currentUser() : null
+  const { userId, isAdmin } = await getAuthRole()
 
-  if (!user || user.publicMetadata?.role !== 'admin') {
+  if (!userId || !isAdmin) {
     return (
       <div className={styles.forbidden}>
         <h1 className={styles.forbiddenCode}>403</h1>

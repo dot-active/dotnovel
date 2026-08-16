@@ -152,6 +152,7 @@ function SortableVolume({
 // ── Create / edit modal ──────────────────────────────────────────────────
 
 function VolumeModal({
+  novelId,
   isEditing,
   sourceLocale,
   availableLocales,
@@ -159,6 +160,7 @@ function VolumeModal({
   onClose,
   onSave,
 }: {
+  novelId: string
   isEditing: boolean
   sourceLocale: string
   availableLocales: string[]
@@ -197,7 +199,7 @@ function VolumeModal({
       const res = await fetch('/api/volumes/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceLocale, title: src.title, targetLocales: targets }),
+        body: JSON.stringify({ novelId, sourceLocale, title: src.title, targetLocales: targets }),
       })
       if (!res.ok) throw new Error(t('translateFailed'))
       const result = (await res.json()) as Record<string, { title: string }>
@@ -455,6 +457,7 @@ export default function VolumeManager({
 
       {modalOpen && (
         <VolumeModal
+          novelId={novelId}
           isEditing={editing !== null}
           sourceLocale={sourceLocale}
           availableLocales={availableLocales}

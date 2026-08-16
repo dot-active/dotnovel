@@ -8,6 +8,8 @@ function displayName(u: { username: string | null; firstName: string | null; las
   return u.username ?? ([u.firstName, u.lastName].filter(Boolean).join(' ') || '用户')
 }
 
+const PAGE_SIZE = 50
+
 export default async function AdminCommentsPage({
   params: { locale },
   searchParams,
@@ -19,11 +21,13 @@ export default async function AdminCommentsPage({
     userType?: string
     sort?: string
     q?: string
+    page?: string
   }
 }) {
   setRequestLocale(locale)
 
   const { novelId, chapterId, userType, sort, q } = searchParams
+  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10) || 1)
 
   const [novels, chapters] = await Promise.all([
     prisma.novel.findMany({
@@ -46,7 +50,7 @@ export default async function AdminCommentsPage({
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
 
-  const [comments, totalCount, todayCount, anonCount, deletedCount] = await Promise.all([
+  const [comments, filteredCount, totalCount, todayCount, anonCount, deletedCount] = await Promise.all([
     prisma.comment.findMany({
       where,
       include: {
@@ -54,12 +58,27 @@ export default async function AdminCommentsPage({
         parent: { select: { content: true } },
       },
       orderBy: { createdAt: sort === 'asc' ? 'asc' : 'desc' },
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
     }),
+    prisma.comment.count({ where }),
     prisma.comment.count(),
     prisma.comment.count({ where: { createdAt: { gte: todayStart } } }),
     prisma.comment.count({ where: { userId: null } }),
     prisma.comment.count({ where: { isDeleted: true } }),
   ])
+
+  const totalPages = Math.max(1, Math.ceil(filteredCount / PAGE_SIZE))
+  const pageQuery = (p: number) => {
+    const sp = new URLSearchParams()
+    if (novelId) sp.set('novelId', novelId)
+    if (chapterId) sp.set('chapterId', chapterId)
+    if (userType) sp.set('userType', userType)
+    if (sort) sp.set('sort', sort)
+    if (q) sp.set('q', q)
+    sp.set('page', String(p))
+    return `?${sp.toString()}`
+  }
 
   const userIds = Array.from(new Set(comments.map((c) => c.userId).filter((id): id is string => !!id)))
   const userNames: Record<string, string> = {}
@@ -110,7 +129,7 @@ export default async function AdminCommentsPage({
 
       <div className={styles.titleRow}>
         <h1 className={styles.title}>
-          评论管理 <span className={styles.count}>({rows.length})</span>
+          评论管理 <span className={styles.count}>({filteredCount})</span>
         </h1>
         <form method="GET" className={styles.filterForm}>
           <select name="novelId" defaultValue={novelId ?? ''} className={styles.select}>
@@ -149,6 +168,22 @@ export default async function AdminCommentsPage({
       </div>
 
       <CommentAdminTable comments={rows} />
+
+      {totalPages > 1 && (
+        <div className={styles.filterForm} style={{ marginTop: '1rem', justifyContent: 'center' }}>
+          <a href={pageQuery(Math.max(1, page - 1))} className={styles.filterBtn} aria-disabled={page <= 1}>
+            上一页
+          </a>
+          <span className={styles.statLabel}>第 {page} / {totalPages} 页</span>
+          <a
+            href={pageQuery(Math.min(totalPages, page + 1))}
+            className={styles.filterBtn}
+            aria-disabled={page >= totalPages}
+          >
+            下一页
+          </a>
+        </div>
+      )}
     </div>
   )
 }

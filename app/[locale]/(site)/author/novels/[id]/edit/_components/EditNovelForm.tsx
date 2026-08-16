@@ -280,11 +280,20 @@ export default function EditNovelForm({
         <div className={styles.coverBlock}>
           <div
             className={styles.coverArea}
+            role="button"
+            tabIndex={isSourceSelected ? 0 : -1}
+            aria-label={t('coverUpload')}
             onClick={() => { if (isSourceSelected) fileInputRef.current?.click() }}
+            onKeyDown={(e) => {
+              if (isSourceSelected && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
             style={!isSourceSelected ? { cursor: 'default' } : undefined}
           >
             {coverPreview ? (
-              <img src={coverPreview} alt="cover" className={styles.coverPreview} />
+              <img src={coverPreview} alt={t('coverUpload')} className={styles.coverPreview} />
             ) : (
               <>
                 <span className={styles.coverGlyph}>❦</span>
@@ -301,6 +310,7 @@ export default function EditNovelForm({
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
+              aria-label={t('coverUpload')}
               className={styles.fileInput}
               onChange={handleFileChange}
             />
@@ -311,11 +321,12 @@ export default function EditNovelForm({
         {/* Title + Synopsis (right) */}
         <div>
           <div className={styles.field}>
-            <div className={styles.fieldLabel}>
+            <label className={styles.fieldLabel} htmlFor="novel-title">
               <span>{t('title')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{titleLen} / 30</span>
-            </div>
+            </label>
             <input
+              id="novel-title"
               name="title"
               type="text"
               required
@@ -328,11 +339,12 @@ export default function EditNovelForm({
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLabel}>
+            <label className={styles.fieldLabel} htmlFor="novel-description">
               <span>{t('description')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{descLen} / 300</span>
-            </div>
+            </label>
             <textarea
+              id="novel-description"
               name="description"
               required
               rows={5}

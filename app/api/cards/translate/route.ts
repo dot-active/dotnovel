@@ -2,6 +2,9 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { simplifiedToTraditional, traditionalToSimplified } from '@/lib/opencc'
+import { prisma } from '@/lib/prisma'
+
+const MAX_TEXT_LENGTH = 20_000
 
 const LOCALE_NAMES: Record<string, string> = {
   'zh-CN': '简体中文',
@@ -31,17 +34,28 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { sourceLocale, titles, entries, targetLocales } = body as {
+  const { novelId, sourceLocale, titles, entries, targetLocales } = body as {
+    novelId: string
     sourceLocale: string
     titles: string[]
     entries: CardEntryInput[]
     targetLocales: string[]
   }
 
+  if (!novelId) return NextResponse.json({ error: 'novelId is required' }, { status: 400 })
+  const novel = await prisma.novel.findUnique({ where: { id: novelId }, select: { authorId: true } })
+  if (!novel || novel.authorId !== userId)
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
   if (!titles?.some((t) => t.trim()))
     return NextResponse.json({ error: 'At least one title is required' }, { status: 400 })
   if (!targetLocales?.length)
     return NextResponse.json({ error: 'No target locales specified' }, { status: 400 })
+
+  const payloadLength =
+    titles.join('').length + (entries ?? []).reduce((n, e) => n + e.content.length, 0)
+  if (payloadLength > MAX_TEXT_LENGTH)
+    return NextResponse.json({ error: 'Content too long to translate' }, { status: 400 })
 
   const result: TranslationResult = {}
 

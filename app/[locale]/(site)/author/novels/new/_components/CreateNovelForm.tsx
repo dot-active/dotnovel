@@ -103,9 +103,21 @@ export default function CreateNovelForm({ categories, locale }: Props) {
       <div className={styles.headRow}>
         {/* Cover (left) */}
         <div className={styles.coverBlock}>
-          <div className={styles.coverArea} onClick={() => fileInputRef.current?.click()}>
+          <div
+            className={styles.coverArea}
+            role="button"
+            tabIndex={0}
+            aria-label={t('coverUpload')}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
+          >
             {coverPreview ? (
-              <img src={coverPreview} alt="cover" className={styles.coverPreview} />
+              <img src={coverPreview} alt={t('coverUpload')} className={styles.coverPreview} />
             ) : (
               <>
                 <span className={styles.coverGlyph}>❦</span>
@@ -121,6 +133,7 @@ export default function CreateNovelForm({ categories, locale }: Props) {
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
+            aria-label={t('coverUpload')}
             className={styles.fileInput}
             onChange={handleFileChange}
           />
@@ -130,11 +143,12 @@ export default function CreateNovelForm({ categories, locale }: Props) {
         {/* Title + Synopsis (right) */}
         <div>
           <div className={styles.field}>
-            <div className={styles.fieldLabel}>
+            <label className={styles.fieldLabel} htmlFor="novel-title">
               <span>{t('title')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{titleLen} / 30</span>
-            </div>
+            </label>
             <input
+              id="novel-title"
               name="title"
               type="text"
               required
@@ -146,11 +160,12 @@ export default function CreateNovelForm({ categories, locale }: Props) {
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLabel}>
+            <label className={styles.fieldLabel} htmlFor="novel-description">
               <span>{t('description')} <span className={styles.req}>*</span></span>
               <span className={styles.count}>{descLen} / 300</span>
-            </div>
+            </label>
             <textarea
+              id="novel-description"
               name="description"
               required
               rows={5}

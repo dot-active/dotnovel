@@ -34,6 +34,9 @@ model Novel {
   cards               NovelCard[]
   volumes             Volume[]
 
+  @@index([authorId])
+  @@index([publishStatus, viewCount])
+  @@index([publishStatus, favoriteCount])
   @@map("novels")
 }
 
@@ -221,6 +224,7 @@ model Comment {
   ipAddress        String?
 
   @@index([chapterId, paragraphIndex])
+  @@index([userId])
   @@map("comments")
 }
 

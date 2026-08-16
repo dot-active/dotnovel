@@ -3,24 +3,37 @@ import { prisma } from '@/lib/prisma'
 import NovelAdminRow from './_components/NovelAdminRow'
 import styles from './page.module.css'
 
+const PAGE_SIZE = 50
+
 export default async function AdminNovelsPage({
   params: { locale },
+  searchParams,
 }: {
   params: { locale: string }
+  searchParams: { page?: string }
 }) {
   setRequestLocale(locale)
 
-  const novels = await prisma.novel.findMany({
-    include: {
-      categories: { include: { category: { select: { slug: true } } } },
-      translations: {
-        where: { locale: 'zh-CN' },
-        select: { title: true },
+  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10) || 1)
+
+  const [novels, totalCount] = await Promise.all([
+    prisma.novel.findMany({
+      include: {
+        categories: { include: { category: { select: { slug: true } } } },
+        translations: {
+          where: { locale: 'zh-CN' },
+          select: { title: true },
+        },
+        _count: { select: { chapters: true } },
       },
-      _count: { select: { chapters: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+      orderBy: { createdAt: 'desc' },
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
+    }),
+    prisma.novel.count(),
+  ])
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const rows = novels.map((n) => ({
     id: n.id,
@@ -37,7 +50,7 @@ export default async function AdminNovelsPage({
 
   return (
     <div>
-      <h1 className={styles.title}>小说管理 <span className={styles.count}>({rows.length})</span></h1>
+      <h1 className={styles.title}>小说管理 <span className={styles.count}>({totalCount})</span></h1>
       <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
@@ -60,6 +73,14 @@ export default async function AdminNovelsPage({
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'center', marginTop: '1rem' }}>
+          <a href={`?page=${Math.max(1, page - 1)}`} aria-disabled={page <= 1}>上一页</a>
+          <span>第 {page} / {totalPages} 页</span>
+          <a href={`?page=${Math.min(totalPages, page + 1)}`} aria-disabled={page >= totalPages}>下一页</a>
+        </div>
+      )}
     </div>
   )
 }
