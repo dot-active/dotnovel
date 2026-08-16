@@ -43,6 +43,7 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
   const [error, setError] = useState<string | null>(null)
   const [actionLocale, setActionLocale] = useState<string | null>(null)
   const [confirmState, setConfirmState] = useState<{ locale: string; conflict: string } | null>(null)
+  const [stopTarget, setStopTarget] = useState<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   async function fetchStatus() {
@@ -124,16 +125,17 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
     }
   }
 
-  async function handlePause(targetLocale: string) {
+  async function handleStop(targetLocale: string) {
     setActionLocale(targetLocale)
     setError(null)
     try {
-      const res = await fetch('/api/translations/pause', {
+      const res = await fetch('/api/translations/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ novelId, targetLocale }),
       })
       if (!res.ok) throw new Error((await res.json()).error || 'Failed')
+      setStopTarget(null)
       await fetchStatus()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error')
@@ -150,7 +152,10 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
 
   if (loading) return <div className={styles.loadingText}>{t('loading')}</div>
 
+  const stopTargetLabel = LOCALES.find(l => l.value === stopTarget)?.label ?? stopTarget ?? ''
+
   return (
+    <>
     <div ref={sectionRef} className={styles.section}>
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>{t('title')}</span>
@@ -231,16 +236,14 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                     {req?.triggerRunId && (req.status === 'pending' || req.status === 'processing') && (
                       <span className={styles.infoText}>{t('translatingInProgress')}</span>
                     )}
-                    {/* Translation completed — chapters are drafts awaiting publish */}
-                    {req?.status === 'completed' && (
+                    {/* Has an existing translation — completed, published, or a legacy
+                        paused row. "Add"/"retranslate" are one-shot actions, so the only
+                        follow-ups are: do it again, or remove this language entirely. */}
+                    {(req?.status === 'completed' ||
+                      req?.status === 'published' ||
+                      req?.status === 'paused' ||
+                      (!req && tr?.status === 'published')) && (
                       <>
-                        <button
-                          className={styles.btnPause}
-                          disabled={isBusy}
-                          onClick={() => handlePause(value)}
-                        >
-                          {isBusy ? t('processing') : t('pauseTranslation')}
-                        </button>
                         <button
                           className={styles.btnAdd}
                           disabled={isBusy}
@@ -248,37 +251,12 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
                         >
                           {isBusy ? t('triggering') : t('retranslate')}
                         </button>
-                      </>
-                    )}
-                    {/* Paused */}
-                    {req?.status === 'paused' && (
-                      <>
-                        <span className={styles.pausedTag}>⏸ {t('paused')}</span>
                         <button
-                          className={styles.btnAdd}
+                          className={styles.btnStop}
                           disabled={isBusy}
-                          onClick={() => handleAdd(value)}
+                          onClick={() => setStopTarget(value)}
                         >
-                          {isBusy ? t('triggering') : t('startTranslation')}
-                        </button>
-                      </>
-                    )}
-                    {/* Fully published — chapters published too */}
-                    {(req?.status === 'published' || (!req && tr?.status === 'published')) && (
-                      <>
-                        <button
-                          className={styles.btnPause}
-                          disabled={isBusy}
-                          onClick={() => handlePause(value)}
-                        >
-                          {isBusy ? t('processing') : t('pauseTranslation')}
-                        </button>
-                        <button
-                          className={styles.btnAdd}
-                          disabled={isBusy}
-                          onClick={() => handleAdd(value, true)}
-                        >
-                          {isBusy ? t('triggering') : t('retranslate')}
+                          {t('stopTranslation')}
                         </button>
                       </>
                     )}
@@ -298,6 +276,32 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
         <div className={styles.sectionSub}>{t('aiHint')}</div>
       </div>
     </div>
+
+    {stopTarget && (
+      <div className={styles.modalOverlay} onClick={() => setStopTarget(null)}>
+        <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalTitle}>{t('confirmStopTitle')}</div>
+          <p className={styles.modalMessage}>{t('confirmStopMessage', { locale: stopTargetLabel })}</p>
+          <div className={styles.modalActions}>
+            <button
+              className={styles.btnCancelSm}
+              disabled={actionLocale === stopTarget}
+              onClick={() => setStopTarget(null)}
+            >
+              {t('cancel')}
+            </button>
+            <button
+              className={styles.btnDangerSm}
+              disabled={actionLocale === stopTarget}
+              onClick={() => handleStop(stopTarget)}
+            >
+              {actionLocale === stopTarget ? t('stopping') : t('confirmStopButton')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 
