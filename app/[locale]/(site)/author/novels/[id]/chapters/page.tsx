@@ -100,7 +100,7 @@ export default async function AuthorChapterListPage({
           <Link href={`/author/novels/${id}/edit`} className={styles.settingsBtn}>
             {t('novelSettings')}
           </Link>
-          <TranslateAllChaptersButton novelId={id} sourceLocale={novel.sourceLocale} />
+          <TranslateAllChaptersButton novelId={id} availableLocales={novelLocales} />
           <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
             + {t('addChapter')}
           </Link>
@@ -173,7 +173,7 @@ export default async function AuthorChapterListPage({
                       >
                         {t('preview')}
                       </Link>
-                      <ChapterTranslateButton chapterId={chapter.id} sourceLocale={novel.sourceLocale} />
+                      <ChapterTranslateButton chapterId={chapter.id} availableLocales={novelLocales} />
                     </div>
                   </div>
                 )
