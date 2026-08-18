@@ -9,11 +9,12 @@ export const LOCALE_NAMES: Record<string, string> = {
   'es': 'Español',
 }
 
-export type TranslateKind = 'title' | 'content'
+export type TranslateKind = 'title' | 'content' | 'keywords'
 
 // A title is a short single line, so aggressive markdown/quote stripping is safe there.
 // Long content must NOT be split on "---" (novels use it as a scene divider) and must not
-// have leading "#" removed blindly — that would silently destroy real text.
+// have leading "#" removed blindly — that would silently destroy real text. Keywords are a
+// short comma-separated list — same light touch as content, just no line-splitting concerns.
 function sanitizeTranslation(text: string, kind: TranslateKind): string {
   let result = text.trim()
 
@@ -21,7 +22,7 @@ function sanitizeTranslation(text: string, kind: TranslateKind): string {
   const fence = result.match(/^```[a-zA-Z]*\n([\s\S]*?)\n?```$/)
   if (fence) result = fence[1].trim()
 
-  if (kind === 'content') return result
+  if (kind === 'content' || kind === 'keywords') return result
 
   // Title-only cleanup below.
   // Drop trailing notes/alternatives appended after a "---" divider.
@@ -66,7 +67,8 @@ CRITICAL RULES — follow exactly:
 - Preserve the original meaning, literary style, tone, paragraph breaks and line breaks.
 - Output ONLY the translation itself — no preamble, notes, explanations, romanization, pinyin, or the original text.
 - Do not use markdown formatting (no #, no **bold**, no wrapping quotes).
-${kind === 'title' ? '- The source is a TITLE. Output a single short title line of comparable length. Never write prose.' : ''}`
+${kind === 'title' ? '- The source is a TITLE. Output a single short title line of comparable length. Never write prose.' : ''}
+${kind === 'keywords' ? '- The source is a comma-separated list of SEO keywords/tags, not prose. Translate each term individually and output them comma-separated in the same order, with no numbering, bullets, or extra commentary.' : ''}`
 
   // Delimiting the source in XML is what stops the model from treating a novel title or
   // synopsis as a creative-writing prompt and generating original prose instead.

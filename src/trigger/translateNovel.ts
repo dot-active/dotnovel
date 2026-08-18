@@ -50,35 +50,48 @@ export const translateNovel = task({
 
       const sourceLocale = srcNovelTr.locale
 
+      const convertKeywordsZh = (keywords: string, src: string) =>
+        keywords.split(',').map(k => convertZh(k.trim(), src)).filter(Boolean).join(', ')
+
       const zhLocales = new Set(['zh-CN', 'zh-TW'])
       if (zhLocales.has(sourceLocale) && zhLocales.has(targetLocale) && sourceLocale !== targetLocale) {
         // 3a. OpenCC path: zh-CN ↔ zh-TW
+        const data = {
+          title: convertZh(srcNovelTr.title, sourceLocale),
+          description: convertZh(srcNovelTr.description, sourceLocale),
+          metaTitle: srcNovelTr.metaTitle ? convertZh(srcNovelTr.metaTitle, sourceLocale) : null,
+          metaDescription: srcNovelTr.metaDescription ? convertZh(srcNovelTr.metaDescription, sourceLocale) : null,
+          metaKeywords: srcNovelTr.metaKeywords ? convertKeywordsZh(srcNovelTr.metaKeywords, sourceLocale) : null,
+          status: 'published' as const,
+        }
         await prisma.novelTranslation.upsert({
           where: { novelId_locale: { novelId, locale: targetLocale } },
-          create: {
-            novelId,
-            locale: targetLocale,
-            title: convertZh(srcNovelTr.title, sourceLocale),
-            description: convertZh(srcNovelTr.description, sourceLocale),
-            status: 'published',
-          },
-          update: {
-            title: convertZh(srcNovelTr.title, sourceLocale),
-            description: convertZh(srcNovelTr.description, sourceLocale),
-            status: 'published',
-          },
+          create: { novelId, locale: targetLocale, ...data },
+          update: data,
         })
       } else {
         // 3b. Claude API path
-        const [translatedTitle, translatedDesc] = await Promise.all([
-          translateWithClaude(srcNovelTr.title, targetLocale, 'title'),
-          translateWithClaude(srcNovelTr.description, targetLocale, 'content'),
-        ])
+        const [translatedTitle, translatedDesc, translatedMetaTitle, translatedMetaDesc, translatedKeywords] =
+          await Promise.all([
+            translateWithClaude(srcNovelTr.title, targetLocale, 'title'),
+            translateWithClaude(srcNovelTr.description, targetLocale, 'content'),
+            srcNovelTr.metaTitle ? translateWithClaude(srcNovelTr.metaTitle, targetLocale, 'title') : null,
+            srcNovelTr.metaDescription ? translateWithClaude(srcNovelTr.metaDescription, targetLocale, 'content') : null,
+            srcNovelTr.metaKeywords ? translateWithClaude(srcNovelTr.metaKeywords, targetLocale, 'keywords') : null,
+          ])
 
+        const data = {
+          title: translatedTitle,
+          description: translatedDesc,
+          metaTitle: translatedMetaTitle,
+          metaDescription: translatedMetaDesc,
+          metaKeywords: translatedKeywords,
+          status: 'published' as const,
+        }
         await prisma.novelTranslation.upsert({
           where: { novelId_locale: { novelId, locale: targetLocale } },
-          create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'published' },
-          update: { title: translatedTitle, description: translatedDesc, status: 'published' },
+          create: { novelId, locale: targetLocale, ...data },
+          update: data,
         })
       }
 
