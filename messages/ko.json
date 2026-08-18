@@ -321,7 +321,9 @@
     "deleteComment": "삭제",
     "noComments": "아직 댓글이 없습니다",
     "publishAllDrafts": "모든 초안 게시",
-    "publishingAll": "게시 중…"
+    "publishingAll": "게시 중…",
+    "publishAllChapters": "전체 챕터 게시",
+    "publishAllLocales": "전체 언어 게시"
   },
   "volumeManager": {
     "createVolume": "권 만들기",

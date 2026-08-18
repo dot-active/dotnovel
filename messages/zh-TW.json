@@ -321,7 +321,9 @@
     "deleteComment": "刪除",
     "noComments": "暫無留言",
     "publishAllDrafts": "發布所有草稿",
-    "publishingAll": "發布中…"
+    "publishingAll": "發布中…",
+    "publishAllChapters": "發布全部章節",
+    "publishAllLocales": "發布全部語言"
   },
   "volumeManager": {
     "createVolume": "建立分集",

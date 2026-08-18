@@ -321,7 +321,9 @@
     "deleteComment": "Delete",
     "noComments": "No comments yet",
     "publishAllDrafts": "Publish All Drafts",
-    "publishingAll": "Publishing…"
+    "publishingAll": "Publishing…",
+    "publishAllChapters": "Publish All Chapters",
+    "publishAllLocales": "Publish All Languages"
   },
   "volumeManager": {
     "createVolume": "Create Volume",

@@ -321,7 +321,9 @@
     "deleteComment": "Eliminar",
     "noComments": "Sin comentarios aún",
     "publishAllDrafts": "Publicar todos los borradores",
-    "publishingAll": "Publicando…"
+    "publishingAll": "Publicando…",
+    "publishAllChapters": "Publicar todos los capítulos",
+    "publishAllLocales": "Publicar todos los idiomas"
   },
   "volumeManager": {
     "createVolume": "Crear volumen",

@@ -321,7 +321,9 @@
     "deleteComment": "削除",
     "noComments": "まだコメントはありません",
     "publishAllDrafts": "すべての草稿を公開",
-    "publishingAll": "公開中…"
+    "publishingAll": "公開中…",
+    "publishAllChapters": "全章を公開",
+    "publishAllLocales": "全言語を公開"
   },
   "volumeManager": {
     "createVolume": "巻を作成",
