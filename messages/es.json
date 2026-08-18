@@ -298,6 +298,8 @@
     "translateConflict": "Este idioma ya se está traduciendo, inténtalo de nuevo más tarde",
     "translateFailed": "Error en la traducción, inténtalo de nuevo",
     "translateNoLocalesAvailable": "Aún no hay idiomas disponibles. Primero añade una traducción en la página de edición",
+    "translateStatusWaiting": "Esperando traducción",
+    "translateStatusProcessing": "Traduciendo {done}/{total}",
     "editChapter": "Editar capítulo",
     "noChaptersYet": "Sin capítulos aún",
     "draft": "Borrador",

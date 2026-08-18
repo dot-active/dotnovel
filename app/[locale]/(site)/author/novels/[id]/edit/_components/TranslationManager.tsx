@@ -73,11 +73,13 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
     }
   }, [loading])
 
-  // Poll every 30s when any task is processing
+  // Poll every 3s while a job is in flight — translate-novel is a quick,
+  // one-shot title/description translation now, so a slow poll would leave
+  // the UI looking stuck on "translating" long after the job actually finished.
   useEffect(() => {
     const hasActive = requests.some(r => r.triggerRunId && (r.status === 'pending' || r.status === 'processing'))
     if (hasActive) {
-      pollRef.current = setInterval(fetchStatus, 30000)
+      pollRef.current = setInterval(fetchStatus, 3000)
     } else {
       if (pollRef.current) clearInterval(pollRef.current)
     }
@@ -308,8 +310,10 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
 function StatusBadge({ status, req, t }: { status: string; req?: TranslationRequest; t: ReturnType<typeof useTranslations> }) {
   if (!req && status === 'none') return <span className={`${styles.badge} ${styles.badgeNone}`}>{t('noVersion')}</span>
   if (status === 'pending' && !req?.triggerRunId) return <span className={`${styles.badge} ${styles.badgeNone}`}>{t('selected')}</span>
-  if (status === 'pending') return <span className={`${styles.badge} ${styles.badgeProcessing}`}>{t('waitingTranslation')}</span>
-  if (status === 'processing') return (
+  // Queued (pending, dispatched) and actively running both just mean "wait" to
+  // the author — translate-novel is fast enough now that splitting these into
+  // two labels only adds a state that flickers by unnoticed.
+  if (status === 'pending' || status === 'processing') return (
     <span className={`${styles.badge} ${styles.badgeProcessing}`}>
       <span className={styles.spinner} />
       {t('badgeTranslating')}
