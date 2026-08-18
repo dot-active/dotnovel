@@ -64,7 +64,7 @@ export default async function AuthorChapterListPage({
     }),
     prisma.translationRequest.findMany({
       where: { novelId: id },
-      select: { targetLocale: true, status: true, triggerRunId: true },
+      select: { targetLocale: true, status: true, triggerRunId: true, totalChapters: true, doneChapters: true },
     }),
   ])
 
@@ -77,12 +77,15 @@ export default async function AuthorChapterListPage({
   const novelLocaleSet = new Set(novel.translations.map((tr) => tr.locale))
   const novelLocales = ALL_LOCALES.filter((l) => novelLocaleSet.has(l))
 
-  // Locales where a translation job is actively running
-  const processingLocales = new Set(
-    translationRequests
-      .filter((r) => r.triggerRunId && (r.status === 'pending' || r.status === 'processing'))
-      .map((r) => r.targetLocale)
+  // Locales where a translation job is actively running (queued or processing)
+  const activeRequests = translationRequests.filter(
+    (r) => r.triggerRunId && (r.status === 'pending' || r.status === 'processing')
   )
+  const processingLocales = new Set(activeRequests.map((r) => r.targetLocale))
+  const localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }> = {}
+  for (const r of activeRequests) {
+    localeStatus[r.targetLocale] = { status: r.status, totalChapters: r.totalChapters, doneChapters: r.doneChapters }
+  }
 
   const hasVolumes = novel.volumes.length > 0
   // Locales available for volume title editing (always include the source locale)
@@ -100,7 +103,7 @@ export default async function AuthorChapterListPage({
           <Link href={`/author/novels/${id}/edit`} className={styles.settingsBtn}>
             {t('novelSettings')}
           </Link>
-          <TranslateAllChaptersButton novelId={id} availableLocales={novelLocales} />
+          <TranslateAllChaptersButton novelId={id} availableLocales={novelLocales} localeStatus={localeStatus} />
           <Link href={`/author/novels/${id}/chapters/new`} className={styles.addBtn}>
             + {t('addChapter')}
           </Link>
@@ -173,7 +176,7 @@ export default async function AuthorChapterListPage({
                       >
                         {t('preview')}
                       </Link>
-                      <ChapterTranslateButton chapterId={chapter.id} availableLocales={novelLocales} />
+                      <ChapterTranslateButton chapterId={chapter.id} availableLocales={novelLocales} localeStatus={localeStatus} />
                     </div>
                   </div>
                 )

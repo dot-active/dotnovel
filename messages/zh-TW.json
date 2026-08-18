@@ -298,6 +298,8 @@
     "translateConflict": "該語言正在翻譯中，請稍後再試",
     "translateFailed": "翻譯失敗，請重試",
     "translateNoLocalesAvailable": "還沒有可翻譯的語言，請先在編輯頁面新增對應語言的翻譯",
+    "translateStatusWaiting": "等待翻譯中",
+    "translateStatusProcessing": "翻譯中 {done}/{total}",
     "editChapter": "編輯章節",
     "noChaptersYet": "暫無章節",
     "draft": "草稿",

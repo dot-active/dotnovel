@@ -16,13 +16,22 @@ const LOCALE_LABELS: Record<string, string> = {
 interface Props {
   title: string
   availableLocales: string[]
+  localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }>
   submitting: boolean
   error: string | null
   onConfirm: (targetLocales: string[]) => void
   onClose: () => void
 }
 
-export default function TranslateLocaleModal({ title, availableLocales, submitting, error, onConfirm, onClose }: Props) {
+export default function TranslateLocaleModal({
+  title,
+  availableLocales,
+  localeStatus,
+  submitting,
+  error,
+  onConfirm,
+  onClose,
+}: Props) {
   const t = useTranslations('author')
   const [selected, setSelected] = useState<string[]>([])
 
@@ -41,19 +50,35 @@ export default function TranslateLocaleModal({ title, availableLocales, submitti
           <p className={styles.error}>{t('translateNoLocalesAvailable')}</p>
         ) : (
           <div className={styles.localeGrid}>
-            {availableLocales.map((value) => (
-              <label
-                key={value}
-                className={`${styles.localeOption}${selected.includes(value) ? ` ${styles.localeOptionChecked}` : ''}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(value)}
-                  onChange={() => toggle(value)}
-                />
-                {LOCALE_LABELS[value] ?? value}
-              </label>
-            ))}
+            {availableLocales.map((value) => {
+              const active = localeStatus[value]
+              const isWaiting = active?.status === 'pending'
+              const isProcessing = active?.status === 'processing'
+              const isLocked = isWaiting || isProcessing
+
+              return (
+                <label
+                  key={value}
+                  className={`${styles.localeOption}${selected.includes(value) ? ` ${styles.localeOptionChecked}` : ''}${isLocked ? ` ${styles.localeOptionDisabled}` : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(value)}
+                    disabled={isLocked}
+                    onChange={() => toggle(value)}
+                  />
+                  <span>{LOCALE_LABELS[value] ?? value}</span>
+                  {isWaiting && <span className={styles.localeStatus}>{t('translateStatusWaiting')}</span>}
+                  {isProcessing && (
+                    <span className={styles.localeStatus}>
+                      {active.totalChapters > 0
+                        ? t('translateStatusProcessing', { done: active.doneChapters, total: active.totalChapters })
+                        : t('translateStatusWaiting')}
+                    </span>
+                  )}
+                </label>
+              )
+            })}
           </div>
         )}
 

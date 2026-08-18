@@ -9,9 +9,10 @@ import styles from '../page.module.css'
 interface Props {
   novelId: string
   availableLocales: string[]
+  localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }>
 }
 
-export default function TranslateAllChaptersButton({ novelId, availableLocales }: Props) {
+export default function TranslateAllChaptersButton({ novelId, availableLocales, localeStatus }: Props) {
   const t = useTranslations('author')
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -50,6 +51,7 @@ export default function TranslateAllChaptersButton({ novelId, availableLocales }
         <TranslateLocaleModal
           title={t('translateModalTitle')}
           availableLocales={availableLocales}
+          localeStatus={localeStatus}
           submitting={submitting}
           error={error}
           onConfirm={handleConfirm}

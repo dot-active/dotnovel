@@ -298,6 +298,8 @@
     "translateConflict": "This language is already being translated, please try again later",
     "translateFailed": "Translation failed, please try again",
     "translateNoLocalesAvailable": "No languages available yet — add a translation on the edit page first",
+    "translateStatusWaiting": "Waiting to translate",
+    "translateStatusProcessing": "Translating {done}/{total}",
     "editChapter": "Edit Chapter",
     "noChaptersYet": "No chapters yet",
     "draft": "Draft",

@@ -37,7 +37,8 @@
 .localeOption {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   padding: 9px 12px;
   font-size: 0.9375rem;
   border: 1px solid var(--color-border);
@@ -58,6 +59,22 @@
 
 .localeOption input {
   accent-color: var(--color-accent);
+}
+
+.localeOptionDisabled {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+}
+
+.localeOptionDisabled:hover {
+  border-color: var(--color-border);
+}
+
+.localeStatus {
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .error {
