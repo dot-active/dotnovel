@@ -95,7 +95,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
 
   return (
     <>
-      <tr className={`${styles.row} ${!isPublished ? styles.rowUnpublished : ''}`}>
+      <tr className={!isPublished ? styles.rowUnpublished : ''}>
         <td className={styles.tdTitle}>
           {isFeatured && <span className={styles.starIcon}>⭐</span>}
           {novel.title}
@@ -113,7 +113,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
         <td>{novel.chapterCount}</td>
         <td>{novel.isAdult ? <span className={styles.badge18}>18+</span> : '—'}</td>
         <td>
-          <span className={isPublished ? styles.statusOn : styles.statusOff}>
+          <span className={`admin-status ${isPublished ? 'admin-status--success' : 'admin-status--muted'}`}>
             {isPublished ? '上架' : '下架'}
           </span>
         </td>
@@ -127,7 +127,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
           >
             {isFeatured ? '取消精选' : '设为精选'}
           </button>
-          <button onClick={handleToggle} disabled={isPending} className={styles.btnToggle}>
+          <button onClick={handleToggle} disabled={isPending} className="admin-btn">
             {isPublished ? '下架' : '上架'}
           </button>
           <button
@@ -137,7 +137,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
               setEditingStats((v) => !v)
             }}
             disabled={isPending}
-            className={styles.btnToggle}
+            className="admin-btn"
           >
             编辑数据
           </button>
@@ -146,20 +146,20 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
             disabled={boosting}
             className={styles.btnBoost}
           >
-            {boosting ? <span className={styles.spinner} /> : '增加点击'}
+            {boosting ? <span className="spinner-sm" /> : '增加点击'}
           </button>
           {boostMessage && <span className={styles.boostTip}>{boostMessage}</span>}
           {confirming ? (
             <>
-              <button onClick={handleDelete} disabled={isPending} className={styles.btnDangerConfirm}>
+              <button onClick={handleDelete} disabled={isPending} className="admin-btn admin-btn--danger-solid">
                 确认删除
               </button>
-              <button onClick={() => setConfirming(false)} className={styles.btnCancel}>
+              <button onClick={() => setConfirming(false)} className="admin-btn admin-btn--cancel">
                 取消
               </button>
             </>
           ) : (
-            <button onClick={() => setConfirming(true)} disabled={isPending} className={styles.btnDanger}>
+            <button onClick={() => setConfirming(true)} disabled={isPending} className="admin-btn admin-btn--danger">
               删除
             </button>
           )}
@@ -192,7 +192,7 @@ export default function NovelAdminRow({ novel }: { novel: Novel }) {
               <button onClick={handleSaveStats} disabled={isPending} className={styles.btnSaveStats}>
                 保存
               </button>
-              <button onClick={() => setEditingStats(false)} className={styles.btnCancel}>
+              <button onClick={() => setEditingStats(false)} className="admin-btn admin-btn--cancel">
                 取消
               </button>
             </div>

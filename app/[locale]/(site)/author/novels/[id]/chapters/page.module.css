@@ -75,28 +75,6 @@
   background: var(--color-accent-hover);
 }
 
-/* ── Empty ── */
-.empty {
-  text-align: center;
-  padding: 60px 0;
-}
-
-.emptyText {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 16px;
-}
-
-.emptyBtn {
-  display: inline-block;
-  padding: 10px 24px;
-  background: var(--color-accent);
-  color: #fff;
-  border-radius: var(--radius-md);
-  font-size: 0.9375rem;
-  font-weight: 500;
-}
-
 /* ── Chapter list ── */
 .list {
   background: #fff;

@@ -2,7 +2,6 @@ import { setRequestLocale } from 'next-intl/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import UserAdminRow from './_components/UserAdminRow'
-import styles from './page.module.css'
 
 export default async function AdminUsersPage({
   params: { locale },
@@ -33,11 +32,11 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <h1 className={styles.title}>
-        用户管理 <span className={styles.count}>({result.totalCount} 人)</span>
+      <h1 className="admin-title">
+        用户管理 <span className="admin-count">({result.totalCount} 人)</span>
       </h1>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className="admin-table-wrap">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>邮箱</th>

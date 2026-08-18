@@ -121,47 +121,6 @@
   cursor: not-allowed;
 }
 
-.primaryBtn {
-  padding: 10px 24px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: #fff;
-  background: var(--color-accent);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.primaryBtn:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-}
-
-.secondaryBtn {
-  padding: 10px 24px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: var(--color-text-secondary);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.secondaryBtn:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
-}
-
-.primaryBtn:disabled,
-.secondaryBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .loadingOverlay {
   position: fixed;
   inset: 0;

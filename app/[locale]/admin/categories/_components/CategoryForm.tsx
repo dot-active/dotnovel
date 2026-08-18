@@ -37,7 +37,7 @@ export function CategoryDeleteButton({ categoryId, disabled }: DeleteProps) {
         onClick={handleDelete}
         disabled={isPending || disabled}
         title={disabled ? '该分类下有小说，无法删除' : '删除分类'}
-        className={styles.btnDanger}
+        className={`admin-btn admin-btn--danger ${styles.btnDangerDisabled}`}
       >
         删除
       </button>

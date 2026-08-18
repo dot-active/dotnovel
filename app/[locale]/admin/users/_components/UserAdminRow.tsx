@@ -42,9 +42,9 @@ export default function UserAdminRow({ user }: { user: User }) {
       <td className={styles.tdPoints}>{user.points.toLocaleString('zh-CN')}</td>
       <td>
         {user.banned ? (
-          <span className={styles.statusBanned}>已封号</span>
+          <span className="admin-status admin-status--danger">已封号</span>
         ) : (
-          <span className={styles.statusActive}>正常</span>
+          <span className="admin-status admin-status--success">正常</span>
         )}
       </td>
       <td className={styles.tdActions}>
@@ -52,7 +52,7 @@ export default function UserAdminRow({ user }: { user: User }) {
           <button
             onClick={handleUnban}
             disabled={isPending}
-            className={styles.btnUnban}
+            className="admin-btn admin-btn--success"
           >
             解封
           </button>
@@ -60,7 +60,7 @@ export default function UserAdminRow({ user }: { user: User }) {
           <button
             onClick={handleBan}
             disabled={isPending}
-            className={styles.btnBan}
+            className="admin-btn admin-btn--danger"
           >
             封号
           </button>

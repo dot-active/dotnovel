@@ -52,9 +52,9 @@ export default async function FavoritesPage({
       </div>
 
       {favorites.length === 0 ? (
-        <div className={styles.empty}>
-          <p className={styles.emptyText}>{t('empty')}</p>
-          <Link href="/" className={styles.browseBtn}>
+        <div className="empty-state">
+          <p className="empty-state-text">{t('empty')}</p>
+          <Link href="/" className="empty-state-btn">
             {t('browseNovels')}
           </Link>
         </div>
@@ -76,7 +76,7 @@ export default async function FavoritesPage({
                     <span className={styles.itemChapters}>
                       {tNovel('chapterCount', { count: fav.novel._count.chapters })}
                     </span>
-                    <span className={`${styles.statusTag} ${styles[`status${fav.novel.status}`]}`}>
+                    <span className={`status-pill status-pill--${fav.novel.status.toLowerCase()}`}>
                       {tNovel(`status.${fav.novel.status}`)}
                     </span>
                   </div>

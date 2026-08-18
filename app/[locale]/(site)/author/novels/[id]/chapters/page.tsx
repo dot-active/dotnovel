@@ -111,9 +111,9 @@ export default async function AuthorChapterListPage({
       </div>
 
       {novel.chapters.length === 0 && !hasVolumes ? (
-        <div className={styles.empty}>
-          <p className={styles.emptyText}>{t('noChaptersYet')}</p>
-          <Link href={`/author/novels/${id}/chapters/new`} className={styles.emptyBtn}>
+        <div className="empty-state">
+          <p className="empty-state-text">{t('noChaptersYet')}</p>
+          <Link href={`/author/novels/${id}/chapters/new`} className="empty-state-btn">
             {t('addChapter')}
           </Link>
         </div>

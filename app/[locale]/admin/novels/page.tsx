@@ -1,7 +1,6 @@
 import { setRequestLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import NovelAdminRow from './_components/NovelAdminRow'
-import styles from './page.module.css'
 
 const PAGE_SIZE = 50
 
@@ -50,9 +49,9 @@ export default async function AdminNovelsPage({
 
   return (
     <div>
-      <h1 className={styles.title}>小说管理 <span className={styles.count}>({totalCount})</span></h1>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <h1 className="admin-title">小说管理 <span className="admin-count">({totalCount})</span></h1>
+      <div className="admin-table-wrap">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>标题</th>

@@ -30,7 +30,7 @@ export default async function AdminDashboardPage({
 
   return (
     <div>
-      <h1 className={styles.title}>数据统计</h1>
+      <h1 className="admin-title">数据统计</h1>
       <div className={styles.grid}>
         {stats.map((s) => (
           <div key={s.label} className={styles.card}>

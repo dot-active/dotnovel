@@ -17,11 +17,11 @@ export default async function AdminCategoriesPage({
 
   return (
     <div>
-      <h1 className={styles.title}>分类管理</h1>
+      <h1 className="admin-title">分类管理</h1>
 
       <div className={styles.layout}>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
+        <div className="admin-table-wrap">
+          <table className="admin-table">
             <thead>
               <tr>
                 <th>Slug</th>

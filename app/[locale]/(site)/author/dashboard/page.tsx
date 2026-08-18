@@ -73,9 +73,9 @@ export default async function AuthorDashboardPage({
       </div>
 
       {novels.length === 0 ? (
-        <div className={styles.empty}>
-          <p className={styles.emptyText}>{t('noNovels')}</p>
-          <Link href="/author/novels/new" className={styles.emptyBtn}>
+        <div className="empty-state">
+          <p className="empty-state-text">{t('noNovels')}</p>
+          <Link href="/author/novels/new" className="empty-state-btn">
             {t('startWriting')}
           </Link>
         </div>

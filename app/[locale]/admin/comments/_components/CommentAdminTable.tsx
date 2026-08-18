@@ -105,20 +105,20 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
                 确认{confirmingBulk === 'soft' ? '删除' : '永久删除'}选中的留言？
               </span>
               <button
-                className={styles.btnDangerConfirm}
+                className="admin-btn admin-btn--danger-solid"
                 disabled={isPending}
                 onClick={() => handleBulkAction(confirmingBulk === 'soft')}
               >
                 确认
               </button>
-              <button className={styles.btnCancel} onClick={() => setConfirmingBulk(null)}>取消</button>
+              <button className="admin-btn admin-btn--cancel" onClick={() => setConfirmingBulk(null)}>取消</button>
             </>
           ) : (
             <>
-              <button className={styles.btnDanger} disabled={isPending} onClick={() => setConfirmingBulk('soft')}>
+              <button className="admin-btn admin-btn--danger" disabled={isPending} onClick={() => setConfirmingBulk('soft')}>
                 批量删除
               </button>
-              <button className={styles.btnDangerConfirm} disabled={isPending} onClick={() => setConfirmingBulk('hard')}>
+              <button className="admin-btn admin-btn--danger-solid" disabled={isPending} onClick={() => setConfirmingBulk('hard')}>
                 批量永久删除
               </button>
             </>
@@ -126,8 +126,8 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
         </div>
       )}
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className="admin-table-wrap">
+        <table className="admin-table">
           <thead>
             <tr>
               <th className={styles.thCheckbox}>
@@ -143,7 +143,7 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
           </thead>
           <tbody>
             {comments.map((c) => (
-              <tr key={c.id} className={`${styles.row} ${c.isDeleted ? styles.rowDeleted : ''}`}>
+              <tr key={c.id} className={c.isDeleted ? styles.rowDeleted : ''}>
                 <td>
                   <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleOne(c.id)} />
                 </td>
@@ -184,19 +184,19 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
                         确认{confirming.soft ? '删除' : '永久删除'}？
                       </span>
                       <button
-                        className={styles.btnDangerConfirm}
+                        className="admin-btn admin-btn--danger-solid"
                         disabled={isPending}
                         onClick={() => handleAction(() => callDelete(c.id, confirming.soft))}
                       >
                         确认
                       </button>
-                      <button className={styles.btnCancel} onClick={() => setConfirming(null)}>取消</button>
+                      <button className="admin-btn admin-btn--cancel" onClick={() => setConfirming(null)}>取消</button>
                     </>
                   ) : (
                     <>
                       {c.isDeleted ? (
                         <button
-                          className={styles.btnRestore}
+                          className="admin-btn"
                           disabled={isPending}
                           onClick={() => handleAction(() => callRestore(c.id))}
                         >
@@ -204,7 +204,7 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
                         </button>
                       ) : (
                         <button
-                          className={styles.btnDanger}
+                          className="admin-btn admin-btn--danger"
                           disabled={isPending}
                           onClick={() => setConfirming({ id: c.id, soft: true })}
                         >
@@ -212,7 +212,7 @@ export default function CommentAdminTable({ comments }: { comments: CommentRow[]
                         </button>
                       )}
                       <button
-                        className={styles.btnDangerConfirm}
+                        className="admin-btn admin-btn--danger-solid"
                         disabled={isPending}
                         onClick={() => setConfirming({ id: c.id, soft: false })}
                       >

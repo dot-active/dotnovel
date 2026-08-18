@@ -265,7 +265,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
           <button
             type="button"
             disabled={busy}
-            className={styles.primaryBtn}
+            className="btn-form-primary"
             onClick={handleSaveClick}
           >
             {submitting === 'draft' || submitting === 'published' ? '…' : t('saveChanges')}
@@ -293,7 +293,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
             <div className={styles.dialogActions}>
               <button
                 type="button"
-                className={styles.secondaryBtn}
+                className="btn-form-secondary"
                 disabled={busy}
                 onClick={() => setShowRetranslateDialog(false)}
               >
@@ -312,7 +312,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
               </button>
               <button
                 type="button"
-                className={styles.primaryBtn}
+                className="btn-form-primary"
                 disabled={busy}
                 onClick={() => {
                   setShowRetranslateDialog(false)

@@ -108,28 +108,28 @@ export default async function AdminCommentsPage({
 
   return (
     <div>
-      <div className={styles.statsRow}>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{totalCount}</span>
-          <span className={styles.statLabel}>总留言数</span>
+      <div className="stat-card-grid">
+        <div className="stat-card">
+          <span className="stat-card-value">{totalCount}</span>
+          <span className="stat-card-label">总留言数</span>
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{todayCount}</span>
-          <span className={styles.statLabel}>今日新增</span>
+        <div className="stat-card">
+          <span className="stat-card-value">{todayCount}</span>
+          <span className="stat-card-label">今日新增</span>
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{anonCount}</span>
-          <span className={styles.statLabel}>匿名留言</span>
+        <div className="stat-card">
+          <span className="stat-card-value">{anonCount}</span>
+          <span className="stat-card-label">匿名留言</span>
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{deletedCount}</span>
-          <span className={styles.statLabel}>已删除</span>
+        <div className="stat-card">
+          <span className="stat-card-value">{deletedCount}</span>
+          <span className="stat-card-label">已删除</span>
         </div>
       </div>
 
       <div className={styles.titleRow}>
-        <h1 className={styles.title}>
-          评论管理 <span className={styles.count}>({filteredCount})</span>
+        <h1 className={`admin-title ${styles.titleRowH1}`}>
+          评论管理 <span className="admin-count">({filteredCount})</span>
         </h1>
         <form method="GET" className={styles.filterForm}>
           <select name="novelId" defaultValue={novelId ?? ''} className={styles.select}>
@@ -174,7 +174,7 @@ export default async function AdminCommentsPage({
           <a href={pageQuery(Math.max(1, page - 1))} className={styles.filterBtn} aria-disabled={page <= 1}>
             上一页
           </a>
-          <span className={styles.statLabel}>第 {page} / {totalPages} 页</span>
+          <span className="stat-card-label">第 {page} / {totalPages} 页</span>
           <a
             href={pageQuery(Math.min(totalPages, page + 1))}
             className={styles.filterBtn}
