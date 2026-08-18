@@ -30,10 +30,18 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
   }
 
   const { id: novelId, sourceLocale } = chapter.novel
+
+  // Only allow locales the novel itself has already been translated into —
+  // the language picker on the chapters page is scoped to these, but enforce
+  // it server-side too rather than trusting the client's filtered list.
+  const novelTranslatedLocales = new Set(
+    (await prisma.novelTranslation.findMany({ where: { novelId }, select: { locale: true } })).map((t) => t.locale)
+  )
+
   const triggered: string[] = []
   const conflicts: string[] = []
 
-  for (const targetLocale of locales.filter((l) => l !== sourceLocale)) {
+  for (const targetLocale of locales.filter((l) => l !== sourceLocale && novelTranslatedLocales.has(l))) {
     const existingReq = await prisma.translationRequest.findUnique({
       where: { novelId_targetLocale: { novelId, targetLocale } },
     })

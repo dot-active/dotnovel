@@ -297,6 +297,7 @@
     "translateTriggering": "送信中…",
     "translateConflict": "この言語は翻訳処理中です。しばらくしてから再試行してください",
     "translateFailed": "翻訳に失敗しました。もう一度お試しください",
+    "translateNoLocalesAvailable": "翻訳可能な言語がまだありません。まず編集ページで該当言語の翻訳を追加してください",
     "editChapter": "章を編集",
     "noChaptersYet": "章がありません",
     "draft": "下書き",
