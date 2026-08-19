@@ -68,7 +68,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
       )}
     <form ref={formRef} className={styles.form}>
       <div className={styles.row}>
-        <div className={styles.field} style={{ flex: '1 1 auto' }}>
+        <div className={styles.field}>
           <label className={styles.label}>
             {t('chapterTitle')} <span className={styles.required}>*</span>
           </label>
@@ -81,7 +81,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
           />
         </div>
 
-        <div className={styles.field} style={{ flex: '0 0 120px' }}>
+        <div className={`${styles.field} ${styles.fieldNarrow}`}>
           <label className={styles.label}>{t('chapterOrder')}</label>
           <input
             name="order"
@@ -95,13 +95,13 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
       </div>
 
       <div className={styles.row}>
-        <div className={styles.field} style={{ flex: '0 0 auto' }}>
+        <div className={`${styles.field} ${styles.fieldAuto}`}>
           <label className={styles.label}>{t('language_label')}</label>
           <div className={styles.localeBadge}>{sourceLocale}</div>
         </div>
 
         {volumes.length > 0 && (
-          <div className={styles.field} style={{ flex: '1 1 auto' }}>
+          <div className={styles.field}>
             <label className={styles.label}>{t('volume_label')}</label>
             <select
               value={volumeId}
