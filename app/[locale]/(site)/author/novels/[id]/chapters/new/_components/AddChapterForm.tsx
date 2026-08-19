@@ -136,7 +136,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
         <button
           type="button"
           disabled={busy}
-          className={styles.draftBtn}
+          className="btn-draft"
           onClick={() => handleSubmit('draft', false)}
         >
           {submitting === 'draft' ? '…' : t('saveDraft')}
@@ -145,7 +145,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
           <button
             type="button"
             disabled={busy}
-            className="btn-form-secondary"
+            className="btn-secondary"
             onClick={() => handleSubmit('published', false)}
           >
             {submitting === 'published' ? '…' : t('submitChapter')}
@@ -153,7 +153,7 @@ export default function AddChapterForm({ novelId, locale, sourceLocale, defaultO
           <button
             type="button"
             disabled={busy}
-            className="btn-form-primary"
+            className="btn-primary"
             onClick={() => handleSubmit('published', true)}
           >
             {submitting === 'published-continue' ? '…' : t('submitAndContinue')}

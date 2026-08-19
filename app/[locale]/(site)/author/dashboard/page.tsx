@@ -67,7 +67,7 @@ export default async function AuthorDashboardPage({
           <h1 className={styles.title}>{t('myNovels')}</h1>
           {/* <p className={styles.subtitle}>{t('dashboard')}</p> */}
         </div>
-        <Link href="/author/novels/new" className={styles.createBtn}>
+        <Link href="/author/novels/new" className="btn-primary">
           + {t('createNovel')}
         </Link>
       </div>
@@ -136,7 +136,7 @@ export default async function AuthorDashboardPage({
                   )}
                   <Link
                     href={`/author/novels/${novel.id}/comments`}
-                    className={styles.actionBtn}
+                    className={`btn-secondary btn-sm ${styles.actionBtn}`}
                   >
                     {t('manageComments')}
                     {unread > 0 && (

@@ -554,44 +554,100 @@ a {
   color: var(--color-tag-hiatus-text);
 }
 
-/* ── Form action buttons (author create/edit forms) ── */
-.btn-form-primary {
-  padding: 10px 24px;
+/* ── Action buttons ──
+   One shared box for every variant: same padding, font, line-height and
+   border width, so buttons standing next to each other are the same size
+   whether they render as <button> or as a <Link>/<a>. Variants only change
+   colour. Add `btn-sm` for the compact buttons inside table/list rows. */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-danger-solid,
+.btn-draft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
-  font-family: inherit;
+  line-height: 1.25;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* Compact size — must stay after the base rule to win on source order */
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-primary {
   color: #fff;
   background: var(--color-accent);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s;
+  border-color: var(--color-accent);
 }
 
-.btn-form-primary:hover:not(:disabled) {
+.btn-primary:hover:not(:disabled) {
   background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
-.btn-form-secondary {
-  padding: 10px 24px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
+.btn-secondary {
   color: var(--color-text-secondary);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  background: transparent;
+  border-color: var(--color-border);
 }
 
-.btn-form-secondary:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
-.btn-form-primary:disabled,
-.btn-form-secondary:disabled {
+.btn-danger {
+  color: #b91c1c;
+  background: transparent;
+  border-color: #fca5a5;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fff5f5;
+  border-color: #b91c1c;
+}
+
+.btn-danger-solid {
+  color: #fff;
+  background: #c0392b;
+  border-color: #c0392b;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+  background: #a93226;
+  border-color: #a93226;
+}
+
+/* Draft / pending-review actions — amber */
+.btn-draft {
+  color: #7a6030;
+  background: #fdf6e3;
+  border-color: #d4b87a;
+}
+
+.btn-draft:hover:not(:disabled) {
+  background: #f7eccc;
+  border-color: #b89648;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-danger-solid:disabled,
+.btn-draft:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

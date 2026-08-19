@@ -122,10 +122,10 @@ function SortableVolume({
           <span className={styles.chapterCount}>{volume.chapters.length}</span>
         </button>
         <div className={styles.headerActions}>
-          <button className={styles.editBtn} onClick={onEdit} type="button">
+          <button className="btn-secondary btn-sm" onClick={onEdit} type="button">
             编辑
           </button>
-          <button className={styles.deleteBtn} onClick={onDelete} type="button">
+          <button className="btn-danger btn-sm" onClick={onDelete} type="button">
             删除
           </button>
         </div>
@@ -276,10 +276,10 @@ function VolumeModal({
         {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.modalActions}>
-          <button className={styles.cancelBtn} onClick={onClose} disabled={busy} type="button">
+          <button className="btn-secondary" onClick={onClose} disabled={busy} type="button">
             {t('cancel')}
           </button>
-          <button className={styles.saveBtn} onClick={handleSave} disabled={busy} type="button">
+          <button className="btn-primary" onClick={handleSave} disabled={busy} type="button">
             {saving ? t('saving') : t('save')}
           </button>
         </div>
@@ -307,11 +307,11 @@ function DeleteConfirm({
       <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
         <p className={styles.confirmText}>{t('deleteConfirm', { title })}</p>
         <div className={styles.modalActions}>
-          <button className={styles.cancelBtn} onClick={onCancel} disabled={deleting} type="button">
+          <button className="btn-secondary" onClick={onCancel} disabled={deleting} type="button">
             {t('cancel')}
           </button>
           <button
-            className={styles.deleteConfirmBtn}
+            className="btn-danger-solid"
             disabled={deleting}
             type="button"
             onClick={async () => {
@@ -445,7 +445,7 @@ export default function VolumeManager({
       )}
 
       <button
-        className={styles.createBtn}
+        className="btn-primary"
         type="button"
         onClick={() => {
           setEditing(null)

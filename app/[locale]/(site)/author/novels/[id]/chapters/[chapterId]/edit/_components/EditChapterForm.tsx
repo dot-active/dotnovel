@@ -247,7 +247,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
         <button
           type="button"
           disabled={busy}
-          className={styles.deleteBtn}
+          className="btn-danger"
           onClick={handleDelete}
         >
           {submitting === 'delete' ? '…' : tAuthor('deleteChapter')}
@@ -265,7 +265,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
           <button
             type="button"
             disabled={busy}
-            className="btn-form-primary"
+            className="btn-primary"
             onClick={handleSaveClick}
           >
             {submitting === 'draft' || submitting === 'published' ? '…' : t('saveChanges')}
@@ -293,7 +293,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
             <div className={styles.dialogActions}>
               <button
                 type="button"
-                className="btn-form-secondary"
+                className="btn-secondary"
                 disabled={busy}
                 onClick={() => setShowRetranslateDialog(false)}
               >
@@ -301,7 +301,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
               </button>
               <button
                 type="button"
-                className={styles.draftBtn}
+                className="btn-draft"
                 disabled={busy}
                 onClick={() => {
                   setShowRetranslateDialog(false)
@@ -312,7 +312,7 @@ export default function EditChapterForm({ chapter, locale, novelLocales, autoTra
               </button>
               <button
                 type="button"
-                className="btn-form-primary"
+                className="btn-primary"
                 disabled={busy}
                 onClick={() => {
                   setShowRetranslateDialog(false)

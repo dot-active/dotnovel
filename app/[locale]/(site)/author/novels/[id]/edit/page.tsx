@@ -6,7 +6,6 @@ import { prisma } from '@/lib/prisma'
 import EditNovelForm from './_components/EditNovelForm'
 import TranslationManager from './_components/TranslationManager'
 import styles from './page.module.css'
-import chStyles from '../chapters/page.module.css'
 
 export default async function EditNovelPage({
   params: { locale, id },
@@ -50,11 +49,11 @@ export default async function EditNovelPage({
           <h1 className={styles.title}>{sourceTr?.title ?? novel.title}</h1>
 
         </div>
-        <div className={chStyles.headerBtns}>
-          <Link href={`/author/novels/${id}/chapters`} className={chStyles.settingsBtn}>
+        <div className={styles.headerBtns}>
+          <Link href={`/author/novels/${id}/chapters`} className="btn-secondary">
             ← {t('manageChapters')}
           </Link>
-          <Link href={`/author/novels/${id}/edit/cards`} className={chStyles.settingsBtn}>
+          <Link href={`/author/novels/${id}/edit/cards`} className="btn-secondary">
             {tCard('secTitle')}
           </Link>
         </div>

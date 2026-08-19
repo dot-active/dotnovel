@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import TranslateLocaleModal from './TranslateLocaleModal'
-import styles from '../page.module.css'
 
 interface Props {
   novelId: string
@@ -44,7 +43,7 @@ export default function TranslateAllChaptersButton({ novelId, availableLocales, 
 
   return (
     <>
-      <button type="button" className={styles.settingsBtn} onClick={() => setOpen(true)}>
+      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
         {t('translateAllChapters')}
       </button>
       {open && (

@@ -89,40 +89,4 @@
   gap: 10px;
 }
 
-.cancelBtn {
-  padding: 9px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  border: 1px solid var(--color-border);
-  background: #fff;
-  color: var(--color-text-secondary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.cancelBtn:hover {
-  border-color: #aaa;
-  color: var(--color-text-primary);
-}
-
-.confirmBtn {
-  padding: 9px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  border: none;
-  background: var(--color-accent);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.confirmBtn:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-}
-
-.confirmBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Modal actions use the global .btn-primary / .btn-secondary classes */

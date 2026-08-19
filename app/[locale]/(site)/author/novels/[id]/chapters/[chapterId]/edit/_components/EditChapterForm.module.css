@@ -109,43 +109,22 @@
   gap: 10px;
 }
 
-.deleteBtn {
-  padding: 10px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: #b91c1c;
-  background: transparent;
-  border: 1px solid #fca5a5;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.deleteBtn:hover:not(:disabled) {
-  background: #fff5f5;
-  border-color: #b91c1c;
-}
-
-.deleteBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .publishGroup {
   display: flex;
   gap: 10px;
 }
 
+/* Padding/line-height mirror the global .btn-* box so the select is exactly
+   as tall as the save button sitting next to it. */
 .statusSelect {
-  height: 40px;
-  padding: 0 12px;
+  padding: 10px 12px;
   font-size: 0.9375rem;
+  line-height: 1.25;
   font-family: inherit;
   color: var(--color-text-primary);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: border-color 0.15s;
 }
@@ -160,28 +139,7 @@
   cursor: not-allowed;
 }
 
-.draftBtn {
-  padding: 10px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: #7a6030;
-  background: #fdf6e3;
-  border: 1px solid #d4b87a;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.draftBtn:hover:not(:disabled) {
-  background: #f7eccc;
-  border-color: #b89648;
-}
-
-.draftBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Footer + dialog actions use the global .btn-* classes */
 
 .dialogOverlay {
   position: fixed;

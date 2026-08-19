@@ -83,13 +83,13 @@ export default function TranslateLocaleModal({
         )}
 
         <div className={styles.modalActions}>
-          <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={submitting}>
+          <button type="button" className="btn-secondary" onClick={onClose} disabled={submitting}>
             {t('translateModalCancel')}
           </button>
           {availableLocales.length > 0 && (
             <button
               type="button"
-              className={styles.confirmBtn}
+              className="btn-primary"
               disabled={submitting || selected.length === 0}
               onClick={() => onConfirm(selected)}
             >

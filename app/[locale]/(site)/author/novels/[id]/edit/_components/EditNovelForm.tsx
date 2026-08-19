@@ -546,7 +546,7 @@ export default function EditNovelForm({
             <>
               <button
                 type="button"
-                className={styles.btnDanger}
+                className="btn-danger btn-sm"
                 onClick={handleDelete}
                 disabled={deleting}
               >
@@ -554,7 +554,7 @@ export default function EditNovelForm({
               </button>
               <button
                 type="button"
-                className={styles.btnCancel}
+                className="btn-secondary btn-sm"
                 onClick={() => setDeleteConfirm(false)}
               >
                 {t('cancel')}
@@ -563,7 +563,7 @@ export default function EditNovelForm({
           ) : (
             <button
               type="button"
-              className={styles.btnDanger}
+              className="btn-danger btn-sm"
               onClick={() => setDeleteConfirm(true)}
             >
               {tAuthor('deleteNovelBtn')}
@@ -574,10 +574,10 @@ export default function EditNovelForm({
         <span className={styles.footerNote}>{t('saveNote')}</span>
         <span className={styles.spacer} />
 
-        <Link href="/author/dashboard" className={`${styles.btn} ${styles.btnGhost}`}>
+        <Link href="/author/dashboard" className="btn-secondary">
           {t('cancel')}
         </Link>
-        <button type="submit" disabled={submitting} className={styles.btn}>
+        <button type="submit" disabled={submitting} className="btn-primary">
           {submitting ? t('submitting') : t('saveChanges')}
         </button>
       </div>

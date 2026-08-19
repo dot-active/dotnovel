@@ -98,28 +98,7 @@
   gap: 10px;
 }
 
-.draftBtn {
-  padding: 10px 20px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: #7a6030;
-  background: #fdf6e3;
-  border: 1px solid #d4b87a;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.draftBtn:hover:not(:disabled) {
-  background: #f7eccc;
-  border-color: #b89648;
-}
-
-.draftBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Footer actions use the global .btn-primary / .btn-secondary / .btn-draft classes */
 
 .loadingOverlay {
   position: fixed;

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import styles from './PublishAllDraftsButton.module.css'
 
 interface Props {
   novelId: string
@@ -26,7 +25,7 @@ export default function PublishAllDraftsButton({ novelId }: Props) {
   }
 
   return (
-    <button type="button" className={styles.publishBtn} disabled={loading} onClick={handleClick}>
+    <button type="button" className="btn-draft btn-sm" disabled={loading} onClick={handleClick}>
       {loading ? t('publishingAll') : t('publishAllDrafts')}
     </button>
   )
