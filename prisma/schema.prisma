@@ -131,6 +131,7 @@ model Chapter {
   volume        Volume?              @relation(fields: [volumeId], references: [id], onDelete: SetNull)
   translations  ChapterTranslation[]
   comments      Comment[]
+  reads         ChapterRead[]
 
   @@unique([novelId, order])
   @@index([volumeId])
@@ -250,6 +251,20 @@ model AuthorPointsLog {
 
   @@index([userId, createdAt])
   @@map("author_points_logs")
+}
+
+// Marks a chapter as already credited to a reader, so the +1 point for
+// reading it is only ever awarded once per user per chapter.
+model ChapterRead {
+  id        String   @id @default(cuid())
+  userId    String
+  chapterId String
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, chapterId])
+  @@index([chapterId])
+  @@map("chapter_reads")
 }
 
 enum NovelStatus {
