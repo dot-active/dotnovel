@@ -64,14 +64,14 @@ export default async function EditChapterPage({
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
+        {novelTitle && (
+          <Link href={`/author/novels/${id}/chapters`} className={styles.backLink}>
+            ← {novelTitle}
+          </Link>
+        )}
         <h1 className={styles.title}>
           {t('editChapter')} · {tr?.title ?? chapter.title}
         </h1>
-        {novelTitle && (
-          <Link href={`/author/novels/${id}/chapters`} className={styles.primaryBtn}>
-            {novelTitle}
-          </Link>
-        )}
       </div>
 
       <EditChapterForm
