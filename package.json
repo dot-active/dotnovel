@@ -34,7 +34,7 @@
     "@neondatabase/serverless": "^0.10.4",
     "@prisma/adapter-neon": "^5.22.0",
     "@prisma/client": "^5.22.0",
-    "@trigger.dev/sdk": "4.5.11",
+    "@trigger.dev/sdk": "4.5.12",
     "next": "^14.2.29",
     "next-intl": "^4.11.0",
     "opencc-js": "^1.3.1",
@@ -42,7 +42,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@trigger.dev/build": "4.5.11",
+    "@trigger.dev/build": "4.5.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
