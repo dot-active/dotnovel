@@ -155,7 +155,7 @@ export default function ReaderClient({
 
   return (
     <div className={styles.page} data-theme={theme}>
-      <ViewTracker novelId={novelId} chapterId={chapterId} userId={userId} />
+      <ViewTracker novelId={novelId} />
 
       {/* ── Top bar ── */}
       <header className={styles.topBar}>
