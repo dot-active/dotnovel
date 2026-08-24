@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaNeonHTTP } from '@prisma/adapter-neon'
 import { neon, types } from '@neondatabase/serverless'
 import { simplifiedToTraditional, traditionalToSimplified } from '../lib/opencc'
-import { translateWithClaude } from '../lib/translate'
+import { translateWithClaude, type TranslateKind } from '../lib/translate'
 
 types.setTypeParser(types.builtins.TIMESTAMP, (v: string) => v)
 types.setTypeParser(types.builtins.TIMESTAMPTZ, (v: string) => v)
@@ -29,8 +29,9 @@ export const translateNovel = task({
         data: { status: 'processing' },
       })
 
-      // 2. Fetch source novel translation — this task only translates the
-      // novel's own title/description. Chapter translation is a separate,
+      // 2. Fetch source novel translation — this task translates the novel's
+      // title/description and its optional SEO meta fields (metaTitle,
+      // metaDescription, metaKeywords). Chapter translation is a separate,
       // author-triggered flow (see translate-chapter / translate-chapters).
       const novel = await prisma.novel.findUniqueOrThrow({
         where: { id: novelId },
@@ -47,6 +48,8 @@ export const translateNovel = task({
 
       const convertZh = (text: string, src: string) =>
         src === 'zh-CN' ? simplifiedToTraditional(text) : traditionalToSimplified(text)
+      const convertZhOpt = (text: string | null, src: string) =>
+        text ? convertZh(text, src) : null
 
       const sourceLocale = srcNovelTr.locale
 
@@ -60,25 +63,54 @@ export const translateNovel = task({
             locale: targetLocale,
             title: convertZh(srcNovelTr.title, sourceLocale),
             description: convertZh(srcNovelTr.description, sourceLocale),
+            metaTitle: convertZhOpt(srcNovelTr.metaTitle, sourceLocale),
+            metaDescription: convertZhOpt(srcNovelTr.metaDescription, sourceLocale),
+            metaKeywords: convertZhOpt(srcNovelTr.metaKeywords, sourceLocale),
             status: 'published',
           },
           update: {
             title: convertZh(srcNovelTr.title, sourceLocale),
             description: convertZh(srcNovelTr.description, sourceLocale),
+            metaTitle: convertZhOpt(srcNovelTr.metaTitle, sourceLocale),
+            metaDescription: convertZhOpt(srcNovelTr.metaDescription, sourceLocale),
+            metaKeywords: convertZhOpt(srcNovelTr.metaKeywords, sourceLocale),
             status: 'published',
           },
         })
       } else {
         // 3b. Claude API path
-        const [translatedTitle, translatedDesc] = await Promise.all([
-          translateWithClaude(srcNovelTr.title, targetLocale, 'title'),
-          translateWithClaude(srcNovelTr.description, targetLocale, 'content'),
-        ])
+        const translateOptional = (text: string | null, kind: TranslateKind) =>
+          text ? translateWithClaude(text, targetLocale, kind) : Promise.resolve(null)
+
+        const [translatedTitle, translatedDesc, translatedMetaTitle, translatedMetaDesc, translatedMetaKeywords] =
+          await Promise.all([
+            translateWithClaude(srcNovelTr.title, targetLocale, 'title'),
+            translateWithClaude(srcNovelTr.description, targetLocale, 'content'),
+            translateOptional(srcNovelTr.metaTitle, 'title'),
+            translateOptional(srcNovelTr.metaDescription, 'content'),
+            translateOptional(srcNovelTr.metaKeywords, 'title'),
+          ])
 
         await prisma.novelTranslation.upsert({
           where: { novelId_locale: { novelId, locale: targetLocale } },
-          create: { novelId, locale: targetLocale, title: translatedTitle, description: translatedDesc, status: 'published' },
-          update: { title: translatedTitle, description: translatedDesc, status: 'published' },
+          create: {
+            novelId,
+            locale: targetLocale,
+            title: translatedTitle,
+            description: translatedDesc,
+            metaTitle: translatedMetaTitle,
+            metaDescription: translatedMetaDesc,
+            metaKeywords: translatedMetaKeywords,
+            status: 'published',
+          },
+          update: {
+            title: translatedTitle,
+            description: translatedDesc,
+            metaTitle: translatedMetaTitle,
+            metaDescription: translatedMetaDesc,
+            metaKeywords: translatedMetaKeywords,
+            status: 'published',
+          },
         })
       }
 
