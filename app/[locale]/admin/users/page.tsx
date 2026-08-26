@@ -26,6 +26,7 @@ export default async function AdminUsersPage({
     id: u.id,
     email: u.emailAddresses[0]?.emailAddress ?? '(no email)',
     createdAt: u.createdAt,
+    lastSignInAt: u.lastSignInAt,
     banned: u.banned ?? false,
     points: pointsByUser.get(u.id) ?? 0,
   }))
@@ -41,6 +42,7 @@ export default async function AdminUsersPage({
             <tr>
               <th>邮箱</th>
               <th>注册时间</th>
+              <th>最后登陆时间</th>
               <th>积分</th>
               <th>状态</th>
               <th>操作</th>
