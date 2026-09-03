@@ -44,8 +44,14 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isProtectedRoute(req)) auth.protect()
 
-  // Skip locale routing for API routes — they have no locale prefix
-  if (req.nextUrl.pathname.startsWith('/api/')) {
+  // Skip locale routing for API routes and the well-known root-level files
+  // (app/sitemap.ts, app/robots.ts) — these must be served at their exact
+  // unprefixed path, not redirected to /<locale>/sitemap.xml (which 404s).
+  if (
+    pathname.startsWith('/api/') ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt'
+  ) {
     return NextResponse.next()
   }
 

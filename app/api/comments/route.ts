@@ -2,6 +2,22 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Explicit select — ipAddress must never reach these public, unauthenticated
+// endpoints (it's only for admin moderation, see /api/admin/comments).
+const publicCommentFields = {
+  id: true,
+  content: true,
+  chapterId: true,
+  paragraphIndex: true,
+  parentId: true,
+  isReadByReceiver: true,
+  createdAt: true,
+  updatedAt: true,
+  isDeleted: true,
+  userId: true,
+  nickname: true,
+} as const
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const chapterId = searchParams.get('chapterId')
@@ -17,13 +33,17 @@ export async function GET(req: Request) {
       paragraphIndex: parseInt(paragraphIndex, 10),
       parentId: null,
     },
-    include: {
+    select: {
+      ...publicCommentFields,
       replies: {
-        include: {
+        select: {
+          ...publicCommentFields,
           replies: {
-            include: {
-              replies: true,
+            select: {
+              ...publicCommentFields,
+              replies: { select: publicCommentFields },
             },
+            orderBy: { createdAt: 'asc' },
           },
         },
         orderBy: { createdAt: 'asc' },
@@ -71,6 +91,7 @@ export async function POST(req: Request) {
       nickname: !userId ? (typeof nickname === 'string' ? nickname.trim() || null : null) : null,
       ipAddress: userId ? null : ipAddress,
     },
+    select: publicCommentFields,
   })
 
   return NextResponse.json(comment, { status: 201 })
