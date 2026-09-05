@@ -298,6 +298,7 @@
     "translateConflict": "该语言正在翻译中，请稍后再试",
     "translateFailed": "翻译失败，请重试",
     "translateNoLocalesAvailable": "还没有可翻译的语言，请先在编辑页面添加对应语言的翻译",
+    "translateAllUpToDate": "所选语言的章节均已翻译，无需重新翻译",
     "translateStatusWaiting": "等待翻译中",
     "translateStatusProcessing": "翻译中 {done}/{total}",
     "editChapter": "编辑章节",

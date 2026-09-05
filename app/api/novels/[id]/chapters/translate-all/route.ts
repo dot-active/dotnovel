@@ -6,8 +6,11 @@ import type { translateChapters } from '@/src/trigger/translateChapters'
 
 const ALL_LOCALES = new Set(['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'])
 
-// Translates every chapter of the novel into one or more target locales —
-// independent of the novel-level title/description translation.
+// Translates every chapter of the novel that isn't already translated into
+// one or more target locales — independent of the novel-level
+// title/description translation. Chapters already translated for a given
+// locale are left untouched; use the per-chapter translate button to force
+// a retranslation.
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -40,6 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const triggered: string[] = []
   const conflicts: string[] = []
+  const skipped: string[] = []
 
   for (const targetLocale of locales.filter((l) => l !== novel.sourceLocale && novelTranslatedLocales.has(l))) {
     const existingReq = await prisma.translationRequest.findUnique({
@@ -50,10 +54,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       continue
     }
 
+    // Only translate chapters that don't already have a translation in this
+    // locale — re-running "translate all" shouldn't clobber existing work.
+    const alreadyTranslated = new Set(
+      (
+        await prisma.chapterTranslation.findMany({
+          where: { chapterId: { in: chapterIds }, locale: targetLocale },
+          select: { chapterId: true },
+        })
+      ).map((c) => c.chapterId)
+    )
+    const pendingChapterIds = chapterIds.filter((id) => !alreadyTranslated.has(id))
+    if (pendingChapterIds.length === 0) {
+      skipped.push(targetLocale)
+      continue
+    }
+
     const trReq = await prisma.translationRequest.upsert({
       where: { novelId_targetLocale: { novelId, targetLocale } },
-      create: { novelId, targetLocale, status: 'pending', totalChapters: chapterIds.length },
-      update: { status: 'pending', triggerRunId: null, errorMessage: null, totalChapters: chapterIds.length, doneChapters: 0 },
+      create: { novelId, targetLocale, status: 'pending', totalChapters: pendingChapterIds.length },
+      update: { status: 'pending', triggerRunId: null, errorMessage: null, totalChapters: pendingChapterIds.length, doneChapters: 0 },
     })
 
     try {
@@ -62,7 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         novelId,
         sourceLocale: novel.sourceLocale,
         targetLocale,
-        chapterIds,
+        chapterIds: pendingChapterIds,
       })
       await prisma.translationRequest.update({
         where: { id: trReq.id },
@@ -77,5 +97,5 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
-  return NextResponse.json({ success: triggered.length > 0, triggered, conflicts })
+  return NextResponse.json({ success: triggered.length > 0, triggered, conflicts, skipped })
 }

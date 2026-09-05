@@ -32,6 +32,9 @@ export default function TranslateAllChaptersButton({ novelId, availableLocales, 
       if (data.conflicts?.length > 0 && data.triggered?.length === 0) {
         throw new Error(t('translateConflict'))
       }
+      if (data.triggered?.length === 0 && data.conflicts?.length === 0 && data.skipped?.length > 0) {
+        throw new Error(t('translateAllUpToDate'))
+      }
       setOpen(false)
       router.refresh()
     } catch (e) {
