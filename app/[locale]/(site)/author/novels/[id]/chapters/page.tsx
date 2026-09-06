@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma'
 import VolumeManager from './_components/VolumeManager'
 import TranslateAllChaptersButton from './_components/TranslateAllChaptersButton'
 import ChapterTranslateButton from './_components/ChapterTranslateButton'
+import TranslationStatusWatcher from './_components/TranslationStatusWatcher'
+import { buildTranslationSignature } from './_components/translationSignature'
 import styles from './page.module.css'
 
 const ALL_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] as const
@@ -86,6 +88,10 @@ export default async function AuthorChapterListPage({
   for (const r of activeRequests) {
     localeStatus[r.targetLocale] = { status: r.status, totalChapters: r.totalChapters, doneChapters: r.doneChapters }
   }
+  // Translation jobs are tracked per novel + locale and take a while to run, so
+  // any active one puts every translate button on this page into "translating".
+  const isTranslating = activeRequests.length > 0
+  const translationSignature = buildTranslationSignature(translationRequests)
 
   const hasVolumes = novel.volumes.length > 0
   // Locales available for volume title editing (always include the source locale)
@@ -93,6 +99,7 @@ export default async function AuthorChapterListPage({
 
   return (
     <div>
+      <TranslationStatusWatcher novelId={id} signature={translationSignature} />
       <div className={styles.pageHeader}>
         <div>
 
@@ -103,7 +110,12 @@ export default async function AuthorChapterListPage({
           <Link href={`/author/novels/${id}/edit`} className="btn-secondary">
             {t('novelSettings')}
           </Link>
-          <TranslateAllChaptersButton novelId={id} availableLocales={novelLocales} localeStatus={localeStatus} />
+          <TranslateAllChaptersButton
+            novelId={id}
+            availableLocales={novelLocales}
+            localeStatus={localeStatus}
+            translating={isTranslating}
+          />
           <Link href={`/author/novels/${id}/chapters/new`} className="btn-primary">
             + {t('addChapter')}
           </Link>
@@ -176,7 +188,12 @@ export default async function AuthorChapterListPage({
                       >
                         {t('preview')}
                       </Link>
-                      <ChapterTranslateButton chapterId={chapter.id} availableLocales={novelLocales} localeStatus={localeStatus} />
+                      <ChapterTranslateButton
+                        chapterId={chapter.id}
+                        availableLocales={novelLocales}
+                        localeStatus={localeStatus}
+                        translating={isTranslating}
+                      />
                     </div>
                   </div>
                 )

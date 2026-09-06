@@ -291,6 +291,7 @@
     "preview": "預覽",
     "translateAllChapters": "翻譯全部章節",
     "translateChapterBtn": "翻譯",
+    "translateInProgressBtn": "翻譯中…",
     "translateModalTitle": "選擇要翻譯的語言",
     "translateModalConfirm": "開始翻譯",
     "translateModalCancel": "取消",

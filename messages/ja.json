@@ -291,6 +291,7 @@
     "preview": "プレビュー",
     "translateAllChapters": "全章を翻訳",
     "translateChapterBtn": "翻訳",
+    "translateInProgressBtn": "翻訳中…",
     "translateModalTitle": "翻訳する言語を選択",
     "translateModalConfirm": "翻訳を開始",
     "translateModalCancel": "キャンセル",

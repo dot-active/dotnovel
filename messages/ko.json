@@ -291,6 +291,7 @@
     "preview": "미리보기",
     "translateAllChapters": "전체 챕터 번역",
     "translateChapterBtn": "번역",
+    "translateInProgressBtn": "번역 중…",
     "translateModalTitle": "번역할 언어 선택",
     "translateModalConfirm": "번역 시작",
     "translateModalCancel": "취소",

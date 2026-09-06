@@ -291,6 +291,7 @@
     "preview": "Vista previa",
     "translateAllChapters": "Traducir todos los capítulos",
     "translateChapterBtn": "Traducir",
+    "translateInProgressBtn": "Traduciendo…",
     "translateModalTitle": "Selecciona los idiomas a traducir",
     "translateModalConfirm": "Iniciar traducción",
     "translateModalCancel": "Cancelar",

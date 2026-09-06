@@ -9,14 +9,20 @@ interface Props {
   chapterId: string
   availableLocales: string[]
   localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }>
+  /** True while any translation job for this novel is queued or running. */
+  translating: boolean
 }
 
-export default function ChapterTranslateButton({ chapterId, availableLocales, localeStatus }: Props) {
+export default function ChapterTranslateButton({ chapterId, availableLocales, localeStatus, translating }: Props) {
   const t = useTranslations('author')
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // `submitting` covers the request that queues the job; `translating` covers
+  // the background job itself, which is what actually takes a while.
+  const busy = submitting || translating
 
   async function handleConfirm(targetLocales: string[]) {
     setSubmitting(true)
@@ -43,8 +49,16 @@ export default function ChapterTranslateButton({ chapterId, availableLocales, lo
 
   return (
     <>
-      <button type="button" className="btn-secondary btn-sm" onClick={() => setOpen(true)}>
-        {t('translateChapterBtn')}
+      {/* Translation requests are tracked per novel + locale, so any running
+          job blocks a new one — report that instead of inviting a click that
+          would come back as a conflict. */}
+      <button
+        type="button"
+        className="btn-secondary btn-sm"
+        disabled={busy}
+        onClick={() => setOpen(true)}
+      >
+        {busy ? t('translateInProgressBtn') : t('translateChapterBtn')}
       </button>
       {open && (
         <TranslateLocaleModal
