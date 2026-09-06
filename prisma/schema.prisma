@@ -196,6 +196,10 @@ model TranslationRequest {
   status        String   @default("pending")
   totalChapters Int      @default(0)
   doneChapters  Int      @default(0)
+  // Chapters this job actually covers. Without it the chapters page can only
+  // tell that *some* job is running for a locale, so it would mark every
+  // chapter row as "translating" even for a single-chapter job.
+  chapterIds    String[]
   triggerRunId  String?
   errorMessage  String?
   createdAt     DateTime @default(now())

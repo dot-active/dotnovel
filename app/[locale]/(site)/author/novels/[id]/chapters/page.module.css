@@ -144,11 +144,28 @@
   border: 1px solid #d4b87a;
 }
 
-/* 翻译中 — gray */
+/* 翻译中 — blue + pulse, so it never reads as the gray "no version" badge */
 .badgeProcessing {
-  background: #e1e1e1;
-  color: #999;
-  border: 1px solid #ccc;
+  background: #e7f0fb;
+  color: #2f5d9e;
+  border: 1px solid #a5c4e8;
+  animation: badgePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badgeProcessing {
+    animation: none;
+  }
 }
 
 /* 不存在 — gray */

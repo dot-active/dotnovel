@@ -66,7 +66,14 @@ export default async function AuthorChapterListPage({
     }),
     prisma.translationRequest.findMany({
       where: { novelId: id },
-      select: { targetLocale: true, status: true, triggerRunId: true, totalChapters: true, doneChapters: true },
+      select: {
+        targetLocale: true,
+        status: true,
+        triggerRunId: true,
+        totalChapters: true,
+        doneChapters: true,
+        chapterIds: true,
+      },
     }),
   ])
 
@@ -83,10 +90,13 @@ export default async function AuthorChapterListPage({
   const activeRequests = translationRequests.filter(
     (r) => r.triggerRunId && (r.status === 'pending' || r.status === 'processing')
   )
-  const processingLocales = new Set(activeRequests.map((r) => r.targetLocale))
   const localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }> = {}
+  // Which chapters each running job actually covers. A single-chapter job must
+  // not paint every row as "translating" — only the chapter it is working on.
+  const processingChaptersByLocale: Record<string, Set<string>> = {}
   for (const r of activeRequests) {
     localeStatus[r.targetLocale] = { status: r.status, totalChapters: r.totalChapters, doneChapters: r.doneChapters }
+    processingChaptersByLocale[r.targetLocale] = new Set(r.chapterIds)
   }
   // Translation jobs are tracked per novel + locale and take a while to run, so
   // any active one puts every translate button on this page into "translating".
@@ -157,10 +167,13 @@ export default async function AuthorChapterListPage({
                     <div className={styles.colLocales}>
                       {novelLocales.map((loc) => {
                         const chTr = chapter.translations.find((tr) => tr.locale === loc)
-                        const isProcessing = processingLocales.has(loc)
+                        const isProcessing = processingChaptersByLocale[loc]?.has(chapter.id) ?? false
                         const label = LOCALE_SHORT[loc] ?? loc
 
-                        if (isProcessing && !chTr) {
+                        // Scoped to this chapter, so it wins over the stored
+                        // status — a retranslation in flight reads as running,
+                        // not as the stale draft/published it is replacing.
+                        if (isProcessing) {
                           return (
                             <span key={loc} className={styles.badgeProcessing}>{label}</span>
                           )

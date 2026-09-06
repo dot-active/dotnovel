@@ -52,8 +52,8 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
 
     const trReq = await prisma.translationRequest.upsert({
       where: { novelId_targetLocale: { novelId, targetLocale } },
-      create: { novelId, targetLocale, status: 'pending' },
-      update: { status: 'pending', triggerRunId: null, errorMessage: null },
+      create: { novelId, targetLocale, status: 'pending', totalChapters: 1, chapterIds: [chapter.id] },
+      update: { status: 'pending', triggerRunId: null, errorMessage: null, totalChapters: 1, doneChapters: 0, chapterIds: [chapter.id] },
     })
 
     try {
