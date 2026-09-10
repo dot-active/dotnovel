@@ -18,7 +18,30 @@ const publicCommentFields = {
   nickname: true,
 } as const
 
+type CommentNode = { isDeleted: boolean; replies?: CommentNode[] } & Record<string, unknown>
+
+// The novel's author gets no trace that a deleted comment ever existed — not
+// even a "[deleted]" placeholder — so deleted nodes are dropped entirely and
+// any surviving (non-deleted) replies are re-parented one level up, as if
+// the deleted comment had never been posted. Other viewers still see the
+// isDeleted flag and render a placeholder client-side (see ParagraphComments).
+// The query's deepest nesting level has no `replies` selection at all, so
+// this treats a missing `replies` the same as an empty list.
+function stripDeletedForAuthor<T extends CommentNode>(list: T[]): T[] {
+  const result: T[] = []
+  for (const comment of list) {
+    const replies = stripDeletedForAuthor((comment.replies ?? []) as T[])
+    if (comment.isDeleted) {
+      result.push(...replies)
+    } else {
+      result.push({ ...comment, replies } as T)
+    }
+  }
+  return result
+}
+
 export async function GET(req: Request) {
+  const { userId } = await auth()
   const { searchParams } = new URL(req.url)
   const chapterId = searchParams.get('chapterId')
   const paragraphIndex = searchParams.get('paragraphIndex')
@@ -27,32 +50,38 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'chapterId and paragraphIndex required' }, { status: 400 })
   }
 
-  const comments = await prisma.comment.findMany({
-    where: {
-      chapterId,
-      paragraphIndex: parseInt(paragraphIndex, 10),
-      parentId: null,
-    },
-    select: {
-      ...publicCommentFields,
-      replies: {
-        select: {
-          ...publicCommentFields,
-          replies: {
-            select: {
-              ...publicCommentFields,
-              replies: { select: publicCommentFields },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
-        },
-        orderBy: { createdAt: 'asc' },
+  const [chapter, comments] = await Promise.all([
+    prisma.chapter.findUnique({ where: { id: chapterId }, select: { novel: { select: { authorId: true } } } }),
+    prisma.comment.findMany({
+      where: {
+        chapterId,
+        paragraphIndex: parseInt(paragraphIndex, 10),
+        parentId: null,
       },
-    },
-    orderBy: { createdAt: 'asc' },
-  })
+      select: {
+        ...publicCommentFields,
+        replies: {
+          select: {
+            ...publicCommentFields,
+            replies: {
+              select: {
+                ...publicCommentFields,
+                replies: { select: publicCommentFields },
+              },
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+  ])
 
-  return NextResponse.json(comments)
+  const isNovelAuthor = userId !== null && chapter?.novel.authorId === userId
+  const result = isNovelAuthor ? stripDeletedForAuthor(comments) : comments
+
+  return NextResponse.json(result)
 }
 
 export async function POST(req: Request) {
