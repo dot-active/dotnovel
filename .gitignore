@@ -40,5 +40,9 @@ next-env.d.ts
 .trigger
 
 # import novels
-scripts/
+# `scripts/*` rather than `scripts/` — git cannot re-include a file whose
+# parent directory is ignored, and the manual translation script must be in
+# the repo so scheduled cloud routines can run it.
+scripts/*
+!scripts/manualTranslate.ts
 content/
