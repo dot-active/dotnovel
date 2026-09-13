@@ -1,13 +1,19 @@
 export interface ActiveStatusRequest {
   targetLocale: string
   status: string
+  source: string
   triggerRunId: string | null
   totalChapters: number
   doneChapters: number
 }
 
-/** A translation job is "in flight" once it has been handed to Trigger.dev. */
+/**
+ * A translation job is "in flight" once a worker owns it: a Trigger.dev job
+ * from the moment it has a run id, a manual job from the moment it is queued
+ * for the local `npm run translate:manual` script.
+ */
 export function isActiveRequest(r: ActiveStatusRequest): boolean {
+  if (r.source === 'manual') return r.status === 'translating' || r.status === 'processing'
   return Boolean(r.triggerRunId) && (r.status === 'pending' || r.status === 'processing')
 }
 

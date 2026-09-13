@@ -52,7 +52,9 @@
 .listHeader,
 .listRow {
   display: grid;
-  grid-template-columns: 48px 1fr 1fr 80px;
+  /* The actions column holds preview + both translate buttons, so it needs a
+     floor wide enough that they don't wrap onto three lines. */
+  grid-template-columns: 48px 1fr 1fr minmax(230px, auto);
   gap: 12px;
   padding: 12px 20px;
   align-items: start;
@@ -122,6 +124,7 @@
 .badgePublished,
 .badgeDraft,
 .badgeProcessing,
+.badgeManual,
 .badgeNone {
   display: inline-block;
   font-size: 0.6875rem;
@@ -167,6 +170,15 @@
   .badgeProcessing {
     animation: none;
   }
+}
+
+/* 等待手动翻译 — purple, static: no Trigger.dev run means no progress to show,
+   so it must not borrow the pulsing "work is happening" look. */
+.badgeManual {
+  background: #f6f1fc;
+  color: #6b3fa0;
+  border: 1px solid #c9adea;
+  cursor: help;
 }
 
 /* 不存在 — gray */

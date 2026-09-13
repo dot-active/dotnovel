@@ -200,6 +200,10 @@ model TranslationRequest {
   // tell that *some* job is running for a locale, so it would mark every
   // chapter row as "translating" even for a single-chapter job.
   chapterIds    String[]
+  // Who is expected to do the work:
+  //   'trigger' — handed to Trigger.dev, progress reported by the task
+  //   'manual'  — queued for the local `npm run translate:manual` script
+  source        String   @default("trigger")
   triggerRunId  String?
   errorMessage  String?
   createdAt     DateTime @default(now())

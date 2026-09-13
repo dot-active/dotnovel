@@ -1,0 +1,22 @@
+/* Purple variant of the global .btn-secondary, so the manual-translation
+   buttons never read as the Trigger.dev ones sitting next to them. */
+.manualBtn {
+  color: #6b3fa0;
+  background: #f6f1fc;
+  border-color: #c9adea;
+}
+
+.manualBtn:hover:not(:disabled) {
+  color: #fff;
+  background: #6b3fa0;
+  border-color: #6b3fa0;
+}
+
+/* Visual break between the Trigger.dev buttons and the manual ones. */
+.manualDivider {
+  align-self: stretch;
+  width: 1px;
+  min-height: 24px;
+  background: var(--color-border);
+  margin: 0 2px;
+}
