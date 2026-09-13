@@ -6,7 +6,7 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const [authorUnread, mineUnread] = await Promise.all([
+  const [authorUnread, mineUnread, announcementUnread] = await Promise.all([
     prisma.comment.count({
       where: {
         chapter: { novel: { authorId: userId } },
@@ -23,7 +23,10 @@ export async function GET() {
         isReadByReceiver: false,
       },
     }),
+    prisma.announcement.count({
+      where: { reads: { none: { userId } } },
+    }),
   ])
 
-  return NextResponse.json({ total: authorUnread + mineUnread })
+  return NextResponse.json({ total: authorUnread + mineUnread + announcementUnread })
 }

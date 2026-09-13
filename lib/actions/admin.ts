@@ -139,3 +139,25 @@ export async function deleteCategory(formData: FormData) {
   await prisma.category.delete({ where: { id: categoryId } })
   revalidatePath('/[locale]/admin/categories')
 }
+
+// ── Announcements ────────────────────────────────────────────────────────────
+
+export async function createAnnouncement(formData: FormData) {
+  await assertAdmin()
+  const title = (formData.get('title') as string ?? '').trim()
+  const content = (formData.get('content') as string ?? '').trim()
+
+  if (!title) throw new Error('标题不能为空')
+  if (!content) throw new Error('内容不能为空')
+
+  await prisma.announcement.create({ data: { title, content } })
+  revalidatePath('/[locale]/admin/announcements')
+}
+
+export async function deleteAnnouncement(formData: FormData) {
+  await assertAdmin()
+  const announcementId = formData.get('announcementId') as string
+
+  await prisma.announcement.delete({ where: { id: announcementId } })
+  revalidatePath('/[locale]/admin/announcements')
+}

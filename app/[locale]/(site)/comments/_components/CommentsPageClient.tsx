@@ -41,6 +41,14 @@ interface MineItem {
   } | null
 }
 
+interface AnnouncementItem {
+  id: string
+  title: string
+  content: string
+  createdAt: string
+  isRead: boolean
+}
+
 interface UserInfo {
   id: string
   username: string | null
@@ -146,23 +154,60 @@ function MineRow({ item, onOpen }: { item: MineItem; onOpen: (item: MineItem) =>
   )
 }
 
+function AnnouncementRow({
+  item,
+  expanded,
+  onToggle,
+}: {
+  item: AnnouncementItem
+  expanded: boolean
+  onToggle: (item: AnnouncementItem) => void
+}) {
+  const t = useTranslations('myComments')
+  const locale = useLocale()
+
+  return (
+    <div className={styles.row} onClick={() => onToggle(item)}>
+      <div className={styles.rowTop}>
+        <span className={styles.rowTitle}>{item.title}</span>
+        {!item.isRead && <span className={styles.unreadBadge}>{t('new')}</span>}
+      </div>
+      <p className={`${styles.rowLastComment} ${expanded ? styles.rowContentFull : ''}`}>
+        {item.content}
+      </p>
+      <span className={styles.rowMeta}>{formatRelativeTime(item.createdAt, locale, t)}</span>
+    </div>
+  )
+}
+
 export default function CommentsPageClient({ locale }: { locale: string }) {
   const t = useTranslations('myComments')
   const router = useRouter()
-  const [tab, setTab] = useState<'author' | 'mine'>('author')
-  const [counts, setCounts] = useState<{ author: number; mine: number }>({ author: 0, mine: 0 })
+  const [tab, setTab] = useState<'author' | 'mine' | 'announcements'>('author')
+  const [counts, setCounts] = useState<{ author: number; mine: number; announcements: number }>({ author: 0, mine: 0, announcements: 0 })
   const [authorItems, setAuthorItems] = useState<AuthorItem[] | null>(null)
   const [mineItems, setMineItems] = useState<MineItem[] | null>(null)
+  const [announcementItems, setAnnouncementItems] = useState<AnnouncementItem[] | null>(null)
+  const [expandedAnnouncementId, setExpandedAnnouncementId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const load = useCallback(async (type: 'author' | 'mine') => {
+  const load = useCallback(async (type: 'author' | 'mine' | 'announcements') => {
     setLoading(true)
-    const res = await fetch(`/api/comments/my?type=${type}&locale=${locale}`)
-    if (res.ok) {
-      const data = await res.json()
-      setCounts(data.counts)
-      if (type === 'author') setAuthorItems(data.items)
-      else setMineItems(data.items)
+    if (type === 'announcements') {
+      const res = await fetch('/api/announcements')
+      if (res.ok) {
+        const data = await res.json()
+        setCounts((c) => ({ ...c, announcements: data.unreadCount }))
+        setAnnouncementItems(data.items)
+      }
+    } else {
+      const res = await fetch(`/api/comments/my?type=${type}&locale=${locale}`)
+      if (res.ok) {
+        const data = await res.json()
+        setCounts((c) => ({ ...c, ...data.counts }))
+        if (type === 'author') setAuthorItems(data.items)
+        else setMineItems(data.items)
+      }
     }
     setLoading(false)
   }, [locale])
@@ -171,10 +216,24 @@ export default function CommentsPageClient({ locale }: { locale: string }) {
     load('author')
   }, [load])
 
-  function handleTabChange(next: 'author' | 'mine') {
+  function handleTabChange(next: 'author' | 'mine' | 'announcements') {
     setTab(next)
     if (next === 'author' && authorItems === null) load('author')
     if (next === 'mine' && mineItems === null) load('mine')
+    if (next === 'announcements' && announcementItems === null) load('announcements')
+  }
+
+  async function handleToggleAnnouncement(item: AnnouncementItem) {
+    setExpandedAnnouncementId((cur) => (cur === item.id ? null : item.id))
+    if (item.isRead) return
+
+    await fetch('/api/announcements/read', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ announcementId: item.id }),
+    })
+    setAnnouncementItems((items) => items?.map((i) => (i.id === item.id ? { ...i, isRead: true } : i)) ?? items)
+    setCounts((c) => ({ ...c, announcements: Math.max(0, c.announcements - 1) }))
   }
 
   async function handleOpenAuthor(item: AuthorItem) {
@@ -195,7 +254,7 @@ export default function CommentsPageClient({ locale }: { locale: string }) {
     router.push(`/novels/${item.novelId}/chapters/${item.chapterId}?paragraph=${item.paragraphIndex}`)
   }
 
-  const currentItems = tab === 'author' ? authorItems : mineItems
+  const currentItems = tab === 'author' ? authorItems : tab === 'mine' ? mineItems : announcementItems
 
   return (
     <div className={styles.page}>
@@ -216,13 +275,22 @@ export default function CommentsPageClient({ locale }: { locale: string }) {
           {t('tabMine')}
           {counts.mine > 0 && <span className={styles.tabBadge}>{counts.mine > 99 ? '99+' : counts.mine}</span>}
         </button>
+        <button
+          className={`${styles.tab} ${tab === 'announcements' ? styles.tabActive : ''}`}
+          onClick={() => handleTabChange('announcements')}
+        >
+          {t('tabAnnouncements')}
+          {counts.announcements > 0 && <span className={styles.tabBadge}>{counts.announcements > 99 ? '99+' : counts.announcements}</span>}
+        </button>
       </div>
 
       <div className={styles.list}>
         {loading && currentItems === null && <p className={styles.empty}>{t('loading')}</p>}
 
         {!loading && currentItems !== null && currentItems.length === 0 && (
-          <p className={styles.empty}>{tab === 'author' ? t('noAuthorComments') : t('noMineComments')}</p>
+          <p className={styles.empty}>
+            {tab === 'author' ? t('noAuthorComments') : tab === 'mine' ? t('noMineComments') : t('noAnnouncements')}
+          </p>
         )}
 
         {tab === 'author' && authorItems?.map((item) => (
@@ -231,6 +299,15 @@ export default function CommentsPageClient({ locale }: { locale: string }) {
 
         {tab === 'mine' && mineItems?.map((item) => (
           <MineRow key={item.id} item={item} onOpen={handleOpenMine} />
+        ))}
+
+        {tab === 'announcements' && announcementItems?.map((item) => (
+          <AnnouncementRow
+            key={item.id}
+            item={item}
+            expanded={expandedAnnouncementId === item.id}
+            onToggle={handleToggleAnnouncement}
+          />
         ))}
       </div>
     </div>

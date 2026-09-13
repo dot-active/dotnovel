@@ -271,6 +271,32 @@ model ChapterRead {
   @@map("chapter_reads")
 }
 
+model Announcement {
+  id        String             @id @default(cuid())
+  title     String
+  content   String             @db.Text
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  reads     AnnouncementRead[]
+
+  @@map("announcements")
+}
+
+// Tracks which users have read an announcement. Every registered user is an
+// implicit recipient of every announcement, so there is nothing to write when
+// one is sent — a row here only marks that a given user has since read it.
+model AnnouncementRead {
+  id             String       @id @default(cuid())
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String
+  readAt         DateTime     @default(now())
+
+  @@unique([announcementId, userId])
+  @@index([userId])
+  @@map("announcement_reads")
+}
+
 enum NovelStatus {
   ONGOING
   COMPLETED

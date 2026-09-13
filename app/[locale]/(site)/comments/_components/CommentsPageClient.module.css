@@ -123,6 +123,12 @@
   white-space: nowrap;
 }
 
+.rowContentFull {
+  white-space: pre-wrap;
+  overflow: visible;
+  text-overflow: initial;
+}
+
 .rowMeta {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
