@@ -1,3 +1,12 @@
+/* 手动翻译功能测试中，暂时隐藏按钮和分隔线，页面保持加入手动翻译之前的样子。
+   需要使用时：删除下面这条规则，并把 chapters/page.module.css 里
+   .listHeader/.listRow 的操作列宽度改回 minmax(230px, auto)。
+   !important 是为了盖过全局 .btn-secondary 的 display: inline-flex。 */
+.manualBtn,
+.manualDivider {
+  display: none !important;
+}
+
 /* Purple variant of the global .btn-secondary, so the manual-translation
    buttons never read as the Trigger.dev ones sitting next to them. */
 .manualBtn {

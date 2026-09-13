@@ -52,9 +52,9 @@
 .listHeader,
 .listRow {
   display: grid;
-  /* The actions column holds preview + both translate buttons, so it needs a
-     floor wide enough that they don't wrap onto three lines. */
-  grid-template-columns: 48px 1fr 1fr minmax(230px, auto);
+  /* 手动翻译按钮暂时隐藏，操作列保持原宽度 80px。
+     启用手动翻译按钮时改为 minmax(230px, auto)，否则三个按钮会挤成多行。 */
+  grid-template-columns: 48px 1fr 1fr 80px;
   gap: 12px;
   padding: 12px 20px;
   align-items: start;
