@@ -1,7 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import createIntlMiddleware from 'next-intl/middleware'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server'
 import { routing } from './i18n/routing'
+import { isBlockedBot } from './lib/blockedBots'
 
 const intlMiddleware = createIntlMiddleware(routing)
 
@@ -26,7 +27,7 @@ const isOnboardingCheckRoute = createRouteMatcher([
 
 const isOnboardingRoute = new RegExp(`^/(${localePattern})/onboarding`)
 
-export default clerkMiddleware(async (auth, req) => {
+const handler = clerkMiddleware(async (auth, req) => {
   const { userId } = await auth()
   const pathname = req.nextUrl.pathname
 
@@ -57,6 +58,15 @@ export default clerkMiddleware(async (auth, req) => {
 
   return intlMiddleware(req)
 })
+
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  // Turn away AI/SEO scrapers at the edge, before any page render touches the
+  // database. robots.txt stays reachable so they can read the disallow rule.
+  if (req.nextUrl.pathname !== '/robots.txt' && isBlockedBot(req.headers.get('user-agent'))) {
+    return new NextResponse(null, { status: 403 })
+  }
+  return handler(req, event)
+}
 
 export const config = {
   matcher: [
