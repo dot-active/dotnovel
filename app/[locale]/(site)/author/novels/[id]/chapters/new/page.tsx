@@ -17,17 +17,19 @@ export default async function NewChapterPage({
   const t = await getTranslations('author')
   const { userId } = await auth()
 
-  const novel = await prisma.novel.findFirst({
-    where: { id, authorId: userId! },
-    include: {
-      translations: { where: { locale }, select: { title: true } },
-      volumes: {
-        orderBy: { order: 'asc' },
-        include: { translations: true },
+  const [novel, maxOrder] = await Promise.all([
+    prisma.novel.findFirst({
+      where: { id, authorId: userId! },
+      include: {
+        translations: { where: { locale }, select: { title: true } },
+        volumes: {
+          orderBy: { order: 'asc' },
+          include: { translations: true },
+        },
       },
-      _count: { select: { chapters: true } },
-    },
-  })
+    }),
+    prisma.chapter.aggregate({ where: { novelId: id }, _max: { order: true } }),
+  ])
 
   if (!novel) notFound()
 
@@ -39,10 +41,14 @@ export default async function NewChapterPage({
       '未命名',
   }))
 
+  // Chapter.order is only unique per-novel, and deleting a chapter never
+  // renumbers the ones after it — basing the suggestion on the highest
+  // existing order (not the chapter count) keeps it collision-free even
+  // after deletions leave gaps.
   const nextOrder =
     searchParams.order != null
       ? parseInt(searchParams.order, 10)
-      : novel._count.chapters + 1
+      : (maxOrder._max.order ?? 0) + 1
 
   const novelTitle = novel.translations[0]?.title ?? novel.title
 
