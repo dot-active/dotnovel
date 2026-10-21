@@ -3,10 +3,24 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { tasks } from '@trigger.dev/sdk/v3'
 import type { translateChapter } from '@/src/trigger/translateChapter'
 import type { translateNovel } from '@/src/trigger/translateNovel'
+
+// Chapter.order is only unique per-novel, not per-volume, and deleting a
+// chapter never renumbers the ones after it — so a stale "next order"
+// guess (or a manually-edited one) can collide with an existing chapter.
+// Surface that as a normal form error instead of an uncaught 500.
+function isOrderConflict(err: unknown): boolean {
+  return (
+    err instanceof Prisma.PrismaClientKnownRequestError &&
+    err.code === 'P2002' &&
+    Array.isArray(err.meta?.target) &&
+    (err.meta.target as string[]).includes('order')
+  )
+}
 
 export async function createNovel(formData: FormData) {
   const { userId } = await auth()
@@ -102,7 +116,13 @@ export async function createChapter(
 
   const chapter = await prisma.chapter.create({
     data: { novelId, volumeId, title, content, order, publishStatus },
+  }).catch((err) => {
+    if (isOrderConflict(err)) return null
+    throw err
   })
+  if (!chapter) {
+    return { error: `Chapter order ${order} is already in use — pick a different number` }
+  }
 
   await prisma.chapterTranslation.create({
     data: { chapterId: chapter.id, locale: sourceLocale, title, content },
@@ -252,17 +272,27 @@ export async function updateChapter(
   const targetLocale = editLocale || chapter.novel.sourceLocale
   const sourceLocale = chapter.novel.sourceLocale
 
+  let orderConflict = false
   if (targetLocale === sourceLocale) {
     await prisma.chapter.update({
       where: { id: chapterId },
       data: { title, content, order, publishStatus, volumeId },
+    }).catch((err) => {
+      if (isOrderConflict(err)) { orderConflict = true; return }
+      throw err
     })
   } else {
     // Only update structural fields; publishStatus belongs to each locale's ChapterTranslation
     await prisma.chapter.update({
       where: { id: chapterId },
       data: { order, volumeId },
+    }).catch((err) => {
+      if (isOrderConflict(err)) { orderConflict = true; return }
+      throw err
     })
+  }
+  if (orderConflict) {
+    return { error: `Chapter order ${order} is already in use — pick a different number` }
   }
 
   await prisma.chapterTranslation.upsert({
