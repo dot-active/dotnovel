@@ -14,7 +14,8 @@
     "db:seed": "prisma db seed",
     "trigger:dev": "npx trigger.dev@latest dev",
     "import:novels": "npx --yes tsx scripts/importNovels.ts",
-    "export:novel": "npx --yes tsx scripts/exportNovel.ts"
+    "export:novel": "npx --yes tsx scripts/exportNovel.ts",
+    "test:smoke": "node tests/smoke-test.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
