@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthRole } from '@/lib/auth'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function POST(
   req: NextRequest,
@@ -62,6 +63,7 @@ export async function POST(
     return result
   })
 
+  invalidatePublicContent()
   return NextResponse.json({
     success: true,
     increment,

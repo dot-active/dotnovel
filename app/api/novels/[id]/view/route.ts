@@ -17,7 +17,15 @@ function pruneRecentViews(now: number) {
   })
 }
 
+// Crawlers that execute JS (Googlebot, Bingbot, …) fire this beacon too, but
+// they never keep cookies, so without this every crawl would be a DB write.
+const BOT_UA = /bot|crawl|spider|slurp|headless|lighthouse|preview|fetch/i
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (BOT_UA.test(req.headers.get('user-agent') ?? '')) {
+    return NextResponse.json({ ok: true, deduped: true })
+  }
+
   const cookieName = `${COOKIE_PREFIX}${params.id}`
   if (req.cookies.get(cookieName)) {
     return NextResponse.json({ ok: true, deduped: true })

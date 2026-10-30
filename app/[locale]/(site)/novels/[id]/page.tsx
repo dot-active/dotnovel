@@ -6,7 +6,7 @@ import { auth } from '@clerk/nextjs/server'
 import { cookies } from 'next/headers'
 import { Link } from '@/i18n/navigation'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { getNovelDetail, getNovelMeta } from '@/lib/publicData'
 import { formatCount } from '@/lib/formatCount'
 import { SITE_URL } from '@/lib/site'
 import { routing } from '@/i18n/routing'
@@ -55,23 +55,7 @@ export async function generateMetadata({
 }: {
   params: { locale: string; id: string }
 }): Promise<Metadata> {
-  const [translation, publishedLocales, novel] = await Promise.all([
-    prisma.novelTranslation.findFirst({
-      where: { novelId: id, locale, status: 'published' },
-      select: {
-        title: true,
-        description: true,
-        metaTitle: true,
-        metaDescription: true,
-        metaKeywords: true,
-      },
-    }),
-    prisma.novelTranslation.findMany({
-      where: { novelId: id, status: 'published' },
-      select: { locale: true },
-    }),
-    prisma.novel.findUnique({ where: { id }, select: { coverUrl: true } }),
-  ])
+  const { translation, publishedLocales, coverUrl } = await getNovelMeta(id, locale)
 
   const title = translation?.metaTitle || translation?.title || '小说详情'
   const description = translation?.metaDescription || translation?.description || ''
@@ -84,7 +68,6 @@ export async function generateMetadata({
       languages[row.locale] = `${SITE_URL}/${row.locale}/${pathSuffix}`
     }
   }
-  const coverUrl = novel?.coverUrl
 
   return {
     title,
@@ -118,39 +101,8 @@ export default async function NovelDetailPage({
   const tNav = await getTranslations('nav')
   const { userId } = await auth()
 
-  const [novel, favoriteRecord] = await Promise.all([
-    prisma.novel.findFirst({
-      where: { id, publishStatus: 'published' },
-      include: {
-        translations: { where: { locale } },
-        chapters: {
-          where: { volumeId: null, translations: { some: { locale, status: 'published' } } },
-          orderBy: { order: 'asc' },
-          select: {
-            id: true,
-            order: true,
-            createdAt: true,
-            translations: { where: { locale, status: 'published' }, select: { title: true } },
-          },
-        },
-        volumes: {
-          orderBy: { order: 'asc' },
-          include: {
-            translations: { where: { locale }, select: { title: true } },
-            chapters: {
-              where: { translations: { some: { locale, status: 'published' } } },
-              orderBy: { order: 'asc' },
-              select: {
-                id: true,
-                order: true,
-                createdAt: true,
-                translations: { where: { locale, status: 'published' }, select: { title: true } },
-              },
-            },
-          },
-        },
-      },
-    }),
+  const [detail, favoriteRecord] = await Promise.all([
+    getNovelDetail(id, locale),
     userId
       ? prisma.favorite.findUnique({
           where: { userId_novelId: { userId, novelId: id } },
@@ -158,7 +110,8 @@ export default async function NovelDetailPage({
       : null,
   ])
 
-  if (!novel || novel.translations.length === 0) notFound()
+  if (!detail || detail.novel.translations.length === 0) notFound()
+  const { novel, chapterLengths } = detail
 
   const tr = novel.translations[0]
 
@@ -175,19 +128,8 @@ export default async function NovelDetailPage({
     (a, b) => a.order - b.order
   )
 
-  // Fetch only content lengths (not the text itself) to avoid pulling the
-  // entire novel's translated text over the wire just to show word counts.
-  const chapterIds = allChapters.map((ch) => ch.id)
-  const lengthRows =
-    chapterIds.length > 0
-      ? await prisma.$queryRaw<{ chapterId: string; len: number }[]>(
-          Prisma.sql`SELECT "chapterId", LENGTH(content) AS len FROM chapter_translations WHERE locale = ${locale} AND status = 'published' AND "chapterId" IN (${Prisma.join(chapterIds)})`
-        )
-      : []
-  const lengthByChapterId = new Map(lengthRows.map((r) => [r.chapterId, Number(r.len)]))
-
   const totalChars = allChapters.reduce(
-    (sum, ch) => sum + (lengthByChapterId.get(ch.id) ?? 0),
+    (sum, ch) => sum + (chapterLengths[ch.id] ?? 0),
     0
   )
   const firstChapter = allChapters[0]
@@ -351,7 +293,7 @@ export default async function NovelDetailPage({
     i: number
   ) {
     const chTr = chapter.translations[0]
-    const wordCount = lengthByChapterId.get(chapter.id) ?? 0
+    const wordCount = chapterLengths[chapter.id] ?? 0
     const dateStr = new Date(chapter.createdAt).toLocaleDateString(locale, {
       month: 'long',
       day: 'numeric',

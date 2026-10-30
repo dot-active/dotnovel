@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function GET(req: Request) {
   const { userId } = await auth()
@@ -88,6 +89,7 @@ export async function POST(req: Request) {
         },
       },
     })
+    invalidatePublicContent()
     return NextResponse.json(result)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

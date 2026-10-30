@@ -7,7 +7,10 @@ import VolumeManager from './_components/VolumeManager'
 import TranslateAllChaptersButton from './_components/TranslateAllChaptersButton'
 import ChapterTranslateButton from './_components/ChapterTranslateButton'
 import TranslationStatusWatcher from './_components/TranslationStatusWatcher'
-import { buildTranslationSignature } from './_components/translationSignature'
+import { buildTranslationSignature, isActiveRequest } from './_components/translationSignature'
+import ManualTranslateAllChaptersButton from '@/components/ManualTranslateAllChaptersButton'
+import ManualChapterTranslateButton from '@/components/ManualChapterTranslateButton'
+import manualStyles from '@/components/ManualTranslateButton.module.css'
 import styles from './page.module.css'
 
 const ALL_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es'] as const
@@ -69,6 +72,7 @@ export default async function AuthorChapterListPage({
       select: {
         targetLocale: true,
         status: true,
+        source: true,
         triggerRunId: true,
         totalChapters: true,
         doneChapters: true,
@@ -86,17 +90,23 @@ export default async function AuthorChapterListPage({
   const novelLocaleSet = new Set(novel.translations.map((tr) => tr.locale))
   const novelLocales = ALL_LOCALES.filter((l) => novelLocaleSet.has(l))
 
-  // Locales where a translation job is actively running (queued or processing)
-  const activeRequests = translationRequests.filter(
-    (r) => r.triggerRunId && (r.status === 'pending' || r.status === 'processing')
-  )
+  // Locales where a translation job is actively running — either handed to
+  // Trigger.dev (queued/processing) or queued for the manual script.
+  const activeRequests = translationRequests.filter(isActiveRequest)
   const localeStatus: Record<string, { status: string; totalChapters: number; doneChapters: number }> = {}
   // Which chapters each running job actually covers. A single-chapter job must
   // not paint every row as "translating" — only the chapter it is working on.
   const processingChaptersByLocale: Record<string, Set<string>> = {}
+  // Same, for jobs waiting on the manual script: those get their own badge
+  // because there is no Trigger.dev run reporting progress behind them.
+  const manualChaptersByLocale: Record<string, Set<string>> = {}
   for (const r of activeRequests) {
     localeStatus[r.targetLocale] = { status: r.status, totalChapters: r.totalChapters, doneChapters: r.doneChapters }
-    processingChaptersByLocale[r.targetLocale] = new Set(r.chapterIds)
+    if (r.source === 'manual' && r.status === 'translating') {
+      manualChaptersByLocale[r.targetLocale] = new Set(r.chapterIds)
+    } else {
+      processingChaptersByLocale[r.targetLocale] = new Set(r.chapterIds)
+    }
   }
   // Translation jobs are tracked per novel + locale and take a while to run, so
   // any active one puts every translate button on this page into "translating".
@@ -126,6 +136,14 @@ export default async function AuthorChapterListPage({
             localeStatus={localeStatus}
             translating={isTranslating}
           />
+          <span className={manualStyles.manualDivider} aria-hidden="true" />
+          <ManualTranslateAllChaptersButton
+            novelId={id}
+            availableLocales={novelLocales}
+            localeStatus={localeStatus}
+            translating={isTranslating}
+          />
+          <span className={manualStyles.manualDivider} aria-hidden="true" />
           <Link href={`/author/novels/${id}/chapters/new`} className="btn-primary">
             + {t('addChapter')}
           </Link>
@@ -168,11 +186,23 @@ export default async function AuthorChapterListPage({
                       {novelLocales.map((loc) => {
                         const chTr = chapter.translations.find((tr) => tr.locale === loc)
                         const isProcessing = processingChaptersByLocale[loc]?.has(chapter.id) ?? false
+                        const isManualWaiting = manualChaptersByLocale[loc]?.has(chapter.id) ?? false
                         const label = LOCALE_SHORT[loc] ?? loc
 
                         // Scoped to this chapter, so it wins over the stored
                         // status — a retranslation in flight reads as running,
                         // not as the stale draft/published it is replacing.
+                        if (isManualWaiting) {
+                          return (
+                            <span
+                              key={loc}
+                              className={styles.badgeManual}
+                              title={t('translateStatusManualWaiting')}
+                            >
+                              {label}
+                            </span>
+                          )
+                        }
                         if (isProcessing) {
                           return (
                             <span key={loc} className={styles.badgeProcessing}>{label}</span>
@@ -202,6 +232,13 @@ export default async function AuthorChapterListPage({
                         {t('preview')}
                       </Link>
                       <ChapterTranslateButton
+                        chapterId={chapter.id}
+                        availableLocales={novelLocales}
+                        localeStatus={localeStatus}
+                        translating={isTranslating}
+                      />
+                      <span className={manualStyles.manualDivider} aria-hidden="true" />
+                      <ManualChapterTranslateButton
                         chapterId={chapter.id}
                         availableLocales={novelLocales}
                         localeStatus={localeStatus}

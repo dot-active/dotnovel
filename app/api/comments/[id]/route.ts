@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidateCommentCounts } from '@/lib/publicData'
 
 export async function DELETE(
   _req: Request,
@@ -29,5 +30,6 @@ export async function DELETE(
     data: { isDeleted: true },
   })
 
+  invalidateCommentCounts()
   return NextResponse.json({ success: true })
 }

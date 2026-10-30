@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { runs } from '@trigger.dev/sdk/v3'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 const STUCK_STATUSES = new Set(['CANCELED', 'FAILED', 'CRASHED', 'TIMED_OUT', 'SYSTEM_FAILURE', 'EXPIRED'])
 
@@ -80,6 +81,7 @@ export async function POST(
       data: { status: 'published' },
     }).catch(() => { /* no request record — skip */ })
 
+    invalidatePublicContent()
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[publish translation]', err)

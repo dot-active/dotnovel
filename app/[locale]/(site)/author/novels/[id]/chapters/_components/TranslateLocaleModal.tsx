@@ -54,7 +54,9 @@ export default function TranslateLocaleModal({
               const active = localeStatus[value]
               const isWaiting = active?.status === 'pending'
               const isProcessing = active?.status === 'processing'
-              const isLocked = isWaiting || isProcessing
+              // Queued for the manual script — no Trigger.dev run, so no progress to show.
+              const isManualWaiting = active?.status === 'translating'
+              const isLocked = isWaiting || isProcessing || isManualWaiting
 
               return (
                 <label
@@ -69,6 +71,9 @@ export default function TranslateLocaleModal({
                   />
                   <span>{LOCALE_LABELS[value] ?? value}</span>
                   {isWaiting && <span className={styles.localeStatus}>{t('translateStatusWaiting')}</span>}
+                  {isManualWaiting && (
+                    <span className={styles.localeStatus}>{t('translateStatusManualWaiting')}</span>
+                  )}
                   {isProcessing && (
                     <span className={styles.localeStatus}>
                       {active.totalChapters > 0

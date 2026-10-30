@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidateCommentCounts } from '@/lib/publicData'
 
 // Explicit select — ipAddress must never reach these public, unauthenticated
 // endpoints (it's only for admin moderation, see /api/admin/comments).
@@ -94,5 +95,6 @@ export async function POST(req: Request) {
     select: publicCommentFields,
   })
 
+  invalidateCommentCounts()
   return NextResponse.json(comment, { status: 201 })
 }

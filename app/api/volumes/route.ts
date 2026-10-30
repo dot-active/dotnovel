@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 // GET /api/volumes?novelId=xxx  — list all volumes of a novel
 export async function GET(req: Request) {
@@ -62,5 +63,6 @@ export async function POST(req: Request) {
     include: { translations: true },
   })
 
+  invalidatePublicContent()
   return NextResponse.json(volume)
 }

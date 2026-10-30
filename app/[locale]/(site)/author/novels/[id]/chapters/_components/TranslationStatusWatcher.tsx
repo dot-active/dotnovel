@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useBackoffPolling } from '@/lib/useBackoffPolling'
 import { buildTranslationSignature } from './translationSignature'
 
 interface Props {
@@ -20,36 +21,18 @@ interface Props {
 export default function TranslationStatusWatcher({ novelId, signature }: Props) {
   const router = useRouter()
   // Keep the latest signature in a ref so the poll callback compares against
-  // the current server render without restarting the interval every time.
+  // the current server render without restarting the poller every time.
   const signatureRef = useRef(signature)
   signatureRef.current = signature
 
-  const isActive = signature.length > 0
-
-  useEffect(() => {
-    if (!isActive) return
-
-    let cancelled = false
-
-    const timer = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/translations/${novelId}`)
-        if (!res.ok) return
-        const data = await res.json()
-        if (cancelled) return
-        if (buildTranslationSignature(data.requests ?? []) !== signatureRef.current) {
-          router.refresh()
-        }
-      } catch {
-        // Transient network error — try again on the next tick
-      }
-    }, 3000)
-
-    return () => {
-      cancelled = true
-      clearInterval(timer)
-    }
-  }, [novelId, isActive, router])
+  useBackoffPolling(signature.length > 0, async () => {
+    const res = await fetch(`/api/translations/${novelId}`)
+    if (!res.ok) return false
+    const data = await res.json()
+    if (buildTranslationSignature(data.requests ?? []) === signatureRef.current) return false
+    router.refresh()
+    return true
+  })
 
   return null
 }

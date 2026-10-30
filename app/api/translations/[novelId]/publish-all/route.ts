@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function POST(
   _req: NextRequest,
@@ -30,5 +31,6 @@ export async function POST(
     }),
   ])
 
+  invalidatePublicContent()
   return NextResponse.json({ success: true, publishedChapters })
 }
