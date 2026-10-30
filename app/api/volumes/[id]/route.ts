@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 // PATCH /api/volumes/[id]  — update volume translations (author only)
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
@@ -38,6 +39,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }),
   ])
 
+  invalidatePublicContent()
   return NextResponse.json(updated)
 }
 
@@ -64,5 +66,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     prisma.volume.delete({ where: { id: params.id } }),
   ])
 
+  invalidatePublicContent()
   return NextResponse.json({ success: true })
 }

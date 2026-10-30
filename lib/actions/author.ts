@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import { tasks } from '@trigger.dev/sdk/v3'
 import type { translateChapter } from '@/src/trigger/translateChapter'
 import type { translateNovel } from '@/src/trigger/translateNovel'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function createNovel(formData: FormData) {
   const { userId } = await auth()
@@ -125,6 +126,7 @@ export async function createChapter(
     }
   }
 
+  invalidatePublicContent()
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 
   if (continueAdding && publishStatus === 'published') {
@@ -176,6 +178,7 @@ export async function updateNovel(formData: FormData) {
       },
     })
 
+    invalidatePublicContent()
     revalidatePath(`/${locale}/author/novels/${novelId}/edit`)
     return
   }
@@ -288,6 +291,7 @@ export async function updateChapter(
     }
   }
 
+  invalidatePublicContent()
   revalidatePath(`/${browsingLocale}/author/novels/${novelId}/chapters`)
 
   return { redirectUrl: `/${browsingLocale}/author/novels/${novelId}/chapters` }
@@ -311,6 +315,7 @@ export async function deleteChapter(
 
   await prisma.chapter.delete({ where: { id: chapterId } })
 
+  invalidatePublicContent()
   revalidatePath(`/${locale}/author/novels/${novelId}/chapters`)
   return { redirectUrl: `/${locale}/author/novels/${novelId}/chapters` }
 }
@@ -327,6 +332,7 @@ export async function deleteNovel(formData: FormData) {
 
   await prisma.novel.delete({ where: { id: novelId } })
 
+  invalidatePublicContent()
   revalidatePath(`/${locale}/author/dashboard`)
   redirect(`/${locale}/author/dashboard`)
 }

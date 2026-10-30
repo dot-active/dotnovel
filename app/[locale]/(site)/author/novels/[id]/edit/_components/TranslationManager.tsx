@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useBackoffPolling } from '@/lib/useBackoffPolling'
 import styles from './TranslationManager.module.css'
 
 const LOCALES = [
@@ -44,17 +45,23 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
   const [actionLocale, setActionLocale] = useState<string | null>(null)
   const [confirmState, setConfirmState] = useState<{ locale: string; conflict: string } | null>(null)
   const [stopTarget, setStopTarget] = useState<string | null>(null)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastSnapshotRef = useRef<string | null>(null)
 
-  async function fetchStatus() {
+  /** Resolves to true when the status differs from the previous fetch. */
+  async function fetchStatus(): Promise<boolean> {
     try {
       const res = await fetch(`/api/translations/${novelId}`)
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
       setRequests(data.requests)
       setNovelTranslations(data.novelTranslations)
+      const snapshot = JSON.stringify(data)
+      const changed = snapshot !== lastSnapshotRef.current
+      lastSnapshotRef.current = snapshot
+      return changed
     } catch {
       // silently ignore poll errors
+      return false
     } finally {
       setLoading(false)
     }
@@ -73,18 +80,11 @@ export default function TranslationManager({ novelId, sourceLocale, locale, init
     }
   }, [loading])
 
-  // Poll every 3s while a job is in flight — translate-novel is a quick,
-  // one-shot title/description translation now, so a slow poll would leave
-  // the UI looking stuck on "translating" long after the job actually finished.
-  useEffect(() => {
-    const hasActive = requests.some(r => r.triggerRunId && (r.status === 'pending' || r.status === 'processing'))
-    if (hasActive) {
-      pollRef.current = setInterval(fetchStatus, 3000)
-    } else {
-      if (pollRef.current) clearInterval(pollRef.current)
-    }
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
-  }, [requests])
+  // Poll while a job is in flight — translate-novel is a quick, one-shot
+  // title/description translation now, so polling starts at 3s to keep the UI
+  // from looking stuck on "translating"; it backs off if nothing moves.
+  const hasActive = requests.some(r => r.triggerRunId && (r.status === 'pending' || r.status === 'processing'))
+  useBackoffPolling(hasActive, fetchStatus)
 
   async function handleAdd(targetLocale: string, force = false) {
     setActionLocale(targetLocale)

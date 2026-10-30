@@ -4,6 +4,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getAuthRole } from '@/lib/auth'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 async function assertAdmin() {
   const { userId, isAdmin } = await getAuthRole()
@@ -24,6 +25,7 @@ export async function toggleNovelPublishStatus(formData: FormData) {
     data: { publishStatus: newStatus },
   })
 
+  invalidatePublicContent()
   revalidatePath('/', 'layout')
 }
 
@@ -36,6 +38,7 @@ export async function deleteNovelAdmin(formData: FormData) {
     await tx.novel.delete({ where: { id: novelId } })
   })
 
+  invalidatePublicContent()
   revalidatePath('/', 'layout')
 }
 
@@ -67,6 +70,7 @@ export async function toggleNovelFeatured(formData: FormData) {
     data: { isFeatured: !current },
   })
 
+  invalidatePublicContent()
   revalidatePath('/', 'layout')
 }
 
@@ -113,6 +117,7 @@ export async function updateNovelStats(formData: FormData) {
     }
   })
 
+  invalidatePublicContent()
   revalidatePath('/[locale]/admin/novels')
 }
 
@@ -126,6 +131,7 @@ export async function createCategory(formData: FormData) {
   }
 
   await prisma.category.create({ data: { slug } })
+  invalidatePublicContent()
   revalidatePath('/[locale]/admin/categories')
 }
 
@@ -137,5 +143,6 @@ export async function deleteCategory(formData: FormData) {
   if (novelCount > 0) throw new Error(`该分类下有 ${novelCount} 部小说，无法删除`)
 
   await prisma.category.delete({ where: { id: categoryId } })
+  invalidatePublicContent()
   revalidatePath('/[locale]/admin/categories')
 }

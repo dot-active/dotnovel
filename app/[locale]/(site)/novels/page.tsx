@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { prisma } from '@/lib/prisma'
+import { getCategories, getNovelList } from '@/lib/publicData'
 import { formatCount } from '@/lib/formatCount'
 import { buildAlternates } from '@/lib/site'
 import FilterBar from '../_components/FilterBar'
@@ -80,73 +80,17 @@ export default async function NovelsPage({
   const sort = searchParams.sort ?? ''
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
 
-  const orderBy =
-    sort === 'views'
-      ? { viewCount: 'desc' as const }
-      : sort === 'favorites'
-      ? { favoriteCount: 'desc' as const }
-      : { updatedAt: 'desc' as const }
-
-  const baseWhere = {
-    publishStatus: 'published',
-    ...(ageVerified ? {} : { isAdult: false }),
-    ...(selectedCategories.length > 0
-      ? { categories: { some: { category: { slug: { in: selectedCategories } } } } }
-      : {}),
-    ...(q
-      ? {
-          AND: [
-            { translations: { some: { locale } } },
-            {
-              OR: [
-                { translations: { some: { locale, title: { contains: q, mode: 'insensitive' as const } } } },
-                { translations: { some: { locale, description: { contains: q, mode: 'insensitive' as const } } } },
-                { author: { contains: q, mode: 'insensitive' as const } },
-              ],
-            },
-          ],
-        }
-      : { translations: { some: { locale } } }),
-  }
-
-  const [novels, total, categories, featuredNovels] = await Promise.all([
-    prisma.novel.findMany({
-      where: baseWhere,
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        description: true,
-        coverUrl: true,
-        status: true,
-        viewCount: true,
-        favoriteCount: true,
-        translations: { where: { locale }, select: { title: true, description: true } },
-        _count: { select: { chapters: { where: { translations: { some: { locale, status: 'published' } } } } } },
-      },
-      orderBy,
-      take: NOVELS_PER_PAGE,
-      skip: (page - 1) * NOVELS_PER_PAGE,
+  const [{ novels, total }, categories] = await Promise.all([
+    getNovelList({
+      locale,
+      ageVerified,
+      q,
+      categories: selectedCategories,
+      sort,
+      page,
+      perPage: NOVELS_PER_PAGE,
     }),
-    prisma.novel.count({ where: baseWhere }),
-    prisma.category.findMany({ orderBy: { slug: 'asc' } }),
-    prisma.novel.findMany({
-      where: {
-        isFeatured: true,
-        publishStatus: 'published',
-        ...(ageVerified ? {} : { isAdult: false }),
-      },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        coverUrl: true,
-        isAdult: true,
-        categories: { include: { category: { select: { slug: true } } } },
-        translations: { where: { locale, status: 'published' }, select: { title: true } },
-      },
-      orderBy: { updatedAt: 'desc' },
-    }),
+    getCategories(),
   ])
 
   const totalPages = Math.ceil(total / NOVELS_PER_PAGE)

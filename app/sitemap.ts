@@ -8,6 +8,10 @@ import { SITE_URL } from '@/lib/site'
 // make a single sitemap slow to generate and risk the 50k-URL/sitemap cap.
 // Listing novel + locale entries keeps this fast while covering every
 // indexable work.
+// Regenerate at most hourly — crawlers fetch this often, and each regeneration
+// wakes the database.
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const novels = await prisma.novel.findMany({
     where: { publishStatus: 'published' },

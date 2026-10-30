@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import Image from 'next/image'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { prisma } from '@/lib/prisma'
+import { getHomeNovels } from '@/lib/publicData'
 import { formatCount } from '@/lib/formatCount'
 import { buildAlternates } from '@/lib/site'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -117,51 +117,10 @@ export default async function HomePage({
   const t = await getTranslations('home')
 
   const ageVerified = cookies().get('age_verified')?.value === '1'
-  const adultFilter = ageVerified ? {} : { isAdult: false as const }
 
   const card = TRANS_CARD_DATA[locale] ?? TRANS_CARD_DATA['zh-CN']
 
-  const [featuredNovels, trendingNovels] = await Promise.all([
-    prisma.novel.findMany({
-      where: {
-        isFeatured: true,
-        publishStatus: 'published',
-        translations: { some: { locale } },
-        ...adultFilter,
-      },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        coverUrl: true,
-        translations: {
-          where: { locale },
-          select: { title: true, description: true },
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: 8,
-    }),
-    prisma.novel.findMany({
-      where: {
-        publishStatus: 'published',
-        translations: { some: { locale } },
-        ...adultFilter,
-      },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        viewCount: true,
-        translations: {
-          where: { locale },
-          select: { title: true },
-        },
-      },
-      orderBy: { viewCount: 'desc' },
-      take: 8,
-    }),
-  ])
+  const { featuredNovels, trendingNovels } = await getHomeNovels(locale, ageVerified)
 
   return (
     <>

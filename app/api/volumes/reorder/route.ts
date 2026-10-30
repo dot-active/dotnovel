@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 // PATCH /api/volumes/reorder  — reorder volumes within a novel (author only)
 export async function PATCH(req: Request) {
@@ -38,5 +39,6 @@ export async function PATCH(req: Request) {
     )
   )
 
+  invalidatePublicContent()
   return NextResponse.json({ success: true })
 }

@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
+import { getChapterCommentCounts, getChapterMeta, getChapterPage } from '@/lib/publicData'
 import { SITE_URL } from '@/lib/site'
 import { routing } from '@/i18n/routing'
 import ReaderClient from './_components/ReaderClient'
@@ -14,27 +14,7 @@ export async function generateMetadata({
   params: { locale: string; id: string; chapterId: string }
 }): Promise<Metadata> {
   // Chapter pages inherit the novel's meta settings; only the title is chapter-specific.
-  const [translation, chapterTr, chapterLocales] = await Promise.all([
-    prisma.novelTranslation.findFirst({
-      where: { novelId: id, locale, status: 'published' },
-      select: {
-        title: true,
-        description: true,
-        metaTitle: true,
-        metaDescription: true,
-        metaKeywords: true,
-        novel: { select: { coverUrl: true } },
-      },
-    }),
-    prisma.chapterTranslation.findFirst({
-      where: { chapterId, locale, status: 'published' },
-      select: { title: true },
-    }),
-    prisma.chapterTranslation.findMany({
-      where: { chapterId, status: 'published' },
-      select: { locale: true },
-    }),
-  ])
+  const { translation, chapterTr, chapterLocales } = await getChapterMeta(id, chapterId, locale)
 
   const novelTitle = translation?.metaTitle || translation?.title || ''
   const chapterTitle = chapterTr?.title ?? ''
@@ -82,40 +62,13 @@ export default async function ChapterPage({
   setRequestLocale(locale)
   const t = await getTranslations('reader')
 
-  const chapter = await prisma.chapter.findFirst({
-    where: { id: chapterId, novelId: id },
-    include: {
-      novel: {
-        select: {
-          title: true,
-          isAdult: true,
-          translations: { select: { locale: true, title: true } },
-        },
-      },
-      translations: { where: { status: 'published' }, select: { locale: true, title: true, content: true } },
-    },
-  })
-
-  if (!chapter) notFound()
-
-  const [{ userId }, novelCards] = await Promise.all([
+  const [pageData, { userId }] = await Promise.all([
+    getChapterPage(id, chapterId, locale),
     auth(),
-    prisma.novelCard.findMany({
-      where: { novelId: id, isActive: true },
-      include: {
-        translations: {
-          where: { locale, status: 'published' },
-          include: {
-            entries: {
-              where: { fromChapter: { lte: chapter.order } },
-              orderBy: { order: 'asc' },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'asc' },
-    }),
   ])
+
+  if (!pageData) notFound()
+  const { chapter, novelCards, prevChapter, nextChapter } = pageData
 
   const chTr = chapter.translations.find((tr) => tr.locale === locale)
   if (!chTr) notFound()
@@ -136,36 +89,9 @@ export default async function ChapterPage({
     hasChapter: chapterLocaleSet.has(tr.locale),
   }))
 
-  const [prevChapter, nextChapter] = await Promise.all([
-    prisma.chapter.findFirst({
-      where: {
-        novelId: id,
-        order: { lt: chapter.order },
-        translations: { some: { locale, status: 'published' } },
-      },
-      orderBy: { order: 'desc' },
-      select: { id: true, translations: { where: { locale, status: 'published' }, select: { title: true } } },
-    }),
-    prisma.chapter.findFirst({
-      where: {
-        novelId: id,
-        order: { gt: chapter.order },
-        translations: { some: { locale, status: 'published' } },
-      },
-      orderBy: { order: 'asc' },
-      select: { id: true, translations: { where: { locale, status: 'published' }, select: { title: true } } },
-    }),
-  ])
-
   const paragraphTexts = chTr.content.split('\n').filter((p) => p.trim() !== '')
 
-  const commentCounts = await prisma.comment.groupBy({
-    by: ['paragraphIndex'],
-    where: { chapterId, isDeleted: false, parentId: null },
-    _count: { id: true },
-  })
-  const countMap: Record<number, number> = {}
-  commentCounts.forEach((c) => { countMap[c.paragraphIndex] = c._count.id })
+  const countMap = await getChapterCommentCounts(chapterId)
 
   const paragraphs = paragraphTexts.map((text, i) => ({
     text,

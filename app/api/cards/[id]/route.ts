@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -80,6 +81,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         },
       },
     })
+    invalidatePublicContent()
     return NextResponse.json(refreshed)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -101,6 +103,7 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     await prisma.novelCard.delete({ where: { id: params.id } })
+    invalidatePublicContent()
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[DELETE /api/cards/[id]]', err)

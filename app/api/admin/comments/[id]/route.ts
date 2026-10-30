@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthRole } from '@/lib/auth'
+import { invalidateCommentCounts } from '@/lib/publicData'
 
 export async function DELETE(
   req: NextRequest,
@@ -22,6 +23,7 @@ export async function DELETE(
     await prisma.comment.delete({ where: { id: params.id } })
   }
 
+  invalidateCommentCounts()
   return NextResponse.json({ success: true })
 }
 
@@ -43,5 +45,6 @@ export async function PATCH(
     data: { isDeleted: body.isDeleted },
   })
 
+  invalidateCommentCounts()
   return NextResponse.json(comment)
 }

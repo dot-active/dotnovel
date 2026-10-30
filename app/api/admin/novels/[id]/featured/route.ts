@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getAuthRole } from '@/lib/auth'
+import { invalidatePublicContent } from '@/lib/publicData'
 
 export async function PATCH(
   req: NextRequest,
@@ -22,6 +23,7 @@ export async function PATCH(
     data: { isFeatured },
   })
 
+  invalidatePublicContent()
   revalidatePath('/', 'layout')
   return NextResponse.json({ id: novel.id, isFeatured: novel.isFeatured })
 }
