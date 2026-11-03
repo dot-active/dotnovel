@@ -290,7 +290,8 @@
 .textarea {
   width: 100%;
   font-family: inherit;
-  font-size: 0.9rem;
+  /* >=16px prevents iOS Safari auto-zoom on focus, which made the dialog overflow the viewport */
+  font-size: 16px;
   line-height: 1.6;
   padding: 8px 10px;
   border: 1px solid #d4cfc3;
@@ -343,7 +344,7 @@
 .nicknameInput {
   width: 100%;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 16px;
   padding: 6px 10px;
   border: 1px solid #d4cfc3;
   border-radius: 4px;
